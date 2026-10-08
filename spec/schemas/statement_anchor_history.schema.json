@@ -1,0 +1,176 @@
+{
+  "$id": "statement_anchor_history.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "the signed anchor history of one chain (heartbeat spec 9.7, from spec 1.9): GET /v1/anchors?chain_id=<uuid>[&since_tree_size=n], no login, no personal data; every root the server recorded (countersigned, gap_witness) or received device-signed without accepting it (reported: heartbeat last_checkpoint, anchors answered with consistency_required). The auditor fetches it himself and passes every root recorded before the package was requested as an expected root (format spec 8.6, 10.8, 11.2)",
+  "properties": {
+    "server_key_id": {
+      "description": "the vendor countersigning key (format spec 10.7 key_id grammar)",
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": "string"
+    },
+    "server_signature": {
+      "description": "Ed25519 over the UTF-8 bytes of statement_jcs",
+      "pattern": "^[0-9a-f]{128}$",
+      "type": "string"
+    },
+    "statement": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "forks": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "detected_ts": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                "type": "string"
+              },
+              "merkle_root": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "tree_size": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "detected_ts",
+              "merkle_root",
+              "tree_size"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "const": "ledger.anchor_history.v1"
+        },
+        "predecessor": {
+          "additionalProperties": false,
+          "description": "registered chain succession: the predecessor chain and the tree_size handed over there",
+          "properties": {
+            "chain_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "tree_size": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "chain_id",
+            "tree_size"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "reference_tree_size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "roots": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "merkle_root": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "recorded_as": {
+                "enum": [
+                  "countersigned",
+                  "gap_witness",
+                  "reported"
+                ]
+              },
+              "server_ts": {
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                "type": "string"
+              },
+              "tree_size": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "merkle_root",
+              "recorded_as",
+              "server_ts",
+              "tree_size"
+            ],
+            "type": "object"
+          },
+          "maxItems": 500,
+          "type": "array"
+        },
+        "server_ts": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        },
+        "since_tree_size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "successor": {
+          "additionalProperties": false,
+          "description": "registered successor: its chain_id and the tree_size handed over from this chain (the end of this chain)",
+          "properties": {
+            "chain_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "tree_size": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "chain_id",
+            "tree_size"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "chain_id",
+        "forks",
+        "kind",
+        "predecessor",
+        "reference_tree_size",
+        "roots",
+        "server_ts",
+        "since_tree_size",
+        "successor",
+        "truncated"
+      ],
+      "type": "object"
+    },
+    "statement_jcs": {
+      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed",
+      "maxLength": 2048,
+      "type": "string"
+    }
+  },
+  "required": [
+    "server_key_id",
+    "server_signature",
+    "statement",
+    "statement_jcs"
+  ],
+  "title": "Signed vendor statement: anchor_history",
+  "type": "object"
+}

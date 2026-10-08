@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "TRAILING_SILENCE",
+    "UNSEALED_END"
+  ]
+}

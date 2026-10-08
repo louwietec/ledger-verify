@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "name": "key_of_the_issuer_format",
+      "license_key": "LEDGER-SEES-2XL8-7UFN-431J",
+      "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+      "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+      "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+      "license_proof": "da36635a80ee3ffe4b125f7102cf97569c3496c0d6d12b6807422a5036a1bda4"
+    },
+    {
+      "name": "shortest_admissible_key",
+      "license_key": "LEDGER-TEST-0000-0001",
+      "device_pubkey": "55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48",
+      "appliance_id": "c962a03c-5acb-4455-ad90-29cc348177de",
+      "license_commitment": "b88c86fd77c59f2d58243d6d8af61df817734114d6027e4cac6245fa994583e3",
+      "license_proof": "fbb0ad2b22304e7c5dd4a70f267fa9a5b1623ca39eb01406aaf506a9b1a13ea2"
+    },
+    {
+      "name": "cloud_test_key",
+      "license_key": "REK-2026-TEST-0001-AAAA",
+      "device_pubkey": "2881ef6a495a7a81b689eeea92aa55247e3969867e28fca7b0ed11d5c5da187a",
+      "appliance_id": "a8413dfb-a1c5-40ec-bb51-b3710d94951f",
+      "license_commitment": "06ae39fabd5e07d3381242f0e6efaf915caf7f79a8006fd2476eac15956c37b7",
+      "license_proof": "f7014342ef9ba244faf912944cc1926675918b458bf9f3fadeb858af42c2595f"
+    }
+  ],
+  "comment": "license_proof = HEX(HMAC-SHA256(K, M)), K = UTF-8 bytes of the licence key (grammar ^[A-Z0-9-]{19,29}$), M = ASCII bytes of device_pubkey (64) followed by appliance_id (36). cases: the server MUST accept exactly this value for the named licence, device_pubkey and appliance_id; refused: a presented value the server MUST refuse for the case named (license_proof_invalid, or invalid_field when the value is not hex64).",
+  "format": "ledger-vertrag/1",
+  "refused": [
+    {
+      "name": "order_swapped",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "3adac59170e87fa2559f596b6852ac2ef6a0dc5e9f7ce4e2095ba45306a75fb9",
+      "expect": "license_proof_invalid",
+      "why": "M is device_pubkey followed by appliance_id, not the other way round"
+    },
+    {
+      "name": "keyed_with_the_commitment",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "e5dbb8931f805e861ba5c82b3e2cf3be182c08954f88ffd900a5fc4d90cc232c",
+      "expect": "license_proof_invalid",
+      "why": "K is the licence key itself; the commitment is public and proves nothing"
+    },
+    {
+      "name": "with_separator",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "451d67f44260d85ab8af57654c384bce4ab617352f248979131ffb8c5654e276",
+      "expect": "license_proof_invalid",
+      "why": "M has no separator: 100 bytes exactly"
+    },
+    {
+      "name": "uppercase_pubkey_in_m",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "35700e179d1d3f928fbb62841428ae0f4e98ab860a966525d875c0d66ff6cddf",
+      "expect": "license_proof_invalid",
+      "why": "M is the field values exactly as carried in the message (lowercase)"
+    },
+    {
+      "name": "proof_of_another_device",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "78f47951f361223b3f27f0344e860763f94e56c045de2ba884790a7797db2b06",
+      "expect": "license_proof_invalid",
+      "why": "a proof binds one device key and appliance_id; it is not transferable"
+    },
+    {
+      "name": "proof_under_another_key",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "e196ba2696a7397c4346ce4eb0a4595ca45b563e7b8f7526255bf24206bfd205",
+      "expect": "license_proof_invalid",
+      "why": "the server recomputes with the key of the licence the commitment names"
+    },
+    {
+      "name": "keyed_with_the_raw_commitment_digest",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "f2a6489451fe73d5c28219c1788f30a278246b01031c85b1e0b07309b0504a0b",
+      "expect": "license_proof_invalid",
+      "why": "what HMAC would compute for a key longer than 64 bytes (RFC 2104 pre-hash); the key grammar forbids such keys, so this value proves nothing"
+    },
+    {
+      "name": "uppercase_hex_output",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": "DA36635A80EE3FFE4B125F7102CF97569C3496C0D6D12B6807422A5036A1BDA4",
+      "expect": "invalid_field",
+      "why": "license_proof is hex64: 64 lowercase hex characters (schema, HTTP 400 before any licence check)"
+    },
+    {
+      "name": "missing",
+      "case": "key_of_the_issuer_format",
+      "presented_license_proof": null,
+      "expect": "invalid_field",
+      "why": "an activation without license_proof fails the schema (required member): HTTP 400 before any licence check, also for an appliance before spec 1.8"
+    }
+  ],
+  "section": "heartbeat spec 4.1"
+}

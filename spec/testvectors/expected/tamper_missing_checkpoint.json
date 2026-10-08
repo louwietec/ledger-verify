@@ -1,0 +1,7 @@
+{
+  "exit_code": 2,
+  "finding_classes": [
+    "MISSING_CHECKPOINT",
+    "UNSEALED_END"
+  ]
+}

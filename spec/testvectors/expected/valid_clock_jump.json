@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "CLOCK_JUMP_NOTE",
+    "UNSEALED_END"
+  ]
+}

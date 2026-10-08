@@ -1,0 +1,7 @@
+{
+  "exit_code": 3,
+  "finding_classes": [
+    "FORMAT_ERROR",
+    "UNKNOWN_ENTRY_TYPE"
+  ]
+}

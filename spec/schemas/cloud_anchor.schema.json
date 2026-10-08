@@ -1,0 +1,60 @@
+{
+  "$id": "cloud_anchor.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "appliance_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "chain_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "consistency_proof": {
+      "additionalProperties": false,
+      "description": "since spec_version 1.1 (heartbeat spec section 6/9.2): from_tree_size = the chain's reference size, i.e. the largest tree_size the server countersigned or (from 1.8) recorded as a gap witness (0 = none yet, then hashes is empty); hashes = RFC 6962 consistency proof from from_tree_size to tree_size",
+      "properties": {
+        "from_tree_size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hashes": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "type": "array"
+        }
+      },
+      "required": [
+        "from_tree_size",
+        "hashes"
+      ],
+      "type": "object"
+    },
+    "merkle_root": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sig": {
+      "pattern": "^[0-9a-f]{128}$",
+      "type": "string"
+    },
+    "tree_size": {
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "appliance_id",
+    "chain_id",
+    "consistency_proof",
+    "merkle_root",
+    "sig",
+    "tree_size"
+  ],
+  "title": "Cloud message: anchor",
+  "type": "object"
+}

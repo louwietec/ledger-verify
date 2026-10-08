@@ -1,0 +1,40 @@
+{
+  "$id": "member_update.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "heartbeat 200 member 'update' (from spec 1.9, request of lane B): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
+  "properties": {
+    "channel": {
+      "pattern": "^[a-z]{1,16}$",
+      "type": "string"
+    },
+    "min_version": {
+      "maxLength": 32,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "type": "string"
+    },
+    "release_ts": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": "string"
+    },
+    "sha256": {
+      "description": "SHA-256 over the whole bundle file; transport integrity only, not authenticity; since the addition of 2026-10-07 it names the amd64 bundle",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 32,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "channel",
+    "min_version",
+    "release_ts",
+    "sha256",
+    "version"
+  ],
+  "title": "Unsigned response member: update",
+  "type": "object"
+}

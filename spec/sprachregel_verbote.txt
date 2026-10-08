@@ -1,0 +1,30 @@
+# sprachregel_verbote.txt, Version 1.0.0
+#
+# Versionierte Verbotsmusterliste der Sprachregel (siehe
+# registry.json -> language_rule.forbidden_patterns_file).
+# Verbindliche Formulierung stattdessen: "unterstützt die Erfüllung" /
+# "supports fulfilment"; nie eine Erfüllungs- oder Konformitäts-Behauptung.
+#
+# Format: eine Regex je Zeile (Python-re-Syntax), Kommentarzeilen beginnen
+# mit '#', Leerzeilen werden ignoriert. Die CI (.ci/check_sprachregel.py)
+# prüft EXAKT diese 15 Muster, case-insensitiv, über spec/, appliance/web/
+# und appliance/internal/i18n/. Ausnahmen: Zeilen mit dem Marker
+# sprachregel-allow (Doku-Zitate) sowie diese Datei selbst.
+#
+# --- deutsch ---
+erfüllt die (Pflicht|Vorschrift|Anforderung|Norm|Verordnung)
+erfüllen die (Pflichten|Vorschriften|Anforderungen|Normen|Verordnungen)
+erfüllt (Artikel|Art\.|§)
+gewährleistet die (Compliance|Pflichterfüllung|Konformität)
+stellt die (Compliance|Konformität) sicher
+garantiert die (Compliance|Pflichterfüllung|Konformität)
+AI-Act-konform
+DSGVO-konform
+# --- english ---
+fulfil(l)?s the (obligation|requirement|duty)
+fulfil(l)?s (Article|Art\.)
+ensures compliance
+guarantees compliance
+AI[ -]Act[ -]compliant
+GDPR[ -]compliant
+complies with (the )?(AI Act|GDPR|Article|Art\.)

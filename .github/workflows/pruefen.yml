@@ -1,0 +1,71 @@
+# pruefen — die oeffentliche CI dieses Repositorys.
+#
+# Jeder Push und jeder Pull Request faehrt, was ein Dritter selbst fahren
+# kann: die Pins der Testvektoren, go vet und go test des Go-Verifiers, die
+# Tests des Python-Zweitverifiers, den Aequivalenzlauf beider Verifier ueber
+# ALLE Testvektoren und den reproduzierbaren Bau (zweimal bauen, an zwei
+# Orten, mit getrenntem Go-Cache, byte-gleich). Kein Schritt braucht ein
+# Geheimnis; der Release-Schluessel liegt nie in dieser CI.
+#
+# / This repository's public CI: vector pins, go vet and go test, the Python
+# second verifier's tests, the equivalence run of both verifiers over ALL
+# vectors, and the reproducible build (twice, in two places, separate Go
+# caches, byte-identical). No step needs a secret; the release key is never here.
+name: pruefen
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dieselbe Go-Fassung wie das Release — sonst wuerde der Bau-Vergleich
+      # mit SHA256SUMS andere Bytes zeigen. / Same Go release as the release.
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.7"
+          cache: false
+
+      - name: Testvektoren gegen PINS.sha256 / vectors against their pins
+        run: cd spec/testvectors && sha256sum -c --quiet PINS.sha256
+
+      - name: go vet (Kommandozeile und WebAssembly / CLI and WebAssembly)
+        working-directory: verifier
+        run: |
+          go vet ./...
+          GOOS=js GOARCH=wasm go vet ./cmd/...
+
+      - name: go test
+        working-directory: verifier
+        run: go test -count=1 ./...
+
+      - name: verifier2 — Tests des Zweitverifiers / second verifier tests
+        run: python3 verifier2/verifier2_test.py
+
+      - name: Aequivalenz beider Verifier ueber alle Testvektoren / equivalence over all vectors
+        run: bash tools/aequivalenz.sh
+
+      - name: Reproduzierbarer Bau / reproducible build
+        run: |
+          set -euo pipefail
+          GOCACHE="$RUNNER_TEMP/cache1" bash tools/bauen.sh "$RUNNER_TEMP/bau1" 0.0.0-ci ledger-verify
+          # zweiter Bau an einem anderen Ort mit leerem Cache / second build elsewhere, empty cache
+          mkdir -p "$RUNNER_TEMP/kopie"
+          tar --exclude=./.git --exclude=./artefakte -cf - . | tar -xf - -C "$RUNNER_TEMP/kopie"
+          (cd "$RUNNER_TEMP/kopie" && GOCACHE="$RUNNER_TEMP/cache2" bash tools/bauen.sh "$RUNNER_TEMP/bau2" 0.0.0-ci ledger-verify)
+          (cd "$RUNNER_TEMP/bau1" && sha256sum *) > "$RUNNER_TEMP/summen1"
+          (cd "$RUNNER_TEMP/bau2" && sha256sum *) > "$RUNNER_TEMP/summen2"
+          cat "$RUNNER_TEMP/summen1"
+          if diff "$RUNNER_TEMP/summen1" "$RUNNER_TEMP/summen2"; then
+            echo "GRUEN: beide Baulaeufe byte-gleich / both builds byte-identical"
+          else
+            echo "ROT: die Baulaeufe weichen ab / the builds differ"; exit 1
+          fi

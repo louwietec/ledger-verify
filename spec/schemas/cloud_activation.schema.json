@@ -1,0 +1,75 @@
+{
+  "$id": "cloud_activation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "appliance_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "device_key_id": {
+      "maxLength": 64,
+      "type": "string"
+    },
+    "device_pubkey": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "edition": {
+      "enum": [
+        "starter",
+        "pro",
+        "group",
+        "enterprise"
+      ]
+    },
+    "language": {
+      "enum": [
+        "de",
+        "en"
+      ]
+    },
+    "license_commitment": {
+      "description": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported (client decision 2026-09-03). The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "license_proof": {
+      "description": "proof of possession of the license key (heartbeat spec 4.1): lowercase hex of HMAC-SHA256 (RFC 2104) keyed with the UTF-8 bytes of the license key over the ASCII bytes of device_pubkey (64 chars) immediately followed by appliance_id (36 chars), exactly as carried in this message (100 bytes, no separator). The server recomputes it with the stored key, compares in constant time and refuses a missing or different value with 403 license_proof_invalid before anything is registered, regardless of the declared spec_version. Reference values: spec/contract/license_proof.json",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "sig": {
+      "pattern": "^[0-9a-f]{128}$",
+      "type": "string"
+    },
+    "spec_version": {
+      "description": "MAJOR.MINOR of the specification the appliance implements (format spec 10.6); the server accepts every MINOR of its own MAJOR and steers the anchor contract by it (heartbeat spec section 6/9)",
+      "pattern": "^1\\.(0|[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "timezone": {
+      "maxLength": 64,
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "appliance_id",
+    "device_key_id",
+    "device_pubkey",
+    "edition",
+    "language",
+    "license_commitment",
+    "license_proof",
+    "sig",
+    "spec_version",
+    "timezone",
+    "version"
+  ],
+  "title": "Cloud message: activation",
+  "type": "object"
+}

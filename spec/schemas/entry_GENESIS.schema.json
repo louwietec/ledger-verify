@@ -1,0 +1,184 @@
+{
+  "$id": "entry_GENESIS.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "spec_version": {
+            "pattern": "^1\\.([8-9]|[1-9][0-9]+)$"
+          }
+        },
+        "required": [
+          "spec_version"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "license_id": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "chain_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "entry_hash": {
+      "description": "SHA-256 over RFC 8785 JCS of the entry WITHOUT the entry_hash field",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "event_type": {
+      "const": "GENESIS"
+    },
+    "mono_delta_ms": {
+      "description": "monotonic ms since previous entry; -1 = unknown (first entry after process start)",
+      "minimum": -1,
+      "type": "integer"
+    },
+    "origin": {
+      "enum": [
+        "proxy",
+        "import",
+        "portal",
+        "system"
+      ]
+    },
+    "payload": {
+      "additionalProperties": false,
+      "properties": {
+        "appliance_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "customer_id": {
+          "maxLength": 128,
+          "type": "string"
+        },
+        "device_key_id": {
+          "maxLength": 64,
+          "type": "string"
+        },
+        "device_pubkey": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "edition": {
+          "enum": [
+            "starter",
+            "pro",
+            "group",
+            "enterprise"
+          ]
+        },
+        "language": {
+          "enum": [
+            "de",
+            "en"
+          ]
+        },
+        "license_id": {
+          "description": "licence commitment: from spec 1.8 it MUST be the lowercase hex SHA-256 over the UTF-8 bytes of the licence key (the value of cloud_messages.activation.license_commitment), exactly 64 characters [0-9a-f]; a GENESIS whose own spec_version is 1.8 or newer with any other value is FORMAT_ERROR (format spec 4.1, 10.6 rule 3). Up to 1.7 the content was undefined and the standard installation wrote the licence key in cleartext: for such a GENESIS the verifier prints a notice (no finding) and never the value",
+          "maxLength": 64,
+          "type": "string"
+        },
+        "predecessor_chain": {
+          "additionalProperties": false,
+          "description": "emergency chain succession; null for a first chain",
+          "properties": {
+            "chain_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "last_entry_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 500,
+              "type": "string"
+            }
+          },
+          "required": [
+            "chain_id",
+            "last_entry_hash",
+            "reason"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "purpose_statement": {
+          "description": "declared system purpose from onboarding; descriptive evidence for purpose-limitation tile",
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "timezone": {
+          "maxLength": 64,
+          "type": "string"
+        }
+      },
+      "required": [
+        "appliance_id",
+        "customer_id",
+        "device_key_id",
+        "device_pubkey",
+        "edition",
+        "language",
+        "license_id",
+        "predecessor_chain",
+        "purpose_statement",
+        "timezone"
+      ],
+      "type": "object"
+    },
+    "prev_hash": {
+      "description": "entry_hash of previous entry; seq=1: 64 zeros",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "seq": {
+      "description": "strictly monotonic, no gaps",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "spec_version": {
+      "pattern": "^1\\.(0|[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "ts_captured": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": "string"
+    },
+    "ts_chained": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "chain_id",
+    "entry_hash",
+    "event_type",
+    "mono_delta_ms",
+    "origin",
+    "payload",
+    "prev_hash",
+    "seq",
+    "spec_version",
+    "ts_captured",
+    "ts_chained"
+  ],
+  "title": "Chain entry: GENESIS",
+  "type": "object"
+}

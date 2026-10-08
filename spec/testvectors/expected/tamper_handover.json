@@ -1,0 +1,7 @@
+{
+  "exit_code": 2,
+  "finding_classes": [
+    "HANDOVER_BROKEN",
+    "UNSEALED_END"
+  ]
+}

@@ -1,0 +1,438 @@
+<!doctype html>
+<!--
+  ledger-verify — LEDGER-Prüfpaket im Browser prüfen / verify a LEDGER
+  verification package in the browser
+
+  Diese Datei ist eine VORLAGE. verifier/web/bauen.sh ersetzt die beiden
+  Platzhalter weiter unten (Modul und Lader) und schreibt das Ergebnis nach
+  verifier/web/dist/ledger-verify.html — eine einzige Datei, die offline
+  funktioniert (dazu eine bytegleiche Kopie unter dem alten Namen
+  rekorder-verify.html, die Portal, Dockerfile und CI noch erwarten).
+  Die Platzhalternamen stehen hier ABSICHTLICH nicht woertlich: sie
+  muessen in dieser Datei genau EINMAL vorkommen, sonst ersetzt der
+  Einbetter den Kommentar statt der Konstanten (genau das ist am 15.09.
+  passiert und hat eine 1,8-MB-Seite erzeugt, die nie gestartet waere).
+
+  Es wird NICHTS nachgeladen und NICHTS gesendet. Die Seite enthält keinen
+  einzigen Verweis auf eine fremde Adresse; das lässt sich mit einem Blick in
+  den Quelltext und mit tcpdump nachprüfen, statt es glauben zu müssen.
+
+  This file is a TEMPLATE; verifier/web/bauen.sh injects the compressed
+  WebAssembly module and writes a single self-contained file that works
+  offline. Nothing is fetched and nothing is sent.
+-->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LEDGER-Prüfpaket prüfen — ledger-verify</title>
+<style>
+  :root{
+    color-scheme: light;
+    --grund:#fbfbfa; --karte:#fff; --rand:#e3e1dc; --text:#1c1b19; --leise:#6b6862;
+    --gruen:#1f7a4d; --gruen-feld:#e8f4ed;
+    --gelb:#8a6100; --gelb-feld:#fbf1dc;
+    --rot:#a32b20;  --rot-feld:#fbeae8;
+    --grau:#4a4742;  --grau-feld:#efeeec;
+    --blau:#2a5c8c;  --blau-feld:#e8f0f8;
+    --akzent:#1c1b19;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: dark;
+      --grund:#171614; --karte:#201f1c; --rand:#37352f; --text:#eeece6; --leise:#a39f97;
+      --gruen:#5fd39b; --gruen-feld:#12291f;
+      --gelb:#e0b355; --gelb-feld:#2b2214;
+      --rot:#f08579;  --rot-feld:#2e1917;
+      --grau:#b8b4ac;  --grau-feld:#26251f;
+      --blau:#86b6e3;  --blau-feld:#15212d;
+      --akzent:#eeece6;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--grund);color:var(--text);
+       font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .huelle{max-width:860px;margin:0 auto;padding:32px 20px 64px}
+  header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  h1{font-size:21px;margin:0;letter-spacing:-.01em}
+  .fassung{color:var(--leise);font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .unterzeile{color:var(--leise);margin:0 0 24px;font-size:14px;max-width:62ch}
+  .sprachwahl{margin-left:auto;display:flex;gap:2px;background:var(--grau-feld);
+              border-radius:7px;padding:2px}
+  .sprachwahl button{border:0;background:transparent;color:var(--leise);cursor:pointer;
+                     padding:4px 10px;border-radius:5px;font-size:13px;font-weight:500}
+  .sprachwahl button[aria-pressed="true"]{background:var(--karte);color:var(--text);
+                     box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+  .ablage{border:1.5px dashed var(--rand);border-radius:12px;background:var(--karte);
+          padding:36px 24px;text-align:center;transition:border-color .15s,background .15s}
+  .ablage.bereit{border-color:var(--akzent);background:var(--grau-feld)}
+  .ablage p{margin:0 0 14px;color:var(--leise)}
+  .knopf{display:inline-block;border:1px solid var(--rand);background:var(--karte);
+         color:var(--text);border-radius:8px;padding:9px 18px;font-size:14px;font-weight:500;
+         cursor:pointer}
+  .knopf:hover{border-color:var(--akzent)}
+  input[type=file]{display:none}
+
+  details.mehr{margin-top:14px;border:1px solid var(--rand);border-radius:10px;
+               background:var(--karte)}
+  details.mehr>summary{cursor:pointer;padding:11px 16px;font-size:14px;color:var(--leise);
+                       list-style:none}
+  details.mehr>summary::-webkit-details-marker{display:none}
+  details.mehr>summary::before{content:"▸ ";color:var(--leise)}
+  details.mehr[open]>summary::before{content:"▾ "}
+  .felder{padding:4px 16px 16px;display:grid;gap:12px;
+          grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .feld label{display:block;font-size:12px;color:var(--leise);margin-bottom:4px}
+  .feld input,.feld textarea{width:100%;padding:7px 10px;border:1px solid var(--rand);border-radius:7px;
+              background:var(--grund);color:var(--text);
+              font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .feld .hinweis{font-size:11px;color:var(--leise);margin-top:4px}
+
+  .urteil{margin-top:22px;border:1px solid var(--rand);border-left-width:4px;border-radius:10px;
+          background:var(--karte);padding:18px 20px}
+  .urteil.gruen{border-left-color:var(--gruen);background:var(--gruen-feld)}
+  .urteil.gelb {border-left-color:var(--gelb); background:var(--gelb-feld)}
+  .urteil.rot  {border-left-color:var(--rot);  background:var(--rot-feld)}
+  .urteil.grau {border-left-color:var(--grau); background:var(--grau-feld)}
+  .urteil.blau {border-left-color:var(--blau); background:var(--blau-feld)}
+  .urteil h2{margin:0 0 4px;font-size:17px}
+  .urteil.gruen h2{color:var(--gruen)} .urteil.gelb h2{color:var(--gelb)}
+  .urteil.rot h2{color:var(--rot)}     .urteil.grau h2{color:var(--grau)}
+  .urteil.blau h2{color:var(--blau)}
+  .urteil .code{font:12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--leise)}
+  .urteil p{margin:8px 0 0;font-size:14px}
+
+  .werkzeuge{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  pre.bericht{margin-top:14px;padding:16px;border:1px solid var(--rand);border-radius:10px;
+              background:var(--karte);overflow-x:auto;
+              font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--rand);
+         color:var(--leise);font-size:12.5px}
+  footer p{margin:0 0 8px;max-width:72ch}
+  [hidden]{display:none!important}
+  .lade{color:var(--leise);font-size:14px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="huelle">
+
+  <header>
+    <h1 data-t="titel">LEDGER-Prüfpaket prüfen</h1>
+    <span class="fassung" id="fassung">—</span>
+    <div class="sprachwahl" role="group" aria-label="Sprache / language">
+      <button type="button" id="de" aria-pressed="true">Deutsch</button>
+      <button type="button" id="en" aria-pressed="false">English</button>
+    </div>
+  </header>
+
+  <p class="unterzeile" data-t="unterzeile">
+    Diese Seite prüft ein LEDGER-Prüfpaket vollständig auf Ihrem Rechner. Es wird nichts
+    hochgeladen, nichts nachgeladen und nichts installiert — der Verifier läuft als
+    WebAssembly im Browser. Es ist derselbe Code wie im Kommandozeilen-Verifier.
+  </p>
+
+  <div class="ablage" id="ablage">
+    <p data-t="ablage">Prüfpaket (.zip) hierher ziehen</p>
+    <label class="knopf" for="datei" data-t="waehlen">Datei wählen …</label>
+    <input type="file" id="datei" accept=".zip,application/zip">
+  </div>
+
+  <details class="mehr">
+    <summary data-t="mehr">Weitere Prüfangaben (erwartete Wurzel, Prüfzeitpunkt, Zeitzeuge)</summary>
+    <div class="felder">
+      <div class="feld">
+        <label for="root" data-t="rootLabel">Erwartete Wurzel: Papier-Anker oder vom Hersteller gegengezeichnete Wurzel</label>
+        <input id="root" placeholder="64 Hex-Zeichen oder TREE_SIZE:ROOT" spellcheck="false" autocomplete="off">
+        <div class="hinweis" data-t="rootHinweis">ROOT (64 Hex-Zeichen) oder TREE_SIZE:ROOT. Aus dem gedruckten Bericht — oder die jüngste Wurzel, die der Hersteller für diese Kette VOR der Anforderung dieses Pakets gegengezeichnet hat (nicht die jüngste überhaupt: eine spätere liegt hinter dem Ende des Pakets). Gefunden, belegt sie die Vollständigkeit bis zu ihrer tree_size; fehlt sie in der Kette, wird das ein Befund.</div>
+      </div>
+      <div class="feld">
+        <label for="now" data-t="nowLabel">Prüfzeitpunkt (UTC, z. B. 2026-01-01T12:00:00Z)</label>
+        <input id="now" placeholder="Vorgabe: Uhr dieses Rechners" spellcheck="false" autocomplete="off">
+        <div class="hinweis" data-t="nowHinweis">Bestimmt, ab wann Stille als „unerklärt“ gilt.</div>
+      </div>
+      <div class="feld">
+        <label for="tsaroot" data-t="tsaLabel">Vertrauensanker für Zeitzeugen (PEM)</label>
+        <input type="file" id="tsaroot" accept=".pem,.crt,.cer,application/x-pem-file">
+        <div class="hinweis" data-t="tsaHinweis">Ein Browser hat keinen Wurzelspeicher, den diese Seite lesen darf — ohne Ihre eigene Datei bleibt jeder Zeitzeuge <code>TIME_ANCHOR_UNVERIFIED</code>. Wählen Sie das Wurzelzertifikat der Zeitstempelstelle, der SIE vertrauen. Ein Zertifikat aus dem Prüfpaket zählt nicht.</div>
+      </div>
+      <div class="feld">
+        <label for="herstwurzel" data-t="herstLabel">Wurzelschlüssel des Herstellers (JSON)</label>
+        <input type="file" id="herstwurzel" accept=".json,application/json">
+        <div class="hinweis" data-t="herstHinweis">Die Datei <code>{"wurzel_id", "pubkey"}</code>, die der Hersteller mit der Lizenz veröffentlicht. Ohne sie stammt der Schlüssel jeder Quittung nur aus dem Prüfpaket, und die Seite meldet <code>RECEIPT_UNVERIFIED</code>. Eine Datei aus dem Prüfpaket zählt nicht.</div>
+      </div>
+      <div class="feld">
+        <label for="herstkeys" data-t="pinLabel">Angeheftete Herstellerschlüssel</label>
+        <textarea id="herstkeys" rows="2" spellcheck="false" autocomplete="off" placeholder="key_id=64 Hex-Zeichen, je Zeile einer"></textarea>
+        <div class="hinweis" data-t="pinHinweis">Nur Schlüssel, die Sie selbst beim Hersteller nachgeschlagen haben — nie einen aus dem Prüfpaket. Ein angehefteter Schlüssel hat Vorrang vor der Liste im Paket.</div>
+      </div>
+    </div>
+  </details>
+
+  <div class="lade" id="lade" data-t="lade">Verifier wird geladen …</div>
+
+  <div id="ergebnis" hidden>
+    <div class="urteil" id="urteil">
+      <h2 id="urteilTitel"></h2>
+      <span class="code" id="urteilCode"></span>
+      <p id="urteilText"></p>
+    </div>
+    <div class="werkzeuge">
+      <button class="knopf" id="kopieren" data-t="kopieren">Bericht kopieren</button>
+      <button class="knopf" id="jsonLaden" data-t="jsonLaden">Befund als JSON sichern</button>
+    </div>
+    <pre class="bericht" id="bericht"></pre>
+  </div>
+
+  <footer>
+    <p data-t="fuss1"></p>
+    <p data-t="fuss2"></p>
+  </footer>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Zweisprachigkeit: ein Katalog, beide Sprachen vollständig. Ein fehlender
+// Schlüssel fällt sofort auf, weil er als Schlüsselname stehen bleibt statt
+// still auf die andere Sprache zurückzufallen.
+// ---------------------------------------------------------------------------
+const T = {
+  de: {
+    titel: "LEDGER-Prüfpaket prüfen",
+    unterzeile: "Diese Seite prüft ein LEDGER-Prüfpaket vollständig auf Ihrem Rechner. Es wird nichts hochgeladen, nichts nachgeladen und nichts installiert — der Verifier läuft als WebAssembly im Browser. Es ist derselbe Code wie im Kommandozeilen-Verifier.",
+    ablage: "Prüfpaket (.zip) hierher ziehen",
+    waehlen: "Datei wählen …",
+    mehr: "Weitere Prüfangaben (erwartete Wurzel, Prüfzeitpunkt, Zeitzeuge)",
+    rootLabel: "Erwartete Wurzel: Papier-Anker oder vom Hersteller gegengezeichnete Wurzel",
+    rootHinweis: "ROOT (64 Hex-Zeichen) oder TREE_SIZE:ROOT. Aus dem gedruckten Bericht — oder die jüngste Wurzel, die der Hersteller für diese Kette VOR der Anforderung dieses Pakets gegengezeichnet hat (nicht die jüngste überhaupt: eine spätere liegt hinter dem Ende des Pakets). Gefunden, belegt sie die Vollständigkeit bis zu ihrer tree_size; fehlt sie in der Kette, wird das ein Befund.",
+    nowLabel: "Prüfzeitpunkt (UTC, z. B. 2026-01-01T12:00:00Z)",
+    nowHinweis: "Bestimmt, ab wann Stille als „unerklärt“ gilt.",
+    tsaLabel: "Vertrauensanker für Zeitzeugen (PEM)",
+    tsaHinweis: "Ein Browser hat keinen Wurzelspeicher, den diese Seite lesen darf — ohne Ihre eigene Datei bleibt jeder Zeitzeuge TIME_ANCHOR_UNVERIFIED. Wählen Sie das Wurzelzertifikat der Zeitstempelstelle, der SIE vertrauen. Ein Zertifikat aus dem Prüfpaket zählt nicht.",
+    herstLabel: "Wurzelschlüssel des Herstellers (JSON)",
+    pinLabel: "Angeheftete Herstellerschlüssel",
+    pinHinweis: "Nur Schlüssel, die Sie selbst beim Hersteller nachgeschlagen haben — nie einen aus dem Prüfpaket. Ein angehefteter Schlüssel hat Vorrang vor der Liste im Paket.",
+    herstHinweis: "Die Datei {\"wurzel_id\", \"pubkey\"}, die der Hersteller mit der Lizenz veröffentlicht. Ohne sie stammt der Schlüssel jeder Quittung nur aus dem Prüfpaket, und die Seite meldet RECEIPT_UNVERIFIED. Eine Datei aus dem Prüfpaket zählt nicht.",
+    lade: "Verifier wird geladen …",
+    kopieren: "Bericht kopieren",
+    kopiert: "Kopiert",
+    jsonLaden: "Befund als JSON sichern",
+    pruefe: "Prüfe …",
+    u0t: "Gültig, keine Befunde",
+    u0p: "Die Kette ist in sich schlüssig, vollständig verkettet, die geprüften Signaturen stimmen, und ihr Ende ist ordnungsgemäß versiegelt.",
+    u1t: "Gültig, mit Befunden",
+    u1p: "Die Kette ist gültig und ihr Ende ordnungsgemäß versiegelt. Es gibt ausgewiesene Befunde — etwa gedeckte Lücken oder unerklärte Stille. Lesen Sie die Liste unten.",
+    u2t: "Ungültig",
+    u2p: "Mindestens eine Prüfung ist fehlgeschlagen. Dieses Paket belegt die behauptete Aufzeichnung nicht.",
+    u3t: "Formatfehler",
+    u3p: "Das Paket konnte nicht als Prüfpaket gelesen werden. Das ist keine Aussage über den Inhalt der Kette — es wurde keiner gelesen.",
+    u4t: "Unvollständig — Kettenende nicht versiegelt",
+    u4p: "Keine Prüfung ist fehlgeschlagen: alle vorhandenen Einträge sind intakt. Das Paket belegt aber nicht, dass nach seinem letzten Eintrag nichts mehr kam — so endet jeder Export aus laufendem Betrieb, jede Kette nach Absturz oder Stromausfall, und ebenso eine gekürzte Kette. Gewissheit gibt der Abgleich: die jüngste Wurzel, die der Hersteller für diese Kette vor der Anforderung dieses Pakets gegengezeichnet hat, oben als erwartete Wurzel eintragen und erneut prüfen. Der Bericht nennt den letzten gegengezeichneten Checkpoint des Pakets.",
+    fehlerTitel: "Nicht prüfbar",
+    fuss1: "Dieser Bericht ist ein technischer Beleg. Er unterstützt die Erfüllung von Dokumentationspflichten und entscheidet selbst keine Rechtsfrage.",
+    fuss2: "Denselben Verifier gibt es als Kommandozeilen-Werkzeug ledger-verify für Linux, macOS und Windows, mit reproduzierbarem Bau. Die LEDGER-Spezifikation und beide Verifier sind offen; ein zweiter, unabhängiger Verifier in Python prüft dieselben Testvektoren.",
+    browserAlt: "Dieser Browser kann die eingebettete Kompression nicht auspacken (DecompressionStream fehlt). Bitte einen aktuellen Browser verwenden oder den Kommandozeilen-Verifier.",
+  },
+  en: {
+    titel: "Verify a LEDGER verification package",
+    unterzeile: "This page verifies a LEDGER verification package entirely on your own machine. Nothing is uploaded, nothing is fetched and nothing is installed — the verifier runs as WebAssembly in your browser. It is the same code as the command-line verifier.",
+    ablage: "Drop a verification package (.zip) here",
+    waehlen: "Choose file …",
+    mehr: "Further inputs (expected root, verification time, time witness)",
+    rootLabel: "Expected root: paper anchor or the vendor's countersigned root",
+    rootHinweis: "ROOT (64 hex characters) or TREE_SIZE:ROOT. From the printed report — or the most recent root the vendor countersigned for this chain BEFORE this package was requested (not the most recent overall: a later one lies beyond the end of the package). Found, it establishes completeness up to its tree_size; if it is absent from the chain, that becomes a finding.",
+    nowLabel: "Verification time (UTC, e.g. 2026-01-01T12:00:00Z)",
+    nowHinweis: "Decides from when silence counts as unexplained.",
+    tsaLabel: "Trust anchor for time witnesses (PEM)",
+    tsaHinweis: "A browser has no root store this page may read — without your own file every time witness stays TIME_ANCHOR_UNVERIFIED. Choose the root certificate of the time-stamping authority YOU trust. A certificate from the verification package does not count.",
+    herstLabel: "Vendor root key (JSON)",
+    pinLabel: "Pinned vendor keys",
+    pinHinweis: "Only keys you looked up with the vendor yourself — never one from the verification package. A pinned key takes precedence over the list in the package.",
+    herstHinweis: "The file {\"wurzel_id\", \"pubkey\"} the vendor publishes with the licence. Without it the key of every receipt comes only from the verification package, and the page reports RECEIPT_UNVERIFIED. A file from the verification package does not count.",
+    lade: "Loading the verifier …",
+    kopieren: "Copy report",
+    kopiert: "Copied",
+    jsonLaden: "Save findings as JSON",
+    pruefe: "Verifying …",
+    u0t: "Valid, no findings",
+    u0p: "The chain is internally consistent, fully linked, the signatures checked are correct, and its end is properly sealed.",
+    u1t: "Valid, with findings",
+    u1p: "The chain is valid and its end properly sealed. There are declared findings — covered gaps or unexplained silence, for instance. Read the list below.",
+    u2t: "Invalid",
+    u2p: "At least one check failed. This package does not evidence the recording it claims.",
+    u3t: "Format error",
+    u3p: "The package could not be read as a verification package. That is not a statement about the chain's content — none was read.",
+    u4t: "Incomplete — chain end not sealed",
+    u4p: "No check failed: all entries present are intact. But the package does not prove that nothing came after its last entry — every export from a running installation ends like this, every chain after a crash or power loss, and a truncated chain just as well. The comparison settles it: enter the most recent root the vendor countersigned for this chain before this package was requested as the expected root above and verify again. The report names the package's last countersigned checkpoint.",
+    fehlerTitel: "Cannot be verified",
+    fuss1: "This report is technical evidence. It supports the fulfilment of documentation obligations and decides no legal question by itself.",
+    fuss2: "The same verifier exists as the command-line tool ledger-verify for Linux, macOS and Windows, with a reproducible build. The LEDGER specification and both verifiers are open; a second, independent verifier in Python checks the same test vectors.",
+    browserAlt: "This browser cannot unpack the embedded compression (DecompressionStream is missing). Please use a current browser, or the command-line verifier.",
+  },
+};
+let sprache = (navigator.language || "de").toLowerCase().startsWith("de") ? "de" : "en";
+
+function t(k){ return (T[sprache] && T[sprache][k]) || k; }
+function spracheSetzen(s){
+  sprache = s;
+  document.documentElement.lang = s;
+  document.getElementById("de").setAttribute("aria-pressed", String(s === "de"));
+  document.getElementById("en").setAttribute("aria-pressed", String(s === "en"));
+  for (const el of document.querySelectorAll("[data-t]")) el.textContent = t(el.dataset.t);
+  document.getElementById("root").placeholder = s === "de" ? "64 Hex-Zeichen oder TREE_SIZE:ROOT" : "64 hex characters or TREE_SIZE:ROOT";
+  document.getElementById("now").placeholder  = s === "de" ? "Vorgabe: Uhr dieses Rechners" : "default: this machine's clock";
+  document.title = t("titel") + " — ledger-verify";
+  if (letzteBytes) pruefen(letzteBytes, letzterName);   // Bericht in der neuen Sprache
+}
+
+// ---------------------------------------------------------------------------
+// WebAssembly laden. Das Modul liegt gepackt und base64-kodiert IN dieser
+// Datei: kein fetch, kein Server, keine zweite Datei, die verloren gehen kann.
+// ---------------------------------------------------------------------------
+const WASM_GZIP_BASE64 = "__WASM_GZIP_BASE64__";
+
+function base64ZuBytes(b64){
+  const roh = atob(b64);
+  const out = new Uint8Array(roh.length);
+  for (let i = 0; i < roh.length; i++) out[i] = roh.charCodeAt(i);
+  return out;
+}
+
+async function auspacken(bytes){
+  if (typeof DecompressionStream !== "function") throw new Error(t("browserAlt"));
+  const strom = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new Uint8Array(await new Response(strom).arrayBuffer());
+}
+
+__WASM_EXEC_JS__
+
+let bereit = false, letzteBytes = null, letzterName = "";
+
+(async function start(){
+  try {
+    const wasm = await auspacken(base64ZuBytes(WASM_GZIP_BASE64));
+    const go = new Go();
+    const { instance } = await WebAssembly.instantiate(wasm, go.importObject);
+    go.run(instance);                       // laeuft weiter, haelt die Funktion am Leben
+    await new Promise(r => setTimeout(r, 0));
+    bereit = true;
+    const v = globalThis.ledgerVerifyVersion || {};
+    document.getElementById("fassung").textContent =
+      (v.name || "ledger-verify") + " " + (v.version || "?") + " · " + (v.product || "LEDGER") +
+      " · Spezifikation / spec " + (v.spec || "?") +
+      " · eingebaute Herstellerwurzel / compiled-in vendor root: " + (v.vendorRoot || "?");
+    document.getElementById("lade").hidden = true;
+  } catch (e) {
+    const l = document.getElementById("lade");
+    l.textContent = String(e.message || e);
+  }
+})();
+
+// ---------------------------------------------------------------------------
+// Prüfen
+// ---------------------------------------------------------------------------
+// Exit 4 (Spezifikation 8.6: Kettenende nicht versiegelt) hat eine eigene
+// Farbe: nicht gruen, weil das Paket die Vollstaendigkeit nicht belegt, und
+// nicht rot, weil unvollstaendig nicht ungueltig ist — so endet jeder Export
+// aus laufendem Betrieb. Die Rangfolge der Codes (3 > 2 > 4 > 1 > 0) setzt
+// der Verifier selbst; die Seite zeigt nur den Code, den er liefert.
+const KLASSE = {0:"gruen", 1:"gelb", 2:"rot", 3:"grau", 4:"blau"};
+
+// tsaWurzeln haelt die vom Pruefer gewaehlte PEM-Datei als Bytes.
+let tsaWurzeln = null;
+// herstWurzel haelt die vom Pruefer gewaehlte Wurzeldatei des Herstellers.
+let herstWurzel = null;
+
+function pruefen(bytes, name){
+  if (!bereit) return;
+  letzteBytes = bytes; letzterName = name;
+  const opts = { lang: sprache, name: name };
+  const root = document.getElementById("root").value.trim();
+  const now  = document.getElementById("now").value.trim();
+  if (root) opts.expectRoot = root;
+  if (now)  opts.now = now;
+  // Der Vertrauensanker kommt aus einer Datei, die der PRUEFER waehlt — nie
+  // aus dem Pruefpaket. Er wird beim Auswaehlen gelesen und hier nur noch
+  // weitergereicht.
+  if (tsaWurzeln) opts.tsaRootsPem = tsaWurzeln;
+  if (herstWurzel) opts.vendorRootJson = herstWurzel;
+  const pins = document.getElementById("herstkeys").value.split(/\s+/).filter(Boolean);
+  if (pins.length) opts.vendorKeys = pins;
+
+  const r = ledgerVerify(bytes, opts);
+  const box = document.getElementById("urteil");
+  box.className = "urteil " + (KLASSE[r.exit] || "grau");
+  if (r.error) {
+    document.getElementById("urteilTitel").textContent = t("fehlerTitel");
+    document.getElementById("urteilCode").textContent = "";
+    document.getElementById("urteilText").textContent = r.error;
+    document.getElementById("bericht").textContent = "";
+  } else {
+    document.getElementById("urteilTitel").textContent = t("u" + r.exit + "t");
+    document.getElementById("urteilCode").textContent = "exit " + r.exit;
+    document.getElementById("urteilText").textContent = t("u" + r.exit + "p");
+    document.getElementById("bericht").textContent = r.report;
+  }
+  document.getElementById("ergebnis").hidden = false;
+  letzterJSON = r.json || "";
+}
+let letzterJSON = "";
+
+async function dateiNehmen(f){
+  if (!f) return;
+  document.getElementById("lade").hidden = false;
+  document.getElementById("lade").textContent = t("pruefe");
+  await new Promise(r => setTimeout(r, 0));
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  pruefen(bytes, f.name);
+  document.getElementById("lade").hidden = true;
+}
+
+const ablage = document.getElementById("ablage");
+["dragenter","dragover"].forEach(e => ablage.addEventListener(e, ev => {
+  ev.preventDefault(); ablage.classList.add("bereit");
+}));
+["dragleave","drop"].forEach(e => ablage.addEventListener(e, ev => {
+  ev.preventDefault(); ablage.classList.remove("bereit");
+}));
+ablage.addEventListener("drop", ev => dateiNehmen(ev.dataTransfer.files[0]));
+document.getElementById("datei").addEventListener("change", ev => dateiNehmen(ev.target.files[0]));
+// Der Vertrauensanker wird beim Auswaehlen gelesen; liegt schon ein
+// Pruefpaket vor, wird sofort neu geurteilt — sonst muesste der Pruefer
+// raten, ob die Datei angekommen ist.
+document.getElementById("tsaroot").addEventListener("change", async ev => {
+  const f = ev.target.files[0];
+  tsaWurzeln = f ? new Uint8Array(await f.arrayBuffer()) : null;
+  if (letzteBytes) pruefen(letzteBytes, letzterName);
+});
+document.getElementById("herstwurzel").addEventListener("change", async ev => {
+  const f = ev.target.files[0];
+  herstWurzel = f ? new Uint8Array(await f.arrayBuffer()) : null;
+  if (letzteBytes) pruefen(letzteBytes, letzterName);
+});
+document.getElementById("herstkeys").addEventListener("change", () => {
+  if (letzteBytes) pruefen(letzteBytes, letzterName);
+});
+document.getElementById("de").addEventListener("click", () => spracheSetzen("de"));
+document.getElementById("en").addEventListener("click", () => spracheSetzen("en"));
+document.getElementById("kopieren").addEventListener("click", async ev => {
+  await navigator.clipboard.writeText(document.getElementById("bericht").textContent);
+  const b = ev.target; const alt = b.textContent; b.textContent = t("kopiert");
+  setTimeout(() => { b.textContent = alt; }, 1200);
+});
+document.getElementById("jsonLaden").addEventListener("click", () => {
+  const blob = new Blob([letzterJSON], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "befund.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+sprachtsetzenBeimStart();
+function sprachtsetzenBeimStart(){ spracheSetzen(sprache); }
+</script>
+</body>
+</html>

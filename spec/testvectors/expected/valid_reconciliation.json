@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "RECONCILIATION_DELTA",
+    "UNSEALED_END"
+  ]
+}

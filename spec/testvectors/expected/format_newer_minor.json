@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "SPEC_NEWER",
+    "UNSEALED_END"
+  ]
+}

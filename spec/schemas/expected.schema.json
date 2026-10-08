@@ -1,0 +1,58 @@
+{
+  "$id": "expected.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "exit_code": {
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "type": "integer"
+    },
+    "finding_classes": {
+      "items": {
+        "enum": [
+          "SEQ_BREAK",
+          "HASH_MISMATCH",
+          "SIG_INVALID",
+          "MERKLE_INCONSISTENT",
+          "RECEIPT_INVALID",
+          "TIME_ANCHOR_INVALID",
+          "FORK_DETECTED",
+          "CLOCK_ANOMALY",
+          "CONCEALED_SILENCE",
+          "HANDOVER_BROKEN",
+          "MISSING_CHECKPOINT",
+          "CONTENT_MISMATCH",
+          "REPORT_MISMATCH",
+          "UNSEALED_END",
+          "COVERED_GAP",
+          "COVERED_SOURCE_GAP",
+          "RECONCILIATION_DELTA",
+          "CONTENT_DELETED",
+          "HOLD_VIOLATION",
+          "CLOCK_JUMP_NOTE",
+          "TRAILING_SILENCE",
+          "NO_ANCHOR",
+          "TIME_ANCHOR_UNVERIFIED",
+          "RECEIPT_UNVERIFIED",
+          "SPEC_NEWER",
+          "UNKNOWN_ENTRY_TYPE",
+          "UNKNOWN_MANIFEST_FIELD",
+          "FORMAT_ERROR"
+        ]
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "exit_code",
+    "finding_classes"
+  ],
+  "title": "Expected verifier output for a test vector",
+  "type": "object"
+}

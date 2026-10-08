@@ -1,0 +1,682 @@
+{
+  "comment": "Each scenario is one appliance at the vendor, processed step by step in the order of 9.2 (signature and schema are assumed to hold; the chain belongs to the appliance). anchor.chain names the chain (X, Y), anchor.history the leaves: honest = SHA-256(\"vertrag-eintrag:<seq>\"), rewritten = the same up to seq 12 and SHA-256(\"vertrag-eintrag-umgeschrieben:<seq>\") from seq 13 on. expect names HTTP status, error code, kind of response, whether a fork finding is recorded, and the reference size B of the anchor's chain with its root after the step (null: nothing recorded for that chain). history_after lists, per chain, every root the anchor history (9.7) must hold at the end, in the order recorded: countersigned, gap_witness, reported.",
+  "format": "ledger-vertrag/1",
+  "leaves": {
+    "entry_hash": "SHA-256 over the ASCII string vertrag-eintrag:<seq>, seq = 1..40",
+    "merkle": "RFC 6962 over leaf hashes SHA-256(0x00 || entry_hash)",
+    "rewritten_entry_hash": "SHA-256 over the ASCII string vertrag-eintrag-umgeschrieben:<seq>",
+    "rewritten_from_seq": 13
+  },
+  "scenarios": [
+    {
+      "history_after": {
+        "X": [
+          {
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "recorded_as": "countersigned"
+          },
+          {
+            "tree_size": 16,
+            "merkle_root": "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b",
+            "recorded_as": "gap_witness"
+          },
+          {
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "recorded_as": "reported"
+          },
+          {
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "recorded_as": "gap_witness"
+          },
+          {
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "recorded_as": "countersigned"
+          },
+          {
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "recorded_as": "reported"
+          },
+          {
+            "tree_size": 32,
+            "merkle_root": "2233f8f386b244437436beea0c70988d128cbf3b48d3919e32085cab7eb33630",
+            "recorded_as": "countersigned"
+          }
+        ]
+      },
+      "name": "lapse_and_renewal",
+      "steps": [
+        {
+          "step": 1,
+          "note": "licence valid: the first root of the chain needs no proof",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 8,
+              "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 2,
+          "note": "licence expired: checked from the countersigned 8, recorded as gap witness, refused",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 16,
+            "merkle_root": "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "b5f9960b70cd795183c72d4136365c066e8bbd2708cd1d63bd814716d2080585"
+              ]
+            }
+          },
+          "expect": {
+            "status": 403,
+            "error": "license_expired",
+            "response": "anchor_refusal",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 16,
+              "merkle_root": "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 3,
+          "note": "proof from the old base 8: the reference size is the gap witness 16; the root is recorded as reported",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "b5f9960b70cd795183c72d4136365c066e8bbd2708cd1d63bd814716d2080585",
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "consistency_required",
+            "expected_from_tree_size": 16,
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 16,
+              "merkle_root": "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 4,
+          "note": "the resend with the proof from 16",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c"
+              ]
+            }
+          },
+          "expect": {
+            "status": 403,
+            "error": "license_expired",
+            "response": "anchor_refusal",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 5,
+          "note": "an honest but stale anchor at a size nothing was recorded for: no fork",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 20,
+            "merkle_root": "8fd29a469f78fe8613e092b2d3ffbe2dd5c935d10beca642cea182b8d5c803f5",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "e775a9d59c3b1bf676efee4f507a3bebe0855ab309fef601d3df02fb067f5b43"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "stale_anchor",
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 6,
+          "note": "replay of the recorded gap witness 16 (it stands in every package): repetition, no fork",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 16,
+            "merkle_root": "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "b5f9960b70cd795183c72d4136365c066e8bbd2708cd1d63bd814716d2080585"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "stale_anchor",
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 7,
+          "note": "replay of the countersigned 8: the original countersignature",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "original_countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 8,
+          "note": "another root at the recorded size 16: the device key signed two roots of one size",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 16,
+            "merkle_root": "793ada3144f6a3ac421a79517819eb0e398fb29c0b1b60e99630962e8e667c67",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "fb4326a9ea5bc13eadc72cb0c7dda183cd96ec41cacf50780a69b4628588e658"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "fork_detected",
+            "response": "error",
+            "fork_finding": true,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 9,
+          "note": "another root at the reference size 24",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 24,
+            "merkle_root": "8459609ff77f4b13b4561f3387327e4de2d716e5fd6f27f641c93759e7e51a15",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "e76a129c792b24a607e2191ff20b07a1f97a844c3f50cb6f800eafd550506867"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "fork_detected",
+            "response": "error",
+            "fork_finding": true,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 10,
+          "note": "repetition of the witnessed anchor during the lapse: refused again",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c"
+              ]
+            }
+          },
+          "expect": {
+            "status": 403,
+            "error": "license_expired",
+            "response": "anchor_refusal",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 11,
+          "note": "licence renewed; the first anchor repeats the witnessed 24: step 3, then step 5 countersigns it",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c"
+              ]
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 12,
+          "note": "repetition of the now countersigned 24: the original countersignature",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+            "consistency_proof": {
+              "from_tree_size": 16,
+              "hashes": [
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c"
+              ]
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "original_countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 13,
+          "note": "the rewritten history proves itself from the pre-lapse base 8 (it shares seq 1..12) - before 1.8 this was countersigned; now the reference size is 24; its root is recorded as reported",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "fb4326a9ea5bc13eadc72cb0c7dda183cd96ec41cacf50780a69b4628588e658",
+                "21354744f8fbc4dc614ebfd132710a08310045e456c3a9eed95c52b68b7af297"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "consistency_required",
+            "expected_from_tree_size": 24,
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 14,
+          "note": "the rewritten history from 24: its proof does not hold against the recorded root",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "consistency_proof": {
+              "from_tree_size": 24,
+              "hashes": [
+                "e76a129c792b24a607e2191ff20b07a1f97a844c3f50cb6f800eafd550506867",
+                "798ec584d28e57d6447a6630c4f7c690a11644e6b329997fd7ad7c7e743804f4",
+                "793ada3144f6a3ac421a79517819eb0e398fb29c0b1b60e99630962e8e667c67"
+              ]
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "consistency_failed",
+            "response": "error",
+            "fork_finding": true,
+            "reference_after": {
+              "tree_size": 24,
+              "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 15,
+          "note": "the honest history from 24",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 32,
+            "merkle_root": "2233f8f386b244437436beea0c70988d128cbf3b48d3919e32085cab7eb33630",
+            "consistency_proof": {
+              "from_tree_size": 24,
+              "hashes": [
+                "27bf6af57df53bf465ea6d6c7d276c8c7fd5c4974e1908bebd76010c346dd86c",
+                "be57871e808b83107e9eb3b0983f6d66ada7c1e061d09424becfd6217eca4d71",
+                "52a7cad10f967a416dea652e1742b5a6ce9410216ca95ba9e0dd0d50ee4df91b"
+              ]
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 32,
+              "merkle_root": "2233f8f386b244437436beea0c70988d128cbf3b48d3919e32085cab7eb33630",
+              "recorded_as": "countersigned"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "history_after": {
+        "X": [
+          {
+            "tree_size": 4,
+            "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289",
+            "recorded_as": "gap_witness"
+          },
+          {
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "recorded_as": "reported"
+          },
+          {
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "recorded_as": "countersigned"
+          }
+        ]
+      },
+      "name": "never_countersigned_before_the_lapse",
+      "steps": [
+        {
+          "step": 1,
+          "note": "licence expired before the first anchor: the first root needs no proof and becomes the gap witness",
+          "license": "expired",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 4,
+            "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 403,
+            "error": "license_expired",
+            "response": "anchor_refusal",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 4,
+              "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 2,
+          "note": "licence renewed: a proof from 0 is not enough",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "consistency_required",
+            "expected_from_tree_size": 4,
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 4,
+              "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289",
+              "recorded_as": "gap_witness"
+            }
+          }
+        },
+        {
+          "step": 3,
+          "note": "the proof from the gap witness 4",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 4,
+              "hashes": [
+                "65cda0d6ab1a9959e853220ca688f534648ac5af67c014aa69ea8c78928eed92"
+              ]
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 8,
+              "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+              "recorded_as": "countersigned"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "history_after": {
+        "X": [
+          {
+            "tree_size": 12,
+            "merkle_root": "e01c15c76b8d2b7488ed179bcb4679764f10becc4918b7fcc1a158219a164bef",
+            "recorded_as": "countersigned"
+          }
+        ],
+        "Y": [
+          {
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "recorded_as": "countersigned"
+          }
+        ]
+      },
+      "name": "chain_succession",
+      "steps": [
+        {
+          "step": 1,
+          "note": "chain X of the appliance: countersigned 12",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 12,
+            "merkle_root": "e01c15c76b8d2b7488ed179bcb4679764f10becc4918b7fcc1a158219a164bef",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 12,
+              "merkle_root": "e01c15c76b8d2b7488ed179bcb4679764f10becc4918b7fcc1a158219a164bef",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 2,
+          "note": "a new chain Y of the same appliance without a registered succession: nothing is recorded",
+          "license": "valid",
+          "anchor": {
+            "chain": "Y",
+            "history": "rewritten",
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 409,
+            "error": "chain_succession_required",
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": null
+          }
+        },
+        {
+          "step": 3,
+          "note": "the vendor registers the succession X -> Y, X handed over at 12",
+          "register_succession": {
+            "from": "X",
+            "to": "Y",
+            "tree_size": 12
+          }
+        },
+        {
+          "step": 4,
+          "note": "now Y's first root needs no proof",
+          "license": "valid",
+          "anchor": {
+            "chain": "Y",
+            "history": "rewritten",
+            "tree_size": 32,
+            "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 32,
+              "merkle_root": "835ee89d3467421683f68149e895df7b64eb25a41e19815236567c5fa5bfb3e4",
+              "recorded_as": "countersigned"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "section": "heartbeat spec 9.2, 9.7 (spec 1.9)"
+}

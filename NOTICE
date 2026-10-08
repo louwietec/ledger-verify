@@ -1,0 +1,17 @@
+LEDGER Verifier: offene Spezifikation, Testvektoren und Verifier
+LEDGER verifier: open specification, test vectors and verifiers
+(früher / formerly "Rekorder")
+
+Copyright 2026 Louis Wieshofer
+
+Dieses Produkt steht unter der Apache License, Version 2.0; der Lizenztext
+liegt in LICENSE (und unverändert in spec/, verifier/ und verifier2/).
+This product is licensed under the Apache License, Version 2.0; the license
+text is in LICENSE (and, unchanged, in spec/, verifier/ and verifier2/).
+
+Die Binärdateien und die Browser-Seite enthalten die Laufzeit und Teile der
+Standardbibliothek von Go sowie Gos WebAssembly-Lader wasm_exec.js
+(BSD-3-Clause, Copyright (c) 2009 The Go Authors, https://go.dev/LICENSE).
+The binaries and the browser page contain the Go runtime and parts of the Go
+standard library, and Go's WebAssembly loader wasm_exec.js (BSD-3-Clause,
+Copyright (c) 2009 The Go Authors, https://go.dev/LICENSE).

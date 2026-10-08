@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "finding_classes": [
+    "CONTENT_DELETED",
+    "HOLD_VIOLATION"
+  ]
+}

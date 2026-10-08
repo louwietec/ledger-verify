@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "COVERED_SOURCE_GAP",
+    "UNSEALED_END"
+  ]
+}

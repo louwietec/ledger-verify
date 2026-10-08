@@ -1,0 +1,8 @@
+{
+  "exit_code": 2,
+  "finding_classes": [
+    "NO_ANCHOR",
+    "RECEIPT_INVALID",
+    "UNSEALED_END"
+  ]
+}

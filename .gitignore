@@ -1,0 +1,28 @@
+# Bau-Ausgaben: Release-Dateien entstehen mit tools/bauen.sh ausserhalb des
+# Baums und werden als Release-Assets ausgeliefert, nie versioniert.
+# / Build outputs: built by tools/bauen.sh, shipped as release assets.
+/dist/
+/verifier/dist/
+/verifier/web/dist/
+/verifier/rekorder-verify
+/verifier/ledger-verify
+*.exe
+*.wasm
+*.test
+
+# Nebenausgaben der Tests und des Einzelbau-Skripts: verifier/internal/vfy/
+# vectors_test.go schreibt ../artefakte/P03/vektor_matrix.log und
+# verifier/build.sh ../artefakte/P03/repro_build.log (beides relativ zur
+# Wurzel dieses Repositorys). Sie beweisen hier nichts und bleiben draussen.
+# / Side outputs of the tests and of verifier/build.sh; never committed.
+/artefakte/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editoren / Betriebssystem / editors, OS
+.idea/
+.vscode/
+*.swp
+.DS_Store

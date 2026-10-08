@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "TIME_ANCHOR_UNVERIFIED",
+    "UNSEALED_END"
+  ]
+}

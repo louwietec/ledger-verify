@@ -1,0 +1,816 @@
+{
+  "appliance": {
+    "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+    "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+    "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+    "pinned_keys": {
+      "vendor-contract-001": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb"
+    },
+    "replaced_license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf"
+  },
+  "cases": [
+    {
+      "name": "bound_to_this_activation",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_accepted",
+      "why": "statement for the new commitment and receipt for this appliance, device key and commitment, both fresh (4.1)"
+    },
+    {
+      "name": "licence_expired_but_held_under_the_new_commitment",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": false,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "expired",
+              "updates": false,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "950e8afef5d1aec4c2f7e50f84570c1301f4e4759a3f35894c45ced70b2b39388bd8fe2064557c544d4722763250324676f59956e8b428def9ff0ecb15b6b60c"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_accepted",
+      "why": "an activation is answered 200 also for an expired licence (9.3); the statement still names the new commitment"
+    },
+    {
+      "name": "receipt_missing",
+      "response": {
+        "status": 200,
+        "body": {
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "no activation_receipt: a statement alone is bound to no appliance (4.1 item 2)"
+    },
+    {
+      "name": "statement_missing",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "no license member: the rebinding needs the statement for the new commitment (4.1 item 1)"
+    },
+    {
+      "name": "statement_names_the_replaced_commitment",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "f3100301cd4799f600008a879d251c1c7f8ea1fda33836a6efcebd2b4453bae41b79b89c6940d0eee4f0217947a3b86bf053bc9d41d236059ea2136ab93d990a"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the statement names the replaced commitment, not that of the configured key (9.4 item 4)"
+    },
+    {
+      "name": "receipt_names_the_replaced_commitment",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "1975399b81fd38f1499786e77bff27d0061d674940d01e3b3fda9b2ecd47e31b0108604304297efa729d50efd160cf74982b356b1a7bfa3985e1e481468a5604"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the vendor still holds this registration under the replaced commitment (9.8, 9.4 item 4)"
+    },
+    {
+      "name": "sister_appliance_answer_spliced_in",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "c962a03c-5acb-4455-ad90-29cc348177de",
+              "device_pubkey": "55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"c962a03c-5acb-4455-ad90-29cc348177de\",\"device_pubkey\":\"55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "2e595ca495d0f8aca92117210cfaf60e0ec69d4736d658a9eed82b85d7b2e8b0163813f89e8ebbb4b08b2ed1ab762a5d65bb8c18028ccd2918b54e19cc16150d"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the receipt names another appliance and device key (4.1 item 2)"
+    },
+    {
+      "name": "receipt_other_device_key",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "03d52141709003fdf90531cc32724ef999f6e738dde7c12a372699a296f48e4fdbd7c8e1190b4ccc02f704938e64dbd6b37bb612752a1fb085752f38af2c8903"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "device_pubkey is not the appliance's own (4.1 item 2)"
+    },
+    {
+      "name": "receipt_fifteen_minutes_old",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:15:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:15:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "fb39d23b8535af51de766324f65102ce0806610b02d2d890ce6837c7d62e9a1b2abd43f93df26ecaa93df12c42948b1b409d3b5d91c9f83a42e1cda8c962d90b"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_accepted",
+      "why": "at most 15 minutes off is admissible, in either direction (4.1 item 2)"
+    },
+    {
+      "name": "receipt_fifteen_minutes_and_a_millisecond_old",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:14:59.999Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:14:59.999Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "98ae055f49f72031fb11a8c16fe4125bd37adb105835e42f7f63e998cf444546edb1ac5dc93c186949ca55bb39321e89fd0f008db1d734283b00432068cf2702"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the receipt's server_ts is more than 15 minutes off (4.1 item 2)"
+    },
+    {
+      "name": "receipt_fifteen_minutes_ahead",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:45:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:45:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "3258054e756af45212ff1e3a108020780367bca61c038c854998367613cbd9395f247ff2d98ef53985a27bb1915bc2bb870e5b5fa8632b37ac1a45a778c79b07"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_accepted",
+      "why": "exactly 15 minutes ahead is admissible: a fast appliance clock must not block the rebinding (4.1 item 2)"
+    },
+    {
+      "name": "receipt_fifteen_minutes_and_a_millisecond_ahead",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:45:00.001Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:45:00.001Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "63bb0aae107c3da472b48001eab3c82b989974a8bcd27f33502b5988d4cfe2efb754722bbd21f2c3225399518dff379fea918554785d4816a26bcaa1243d8203"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the receipt's server_ts is more than 15 minutes off (4.1 item 2)"
+    },
+    {
+      "name": "statement_fifteen_minutes_and_a_millisecond_old",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:14:59.999Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:14:59.999Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "7f3d4fc416b49dbd785de0db1dd2f4df23c19420a20215df7cb265c9137ce0e5026f50c2c1557735176120902f905ef5066c33b5e42151b310f76a280f4bd300"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the statement's server_ts is more than 15 minutes off (4.1 item 1)"
+    },
+    {
+      "name": "statement_fifteen_minutes_and_a_millisecond_ahead",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:45:00.001Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:45:00.001Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "77d1492de4777341ea36236a439c9007868733a8c2c08615b11c51cf5becf5541cb17439a78c69a36e1813bc8c2c2b641e766dafa112429476bb750a45bf1100"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the statement's server_ts is more than 15 minutes ahead (9.4 item 6, 4.1 item 1)"
+    },
+    {
+      "name": "licence_statement_in_the_receipt_member",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "kind is not ledger.activation_receipt.v1 (9.8, 9.4 item 2)"
+    },
+    {
+      "name": "receipt_in_the_licence_member",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "kind is not ledger.license_statement.v1 (9.4 item 2)"
+    },
+    {
+      "name": "receipt_tampered_after_signing",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"c962a03c-5acb-4455-ad90-29cc348177de\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "142d8dda44c9155eb3829c373b14ceae6bb5d4e7414adda7d03b3a6a26aaba3840286c508bf957c2dbff91b240092e46014e8b18a13901ef86e28be07945c30a"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "server_signature does not hold over statement_jcs (9.4 item 3)"
+    },
+    {
+      "name": "receipt_unknown_key",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-999",
+            "server_signature": "1fa30b9a0535f6fe0c5ccd259622c58e4f8e9deebc14cdba0082148cf220ea1d45c535b6f4fdb70ff6787b18515862d80bc97c98bf3727965c63609cf25e8504"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "server_key_id names no key valid for the appliance (9.4 item 3)"
+    },
+    {
+      "name": "receipt_extra_member",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "2df125932836d5ee04dfca949aac79532c9a23bc897c5e4b2d560399a0946881d09c3861be66db7216273fbd79036b635e07361bcfa0728c6b37259827dba80e"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "members are not exactly those of 9.8 (9.4 item 2)"
+    },
+    {
+      "name": "receipt_instant_without_milliseconds",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"device_pubkey\":\"a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "11f87f5ac0a87ab14429767e0e4e0d3938830a825098341558ef13ade588950031bd6ac7d8aa9c92da40855a03a9be107eb22bb5366989c56c277c8a87aa1005"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "server_ts does not have the form of 9.4 item 2"
+    },
+    {
+      "name": "reading_copy_names_this_appliance",
+      "response": {
+        "status": 200,
+        "body": {
+          "activation_receipt": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "device_pubkey": "a658cc8bd0cd7082b4af44b57334ff3a63f741569ee4e19a83c65915f74f29ac",
+              "kind": "ledger.activation_receipt.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"c962a03c-5acb-4455-ad90-29cc348177de\",\"device_pubkey\":\"55328634d3cc61643f63cc8c700ecb1170f8184bc5445000b6c8e390819b7b48\",\"kind\":\"ledger.activation_receipt.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "2e595ca495d0f8aca92117210cfaf60e0ec69d4736d658a9eed82b85d7b2e8b0163813f89e8ebbb4b08b2ed1ab762a5d65bb8c18028ccd2918b54e19cc16150d"
+          },
+          "customer_id": "kunde-vertrag-1",
+          "license": {
+            "statement": {
+              "countersigning": true,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742",
+              "server_ts": "2027-11-03T09:29:58.000Z",
+              "state": "valid",
+              "updates": true,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"9e377c9942cc5302f332a1cd6657456e0848b695076bf0fd145f097ed0bb8742\",\"server_ts\":\"2027-11-03T09:29:58.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d4f1f76bc8a2e7563f94645a479267055c0f7b9feb875404b424114030fb65087c193e03120d8ae935ecf7f334e13fcc37f4fe24f417dd769cdb879e3e081b0d"
+          },
+          "status": "activated"
+        }
+      },
+      "expect": "rebinding_failed",
+      "why": "the signed bytes name another appliance; the reading copy is ignored (9.4, 4.1 item 2)"
+    }
+  ],
+  "comment": "The appliance replaced its licence key and sent the rebinding activation (same appliance_id and device key, proof under the new key). Each case is the 200 answer it received. It MUST count the rebinding as accepted only if expect is rebinding_accepted; rebinding_failed means it repeats with the spacing of section 4 and reports the failure. now is the appliance's clock when the answer arrives.",
+  "format": "ledger-vertrag/1",
+  "now": "2027-11-03T09:30:00.000Z",
+  "section": "heartbeat spec 4.1 (acceptance of the rebinding), 9.8",
+  "vendor_test_key": {
+    "key_id": "vendor-contract-001",
+    "note": "test only - never configured on a real server",
+    "pubkey": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb",
+    "seed_hex": "616910079687032a1e54eb4ee2e64b809e031d6b0597da8b8aa7c2c446d2bd91"
+  }
+}

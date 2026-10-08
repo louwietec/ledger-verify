@@ -1,0 +1,125 @@
+{
+  "$id": "entry_TIME_ANCHOR.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "chain_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "entry_hash": {
+      "description": "SHA-256 over RFC 8785 JCS of the entry WITHOUT the entry_hash field",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "event_type": {
+      "const": "TIME_ANCHOR"
+    },
+    "mono_delta_ms": {
+      "description": "monotonic ms since previous entry; -1 = unknown (first entry after process start)",
+      "minimum": -1,
+      "type": "integer"
+    },
+    "origin": {
+      "enum": [
+        "proxy",
+        "import",
+        "portal",
+        "system"
+      ]
+    },
+    "payload": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_seq": {
+          "description": "seq of the CHECKPOINT the token attests",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "merkle_root": {
+          "description": "MUST equal the checkpoint",
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "token_base64": {
+          "description": "DER TimeStampToken (RFC 3161), base64; DER MUST NOT exceed 16384 bytes",
+          "maxLength": 21848,
+          "type": "string"
+        },
+        "tree_size": {
+          "description": "MUST equal the checkpoint",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "tsa_name": {
+          "description": "authority as configured by the customer; informational",
+          "maxLength": 256,
+          "type": "string"
+        },
+        "tsa_policy": {
+          "description": "TSTInfo.policy OID; MUST equal the token",
+          "maxLength": 128,
+          "type": "string"
+        },
+        "tsa_serial": {
+          "description": "TSTInfo.serialNumber, lowercase hex; MUST equal the token (checked against the token, not by pattern)",
+          "maxLength": 128,
+          "type": "string"
+        },
+        "tsa_ts": {
+          "description": "TSTInfo.genTime; MUST equal the token to the second",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkpoint_seq",
+        "merkle_root",
+        "token_base64",
+        "tree_size",
+        "tsa_name",
+        "tsa_policy",
+        "tsa_serial",
+        "tsa_ts"
+      ],
+      "type": "object"
+    },
+    "prev_hash": {
+      "description": "entry_hash of previous entry; seq=1: 64 zeros",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "seq": {
+      "description": "strictly monotonic, no gaps",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "spec_version": {
+      "pattern": "^1\\.(0|[1-9][0-9]*)$",
+      "type": "string"
+    },
+    "ts_captured": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": "string"
+    },
+    "ts_chained": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "chain_id",
+    "entry_hash",
+    "event_type",
+    "mono_delta_ms",
+    "origin",
+    "payload",
+    "prev_hash",
+    "seq",
+    "spec_version",
+    "ts_captured",
+    "ts_chained"
+  ],
+  "title": "Chain entry: TIME_ANCHOR",
+  "type": "object"
+}

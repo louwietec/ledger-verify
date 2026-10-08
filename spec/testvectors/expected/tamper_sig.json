@@ -1,0 +1,7 @@
+{
+  "exit_code": 2,
+  "finding_classes": [
+    "SIG_INVALID",
+    "UNSEALED_END"
+  ]
+}

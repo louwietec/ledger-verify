@@ -1,0 +1,2143 @@
+{
+  "registry_version": "1.14.0",
+  "spec_version": "1.9",
+  "comment_de": "Kanonische, handgepflegte Vollständigkeitsquelle der Spezifikation. CI prüft: Registry × vorhandene Schema-/Vektor-/expected-Dateien = vollständige Matrix. Diese Datei ist der Maßstab — nicht die vorhandenen Dateien.",
+  "comment_en": "Canonical, hand-maintained completeness source of the specification. CI checks: registry × existing schema/vector/expected files = complete matrix. This file is the yardstick — not the files that happen to exist.",
+  "envelope_fields": {
+    "spec_version": {
+      "type": "version"
+    },
+    "chain_id": {
+      "type": "uuid"
+    },
+    "seq": {
+      "type": "int",
+      "min": 1,
+      "comment": "strictly monotonic, no gaps"
+    },
+    "ts_captured": {
+      "type": "rfc3339"
+    },
+    "ts_chained": {
+      "type": "rfc3339"
+    },
+    "mono_delta_ms": {
+      "type": "int",
+      "min": -1,
+      "comment": "monotonic ms since previous entry; -1 = unknown (first entry after process start)"
+    },
+    "event_type": {
+      "type": "open_enum",
+      "ref": "event_types",
+      "unknown_finding": "UNKNOWN_ENTRY_TYPE"
+    },
+    "origin": {
+      "type": "enum",
+      "values": [
+        "proxy",
+        "import",
+        "portal",
+        "system"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "comment": "per event_type, see event_types"
+    },
+    "prev_hash": {
+      "type": "hex64",
+      "comment": "entry_hash of previous entry; seq=1: 64 zeros"
+    },
+    "entry_hash": {
+      "type": "hex64",
+      "comment": "SHA-256 over RFC 8785 JCS of the entry WITHOUT the entry_hash field"
+    }
+  },
+  "event_types": {
+    "GENESIS": {
+      "critical_checkpoint": true,
+      "payload": {
+        "customer_id": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "device_pubkey": {
+          "type": "hex64"
+        },
+        "device_key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "license_id": {
+          "type": "string",
+          "maxlen": 64,
+          "narrowed": {
+                "since": "1.8",
+                "pattern": "^[0-9a-f]{64}$",
+                "comment": "machine-readable form of the 1.8 rule below, bound to the entry's OWN spec_version (10.6 rule 3); the generated entry schema carries it as if/then"
+              },
+              "comment": "licence commitment: from spec 1.8 it MUST be the lowercase hex SHA-256 over the UTF-8 bytes of the licence key (the value of cloud_messages.activation.license_commitment), exactly 64 characters [0-9a-f]; a GENESIS whose own spec_version is 1.8 or newer with any other value is FORMAT_ERROR (format spec 4.1, 10.6 rule 3). Up to 1.7 the content was undefined and the standard installation wrote the licence key in cleartext: for such a GENESIS the verifier prints a notice (no finding) and never the value"
+        },
+        "edition": {
+          "type": "enum",
+          "values": [
+            "starter",
+            "pro",
+            "group",
+            "enterprise"
+          ]
+        },
+        "purpose_statement": {
+          "type": "string",
+          "maxlen": 2000,
+          "comment": "declared system purpose from onboarding; descriptive evidence for purpose-limitation tile"
+        },
+        "language": {
+          "type": "enum",
+          "values": [
+            "de",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "predecessor_chain": {
+          "type": "object?",
+          "fields": {
+            "chain_id": {
+              "type": "uuid"
+            },
+            "last_entry_hash": {
+              "type": "hex64"
+            },
+            "reason": {
+              "type": "string",
+              "maxlen": 500
+            }
+          },
+          "comment": "emergency chain succession; null for a first chain"
+        }
+      }
+    },
+    "AI_CALL": {
+      "payload": {
+        "provider_class": {
+          "type": "enum",
+          "ref": "provider_classes"
+        },
+        "route": {
+          "type": "string",
+          "maxlen": 200
+        },
+        "model": {
+          "type": "string?",
+          "maxlen": 200
+        },
+        "endpoint": {
+          "type": "string",
+          "maxlen": 400
+        },
+        "http_status": {
+          "type": "int",
+          "min": 0,
+          "max": 599
+        },
+        "outcome": {
+          "type": "enum",
+          "values": [
+            "ok",
+            "error",
+            "upstream_error",
+            "aborted"
+          ]
+        },
+        "duration_ms": {
+          "type": "int",
+          "min": 0
+        },
+        "request_bytes": {
+          "type": "int",
+          "min": 0
+        },
+        "response_bytes": {
+          "type": "int",
+          "min": 0
+        },
+        "tokens_in": {
+          "type": "int?",
+          "min": 0
+        },
+        "tokens_out": {
+          "type": "int?",
+          "min": 0
+        },
+        "streamed": {
+          "type": "bool"
+        },
+        "confidence": {
+          "type": "enum",
+          "values": [
+            "recorded",
+            "claimed"
+          ],
+          "comment": "recorded = captured by proxy; claimed = asserted by provider/import source"
+        },
+        "source_id": {
+          "type": "string?",
+          "maxlen": 128,
+          "comment": "import source identifier; null for proxy"
+        },
+        "source_ref": {
+          "type": "string?",
+          "maxlen": 256,
+          "comment": "id inside the source for idempotency"
+        },
+        "mode": {
+          "type": "enum",
+          "values": [
+            "full",
+            "hash_only"
+          ]
+        },
+        "request_commitment": {
+          "type": "hex64?",
+          "comment": "HMAC-SHA-256(salt, request plaintext); salt stored with vault object"
+        },
+        "response_commitment": {
+          "type": "hex64?"
+        },
+        "vault_ref": {
+          "type": "string?",
+          "maxlen": 128
+        }
+      }
+    },
+    "TICK": {
+      "payload": {
+        "uptime_s": {
+          "type": "int",
+          "min": 0
+        },
+        "spool_backlog": {
+          "type": "int",
+          "min": 0
+        },
+        "disk_pct": {
+          "type": "int",
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    "GAP": {
+      "critical_checkpoint": true,
+      "payload": {
+        "reason": {
+          "type": "enum",
+          "ref": "gap_classes"
+        },
+        "started_ts": {
+          "type": "rfc3339",
+          "comment": "start of the window, inclusive, appliance wall clock; may lie before the last entry before the silence; after a crash no later than the capture safe point and the ts_captured of answered calls written but not durable (format spec 4.4, 8.7)"
+        },
+        "ended_ts": {
+          "type": "rfc3339",
+          "comment": "end of the window, inclusive, appliance wall clock (format spec 4.4)"
+        },
+        "lost_count": {
+          "type": "int",
+          "min": -1,
+          "comment": "-1 = unknown"
+        },
+        "detail": {
+          "type": "string?",
+          "maxlen": 500
+        }
+      }
+    },
+    "SOURCE_GAP": {
+      "payload": {
+        "source_id": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "window_start": {
+          "type": "rfc3339"
+        },
+        "window_end": {
+          "type": "rfc3339"
+        },
+        "expected": {
+          "type": "int?",
+          "min": 0
+        },
+        "observed": {
+          "type": "int",
+          "min": 0
+        },
+        "detail": {
+          "type": "string?",
+          "maxlen": 500
+        }
+      }
+    },
+    "RECONCILIATION": {
+      "payload": {
+        "source_id": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "window_start": {
+          "type": "rfc3339"
+        },
+        "window_end": {
+          "type": "rfc3339"
+        },
+        "reported_count": {
+          "type": "int",
+          "min": 0
+        },
+        "chained_count": {
+          "type": "int",
+          "min": 0
+        },
+        "delta": {
+          "type": "int"
+        }
+      }
+    },
+    "CLOCK_JUMP": {
+      "payload": {
+        "wall_before": {
+          "type": "rfc3339"
+        },
+        "wall_after": {
+          "type": "rfc3339"
+        },
+        "mono_delta_ms": {
+          "type": "int",
+          "min": 0
+        },
+        "jump_ms": {
+          "type": "int"
+        }
+      }
+    },
+    "MODE_CHANGE": {
+      "critical_checkpoint": true,
+      "payload": {
+        "from": {
+          "type": "enum",
+          "values": [
+            "full",
+            "hash_only"
+          ]
+        },
+        "to": {
+          "type": "enum",
+          "values": [
+            "full",
+            "hash_only"
+          ]
+        },
+        "cause": {
+          "type": "enum",
+          "values": [
+            "manual",
+            "disk_pressure"
+          ]
+        },
+        "actor": {
+          "type": "string?",
+          "maxlen": 128
+        }
+      }
+    },
+    "RESTART": {
+      "payload": {
+        "reason": {
+          "type": "enum",
+          "values": [
+            "crash_recovery",
+            "self_terminate",
+            "update",
+            "manual",
+            "unknown"
+          ]
+        },
+        "downtime_ms_estimate": {
+          "type": "int",
+          "min": -1,
+          "comment": "-1 = unknown; from ts_chained of the last surviving entry of the previous process to this RESTART, not from the start of a following GAP window (format spec 4.9, 8.7)"
+        },
+        "version": {
+          "type": "string",
+          "maxlen": 40
+        }
+      }
+    },
+    "SEAL": {
+      "critical_checkpoint": true,
+      "payload": {
+        "version": {
+          "type": "string",
+          "maxlen": 40
+        },
+        "reason": {
+          "type": "enum",
+          "values": [
+            "update",
+            "shutdown",
+            "key_loss",
+            "decommission",
+            "export"
+          ],
+          "comment": "export (from spec 1.9): export seal - the running installation seals the chain for a verification package and the same writer continues it immediately with RESUME (format spec 4.10, 8.4, 8.6); a verifier up to 1.8 reports it as FORMAT_ERROR (closed enum, 10.6 rule 3)"
+        }
+      }
+    },
+    "RESUME": {
+      "payload": {
+        "prev_version": {
+          "type": "string",
+          "maxlen": 40
+        },
+        "new_version": {
+          "type": "string",
+          "maxlen": 40
+        },
+        "sealed_entry_hash": {
+          "type": "hex64",
+          "comment": "entry_hash of the SEAL entry this RESUME continues from"
+        }
+      }
+    },
+    "OVERSIGHT": {
+      "critical_checkpoint": true,
+      "payload": {
+        "action": {
+          "type": "enum",
+          "values": [
+            "approval",
+            "rejection",
+            "escalation"
+          ]
+        },
+        "user": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "role": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "reference": {
+          "type": "string",
+          "maxlen": 256,
+          "comment": "what is being decided; e.g. chain seq, case id"
+        },
+        "justification": {
+          "type": "string",
+          "maxlen": 4000
+        }
+      }
+    },
+    "ALARM": {
+      "payload": {
+        "rule_id": {
+          "type": "enum",
+          "ref": "alarm_rules"
+        },
+        "severity": {
+          "type": "enum",
+          "values": [
+            "info",
+            "warning",
+            "critical"
+          ]
+        },
+        "message_key": {
+          "type": "string",
+          "maxlen": 128,
+          "comment": "i18n key, rendered in portal/mail"
+        },
+        "details": {
+          "type": "string?",
+          "maxlen": 1000
+        },
+        "delivered_smtp": {
+          "type": "bool"
+        }
+      }
+    },
+    "CONFIG_CHANGE": {
+      "payload": {
+        "scope": {
+          "type": "enum",
+          "values": [
+            "onboarding",
+            "source",
+            "rule",
+            "alarm",
+            "smtp",
+            "tls",
+            "system",
+            "compliance_signoff"
+          ]
+        },
+        "key": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "value_commitment": {
+          "type": "hex64?",
+          "comment": "commitment of new value where the value itself is sensitive"
+        },
+        "summary": {
+          "type": "string?",
+          "maxlen": 500
+        },
+        "actor": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "step_id": {
+          "type": "string?",
+          "maxlen": 64,
+          "comment": "onboarding step id for duration measurement"
+        }
+      }
+    },
+    "KEY_ROTATION": {
+      "critical_checkpoint": true,
+      "payload": {
+        "old_key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "new_key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "new_pubkey": {
+          "type": "hex64"
+        },
+        "signature_by_old_key": {
+          "type": "hex128",
+          "comment": "Ed25519 by old key over JCS({old_key_id,new_key_id,new_pubkey})"
+        }
+      }
+    },
+    "REPORT_ISSUED": {
+      "payload": {
+        "report_type": {
+          "type": "enum",
+          "values": [
+            "monthly",
+            "quarterly",
+            "audit"
+          ]
+        },
+        "period_start": {
+          "type": "rfc3339"
+        },
+        "period_end": {
+          "type": "rfc3339"
+        },
+        "tree_size": {
+          "type": "int",
+          "min": 0
+        },
+        "html_hash": {
+          "type": "hex64"
+        },
+        "pdf_hash": {
+          "type": "hex64?",
+          "comment": "null when Chromium unavailable and only HTML was produced"
+        },
+        "renderer_version": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "languages": {
+          "type": "string",
+          "maxlen": 16
+        }
+      }
+    },
+    "CONTENT_DELETED": {
+      "critical_checkpoint": true,
+      "payload": {
+        "target_seq": {
+          "type": "int",
+          "min": 1
+        },
+        "vault_ref": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "reason": {
+          "type": "enum",
+          "values": [
+            "retention",
+            "dsgvo_request",
+            "manual"
+          ]
+        },
+        "actor": {
+          "type": "string",
+          "maxlen": 128
+        }
+      }
+    },
+    "CONTENT_DISCLOSED": {
+      "critical_checkpoint": true,
+      "payload": {
+        "target_seq": {
+          "type": "int",
+          "min": 1
+        },
+        "vault_ref": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "actor": {
+          "type": "string",
+          "maxlen": 128
+        },
+        "role": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "reason": {
+          "type": "enum",
+          "values": [
+            "audit",
+            "dsgvo_request",
+            "incident",
+            "manual"
+          ]
+        },
+        "request_bytes": {
+          "type": "int",
+          "min": 0
+        },
+        "response_bytes": {
+          "type": "int",
+          "min": 0
+        }
+      }
+    },
+    "ADMIN": {
+      "payload": {
+        "message_type": {
+          "type": "enum",
+          "values": [
+            "activation",
+            "heartbeat",
+            "anchor"
+          ]
+        },
+        "payload_canonical": {
+          "type": "string",
+          "maxlen": 16000,
+          "comment": "the exact JCS bytes sent to the vendor, verbatim"
+        },
+        "payload_hash": {
+          "type": "hex64"
+        }
+      }
+    },
+    "CHECKPOINT": {
+      "payload": {
+        "tree_size": {
+          "type": "int",
+          "min": 1,
+          "comment": "number of leaves covered, i.e. all entries with seq < this entry's seq"
+        },
+        "merkle_root": {
+          "type": "hex64"
+        },
+        "prev_checkpoint_hash": {
+          "type": "hex64",
+          "comment": "entry_hash of previous CHECKPOINT entry; 64 zeros for the first"
+        },
+        "key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "signature": {
+          "type": "hex128",
+          "comment": "Ed25519 by device key over JCS({chain_id,tree_size,merkle_root,prev_checkpoint_hash,key_id,ts}) with ts = ts_chained of this entry"
+        }
+      }
+    },
+    "CHECKPOINT_RECEIPT": {
+      "payload": {
+        "checkpoint_seq": {
+          "type": "int",
+          "min": 1
+        },
+        "tree_size": {
+          "type": "int",
+          "min": 1
+        },
+        "merkle_root": {
+          "type": "hex64"
+        },
+        "server_ts": {
+          "type": "rfc3339"
+        },
+        "server_key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "server_signature": {
+          "type": "hex128",
+          "comment": "Ed25519 by vendor key over JCS({chain_id,tree_size,merkle_root,server_ts})"
+        }
+      }
+    },
+    "TIME_ANCHOR": {
+      "payload": {
+        "checkpoint_seq": {
+          "type": "int",
+          "min": 1,
+          "comment": "seq of the CHECKPOINT the token attests"
+        },
+        "tree_size": {
+          "type": "int",
+          "min": 1,
+          "comment": "MUST equal the checkpoint"
+        },
+        "merkle_root": {
+          "type": "hex64",
+          "comment": "MUST equal the checkpoint"
+        },
+        "tsa_name": {
+          "type": "string",
+          "maxlen": 256,
+          "comment": "authority as configured by the customer; informational"
+        },
+        "tsa_policy": {
+          "type": "string",
+          "maxlen": 128,
+          "comment": "TSTInfo.policy OID; MUST equal the token"
+        },
+        "tsa_serial": {
+          "type": "string",
+          "maxlen": 128,
+          "comment": "TSTInfo.serialNumber, lowercase hex; MUST equal the token (checked against the token, not by pattern)"
+        },
+        "tsa_ts": {
+          "type": "rfc3339",
+          "comment": "TSTInfo.genTime; MUST equal the token to the second"
+        },
+        "token_base64": {
+          "type": "string",
+          "maxlen": 21848,
+          "comment": "DER TimeStampToken (RFC 3161), base64; DER MUST NOT exceed 16384 bytes"
+        }
+      }
+    },
+    "CAPTURE_TRUNCATED": {
+      "payload": {
+        "target_seq": {
+          "type": "int",
+          "min": 1,
+          "comment": "seq of the AI_CALL whose capture was cut"
+        },
+        "request_bytes_captured": {
+          "type": "int",
+          "min": 0,
+          "comment": "bytes of the request the capture (commitment, vault) covers"
+        },
+        "response_bytes_captured": {
+          "type": "int",
+          "min": 0,
+          "comment": "bytes of the response the capture covers"
+        },
+        "request_truncated": {
+          "type": "bool"
+        },
+        "response_truncated": {
+          "type": "bool"
+        }
+      }
+    },
+    "LEGAL_HOLD": {
+      "critical_checkpoint": true,
+      "payload": {
+        "action": {
+          "type": "enum",
+          "values": [
+            "set",
+            "release"
+          ]
+        },
+        "hold_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "scope_from": {
+          "type": "rfc3339",
+          "comment": "earliest ts_captured covered; unbounded: 0001-01-01T00:00:00.000Z (compared as a point in time)"
+        },
+        "scope_to": {
+          "type": "rfc3339",
+          "comment": "latest ts_captured covered; unbounded: 9999-12-31T23:59:59.000Z (compared as a point in time)"
+        },
+        "reference": {
+          "type": "string",
+          "maxlen": 200
+        },
+        "actor": {
+          "type": "string",
+          "maxlen": 128
+        }
+      }
+    }
+  },
+  "provider_classes": [
+    "openai",
+    "anthropic",
+    "azure_openai",
+    "google",
+    "aws_bedrock",
+    "mistral",
+    "aleph_alpha",
+    "ionos",
+    "ollama",
+    "vllm",
+    "other_us",
+    "other_eu",
+    "other_local",
+    "generic"
+  ],
+  "gap_classes": [
+    "bypass",
+    "proxy_restart",
+    "power_loss",
+    "spool_unwritable",
+    "host_down",
+    "update",
+    "manual"
+  ],
+  "manipulation_classes": {
+    "rewrite": {
+      "de": "Umschreiben eines Eintrags",
+      "en": "rewriting an entry"
+    },
+    "truncate": {
+      "de": "Kürzen der Kette gegen verankerte Roots",
+      "en": "truncating the chain against anchored roots"
+    },
+    "fork": {
+      "de": "Zweitgeschichte gegen Quittungen/Konsistenzbeweise",
+      "en": "second history against receipts/consistency proofs"
+    },
+    "clock": {
+      "de": "Rückdatierung gegen mono_delta/Serverzeit",
+      "en": "backdating against mono_delta/server time"
+    },
+    "silent_gap": {
+      "de": "verschwiegene Stille ohne deckenden GAP",
+      "en": "concealed silence without a covering GAP"
+    }
+  },
+  "alarm_rules": [
+    "source_silence",
+    "volume_spike",
+    "error_rate_spike",
+    "new_provider_class",
+    "spool_backlog",
+    "disk_85",
+    "disk_92",
+    "disk_97",
+    "cert_expiry",
+    "anchor_overdue",
+    "report_missing",
+    "report_delivery_failed",
+    "component_silence",
+    "test_alarm"
+  ],
+  "verifier": {
+    "exit_codes": {
+      "0": {
+        "de": "gültig ohne Befunde",
+        "en": "valid, no findings"
+      },
+      "1": {
+        "de": "gültig mit Befunden",
+        "en": "valid with findings"
+      },
+      "2": {
+        "de": "ungültig",
+        "en": "invalid"
+      },
+      "3": {
+        "de": "Formatfehler",
+        "en": "format error"
+      },
+      "4": {
+        "de": "unvollständig: Kettenende nicht versiegelt",
+        "en": "incomplete: chain end not sealed"
+      }
+    },
+    "exit_precedence": [
+      3,
+      2,
+      4,
+      1,
+      0
+    ],
+    "finding_classes": {
+      "SEQ_BREAK": {
+        "exit": 2,
+        "de": "Sequenzlücke oder -sprung",
+        "en": "sequence gap or jump"
+      },
+      "HASH_MISMATCH": {
+        "exit": 2,
+        "de": "Hash-Kette gebrochen",
+        "en": "hash chain broken"
+      },
+      "SIG_INVALID": {
+        "exit": 2,
+        "de": "Checkpoint-Signatur ungültig",
+        "en": "checkpoint signature invalid"
+      },
+      "MERKLE_INCONSISTENT": {
+        "exit": 2,
+        "de": "Merkle-Konsistenz zwischen verankerten Roots verletzt",
+        "en": "Merkle consistency between anchored roots violated"
+      },
+      "RECEIPT_INVALID": {
+        "exit": 2,
+        "de": "Hersteller-Gegensignatur ungültig",
+        "en": "vendor countersignature invalid"
+      },
+      "TIME_ANCHOR_INVALID": {
+        "exit": 2,
+        "de": "Zeitzeuge widerspricht dem Checkpoint oder ist gefälscht",
+        "en": "time witness contradicts the checkpoint or is forged"
+      },
+      "FORK_DETECTED": {
+        "exit": 2,
+        "de": "Quittung passt zu keiner Präfix-Historie",
+        "en": "receipt matches no prefix history"
+      },
+      "CLOCK_ANOMALY": {
+        "exit": 2,
+        "de": "Zeitwiderspruch ohne verketteten CLOCK_JUMP",
+        "en": "time contradiction without a chained CLOCK_JUMP"
+      },
+      "CONCEALED_SILENCE": {
+        "exit": 2,
+        "de": "Stille im Kettenverlauf ohne deckenden GAP/RESTART",
+        "en": "mid-chain silence without covering GAP/RESTART"
+      },
+      "HANDOVER_BROKEN": {
+        "exit": 2,
+        "de": "SEAL/RESUME-Handover gebrochen",
+        "en": "SEAL/RESUME handover broken"
+      },
+      "MISSING_CHECKPOINT": {
+        "exit": 2,
+        "de": "kritischer Eintrag ohne unmittelbar folgenden Checkpoint",
+        "en": "critical entry without an immediately following checkpoint"
+      },
+      "CONTENT_MISMATCH": {
+        "exit": 2,
+        "de": "vorgelegter Klartext widerspricht Commitment",
+        "en": "presented plaintext contradicts commitment"
+      },
+      "REPORT_MISMATCH": {
+        "exit": 2,
+        "de": "vorgelegter Bericht nicht in der Kette",
+        "en": "presented report not in the chain"
+      },
+      "UNSEALED_END": {
+        "exit": 4,
+        "de": "Kette endet ohne Siegel: unvollständig (Abschnitt 8.6)",
+        "en": "chain ends without a seal: incomplete (section 8.6)"
+      },
+      "COVERED_GAP": {
+        "exit": 1,
+        "de": "ausgewiesene Lücke (GAP)",
+        "en": "declared gap (GAP)"
+      },
+      "COVERED_SOURCE_GAP": {
+        "exit": 1,
+        "de": "ausgewiesene Quell-Lücke",
+        "en": "declared source gap"
+      },
+      "RECONCILIATION_DELTA": {
+        "exit": 1,
+        "de": "Abgleich-Differenz zur Anbieter-Angabe",
+        "en": "reconciliation delta against provider figures"
+      },
+      "CONTENT_DELETED": {
+        "exit": 1,
+        "de": "Inhalt fristgerecht gelöscht, Kette intakt",
+        "en": "content deleted per retention, chain intact"
+      },
+      "HOLD_VIOLATION": {
+        "exit": 1,
+        "de": "Inhalt trotz aktiver Löschsperre gelöscht (Abschnitt 9.3)",
+        "en": "content deleted despite an active deletion hold (section 9.3)"
+      },
+      "CLOCK_JUMP_NOTE": {
+        "exit": 1,
+        "de": "ausgewiesener Uhrensprung",
+        "en": "declared clock jump"
+      },
+      "TRAILING_SILENCE": {
+        "exit": 1,
+        "de": "Kette endet vor dem Freshness-Fenster",
+        "en": "chain ends before the freshness window"
+      },
+      "NO_ANCHOR": {
+        "exit": 1,
+        "de": "keine externe Verankerung vorhanden",
+        "en": "no external anchor present"
+      },
+      "TIME_ANCHOR_UNVERIFIED": {
+        "exit": 1,
+        "de": "Zeitzeuge vorhanden, seine Stelle aber nicht unabhängig belegt",
+        "en": "time witness present, its authority not independently established"
+      },
+      "RECEIPT_UNVERIFIED": {
+        "exit": 1,
+        "de": "Hersteller-Gegensignatur stimmig, ihr Schlüssel aber nicht durch einen Vertrauensanker des Prüfers belegt",
+        "en": "vendor countersignature consistent, but its key is not established by a trust anchor of the auditor"
+      },
+      "SPEC_NEWER": {
+        "exit": 1,
+        "de": "Paket nutzt eine neuere Minor-Version der Spezifikation als der Verifier",
+        "en": "package uses a newer minor version of the specification than the verifier"
+      },
+      "UNKNOWN_ENTRY_TYPE": {
+        "exit": 1,
+        "de": "Eintragstyp dieser Verifier-Version unbekannt; Eintrag geprueft, Nutzlast nicht",
+        "en": "entry type unknown to this verifier version; entry checked, payload not"
+      },
+      "UNKNOWN_MANIFEST_FIELD": {
+        "exit": 1,
+        "de": "Manifest-Feld dieser Verifier-Version unbekannt; angenommen und gemeldet, alle bekannten Prüfungen laufen weiter",
+        "en": "manifest field unknown to this verifier version; accepted and reported, all known checks still run"
+      },
+      "FORMAT_ERROR": {
+        "exit": 3,
+        "de": "Prüfpaket nicht lesbar/schema-widrig",
+        "en": "package unreadable / violates schema"
+      }
+    }
+  },
+  "cloud_messages": {
+    "activation": {
+      "fields": {
+        "license_commitment": {
+          "type": "hex64",
+          "comment": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported (client decision 2026-09-03). The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof"
+        },
+        "license_proof": {
+          "type": "hex64",
+          "since": "1.8",
+          "comment": "proof of possession of the license key (heartbeat spec 4.1): lowercase hex of HMAC-SHA256 (RFC 2104) keyed with the UTF-8 bytes of the license key over the ASCII bytes of device_pubkey (64 chars) immediately followed by appliance_id (36 chars), exactly as carried in this message (100 bytes, no separator). The server recomputes it with the stored key, compares in constant time and refuses a missing or different value with 403 license_proof_invalid before anything is registered, regardless of the declared spec_version. Reference values: spec/contract/license_proof.json"
+        },
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "device_pubkey": {
+          "type": "hex64"
+        },
+        "device_key_id": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "version": {
+          "type": "semver"
+        },
+        "spec_version": {
+          "type": "version",
+          "comment": "MAJOR.MINOR of the specification the appliance implements (format spec 10.6); the server accepts every MINOR of its own MAJOR and steers the anchor contract by it (heartbeat spec section 6/9)"
+        },
+        "edition": {
+          "type": "enum",
+          "values": [
+            "starter",
+            "pro",
+            "group",
+            "enterprise"
+          ]
+        },
+        "language": {
+          "type": "enum",
+          "values": [
+            "de",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "maxlen": 64
+        },
+        "sig": {
+          "type": "hex128"
+        }
+      },
+      "license_key_grammar": "^[A-Z0-9-]{19,29}$",
+      "license_key_grammar_comment": "grammar of the license key itself (heartbeat spec 4.1): at most 29 bytes, uppercase letters, digits and hyphen - never longer than an HMAC-SHA256 block (a longer key would be pre-hashed to exactly the public commitment) and never 64 lowercase hex (it would pass as a commitment into GENESIS); mirrored by the telemetry and the metaserver admin tool"
+    },
+    "heartbeat": {
+      "comment": "integers, enums and fixed-length hex only — no free-text field exists by construction",
+      "fields": {
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "ts": {
+          "type": "rfc3339"
+        },
+        "version": {
+          "type": "semver"
+        },
+        "spec_version": {
+          "type": "version",
+          "comment": "MAJOR.MINOR of the specification the appliance implements (format spec 10.6); the server accepts every MINOR of its own MAJOR and steers the anchor contract by it (heartbeat spec section 6/9)"
+        },
+        "uptime_s": {
+          "type": "int",
+          "min": 0
+        },
+        "mode": {
+          "type": "enum",
+          "values": [
+            "full",
+            "hash_only"
+          ]
+        },
+        "disk_pct": {
+          "type": "int",
+          "min": 0,
+          "max": 100
+        },
+        "spool_backlog": {
+          "type": "int",
+          "min": 0
+        },
+        "loss_counter": {
+          "type": "int",
+          "min": 0
+        },
+        "gap_count_24h": {
+          "type": "int",
+          "min": 0
+        },
+        "gap_seconds_24h": {
+          "type": "int",
+          "min": 0
+        },
+        "oversight_count_24h": {
+          "type": "int",
+          "min": 0
+        },
+        "events_total": {
+          "type": "int",
+          "min": 0
+        },
+        "events_24h": {
+          "type": "int",
+          "min": 0
+        },
+        "events_24h_by_type": {
+          "type": "intmap",
+          "keys_ref": "event_types"
+        },
+        "calls_24h_by_provider_class": {
+          "type": "intmap",
+          "keys_ref": "provider_classes"
+        },
+        "alarms_24h_by_rule": {
+          "type": "intmap",
+          "keys_ref": "alarm_rules"
+        },
+        "health": {
+          "type": "enummap",
+          "keys": [
+            "schleuse",
+            "kern",
+            "portal",
+            "telemetrie"
+          ],
+          "values": [
+            "green",
+            "yellow",
+            "red"
+          ]
+        },
+        "last_checkpoint": {
+          "type": "object",
+          "fields": {
+            "chain_id": {
+              "type": "uuid"
+            },
+            "tree_size": {
+              "type": "int",
+              "min": 0
+            },
+            "merkle_root": {
+              "type": "hex64"
+            }
+          }
+        },
+        "sig": {
+          "type": "hex128"
+        }
+      }
+    },
+    "anchor": {
+      "comment": "every 5 minutes; the appliance MUST attach consistency_proof (RFC 6962, from the chain's reference size to this tree_size) and the server accepts a grown tree only when the proof verifies; the reference size includes gap witnesses (heartbeat spec 9.2, from 1.8). From spec 1.9 the message contract of spec_version 1.0 without consistency_proof has ended: the server accepts no anchor without it, records nothing for a new chain_id of an appliance that already has a chain with B > 0 without a registered chain succession (409 chain_succession_required), and answers an anchor below B that matches a recorded root or no recorded root as 409 stale_anchor without a fork finding",
+      "fields": {
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "chain_id": {
+          "type": "uuid"
+        },
+        "tree_size": {
+          "type": "int",
+          "min": 1
+        },
+        "merkle_root": {
+          "type": "hex64"
+        },
+        "consistency_proof": {
+          "type": "object",
+          "since": "1.1",
+          "comment": "since spec_version 1.1 (heartbeat spec section 6/9.2): from_tree_size = the chain's reference size, i.e. the largest tree_size the server countersigned or (from 1.8) recorded as a gap witness (0 = none yet, then hashes is empty); hashes = RFC 6962 consistency proof from from_tree_size to tree_size",
+          "fields": {
+            "from_tree_size": {
+              "type": "int",
+              "min": 0
+            },
+            "hashes": {
+              "type": "array",
+              "items": {
+                "type": "hex64"
+              },
+              "max_items": 64
+            }
+          }
+        },
+        "sig": {
+          "type": "hex128"
+        }
+      }
+    }
+  },
+  "cloud_statements": {
+    "comment_de": "Signierte Bescheide des Herstellers in Antworten auf Cloud-Nachrichten (Heartbeat-Spezifikation §9.4, §9.5, §9.8). Ein Bescheid reist im Antwort-Member license, eine Aktivierungsquittung im Antwort-Member activation_receipt, jeweils als Objekt aus statement (unsignierte Lesekopie, vom Empfänger zu ignorieren), statement_jcs, server_key_id und server_signature. Signiert sind allein die UTF-8-Bytes von statement_jcs (JCS, RFC 8785), mit dem Gegenzeichnungsschlüssel server_key_id. Ein Bescheid ist nur wirksam, wenn statement_jcs I-JSON und genau die JCS-Form seines Inhalts ist, die Member genau die hier genannten sind, der Schlüssel zu server_ts gültig ist, die Signatur trägt und license_commitment das eigene ist. Bescheide ändern nie die Aufzeichnung; Verifier werten sie nicht aus. Referenzwerte: spec/contract/.",
+    "comment_en": "Signed vendor statements in responses to cloud messages (heartbeat spec 9.4, 9.5, 9.8). A statement travels in the response member license, an activation receipt in the response member activation_receipt, each as an object of statement (unsigned reading copy, to be ignored by the recipient), statement_jcs, server_key_id and server_signature. Only the UTF-8 bytes of statement_jcs (JCS, RFC 8785) are signed, with the countersigning key server_key_id. A statement is effective only if statement_jcs is I-JSON and exactly the JCS form of its content, its members are exactly those listed here, the key is valid at server_ts, the signature holds and license_commitment is the recipient's own. Statements never change recording; verifiers do not evaluate them. Reference values: spec/contract/.",
+    "wrapper_fields": {
+      "statement_jcs": {
+        "type": "string",
+        "maxlen": 2048,
+        "comment": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed"
+      },
+      "server_key_id": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9._-]{1,64}$",
+        "comment": "the vendor countersigning key (format spec 10.7 key_id grammar)"
+      },
+      "server_signature": {
+        "type": "hex128",
+        "comment": "Ed25519 over the UTF-8 bytes of statement_jcs"
+      }
+    },
+    "license_statement": {
+      "comment": "in the 200 responses to activation and heartbeat (heartbeat spec 9.3, 9.4); display only",
+      "fields": {
+        "kind": {
+          "type": "const",
+          "value": "ledger.license_statement.v1"
+        },
+        "license_commitment": {
+          "type": "hex64"
+        },
+        "state": {
+          "type": "enum",
+          "values": [
+            "valid",
+            "grace",
+            "expired"
+          ]
+        },
+        "countersigning": {
+          "type": "bool",
+          "comment": "true exactly when state is not expired; a contradiction makes the statement ineffective"
+        },
+        "updates": {
+          "type": "bool",
+          "comment": "entitlement to feature updates; in spec 1.8 equal to countersigning; security fixes do not depend on it (decision 2026-09-29)"
+        },
+        "server_ts": {
+          "type": "rfc3339"
+        },
+        "valid_until": {
+          "type": "rfc3339?",
+          "comment": "null for a license without a term"
+        },
+        "grace_until": {
+          "type": "rfc3339?",
+          "comment": "null for a license without a term"
+        }
+      }
+    },
+    "anchor_refusal": {
+      "comment": "in the 403 license_expired response to anchor (heartbeat spec 9.5): the vendor checked this anchor (9.2 steps 1-4), stored it as a gap witness and does not countersign it. The appliance treats the 403 as a license lock only if the statement is effective, appliance_id is its own, chain_id/tree_size/merkle_root are exactly those of the anchor this request sent and server_ts is within 15 minutes of its clock. Not a countersignature: never chained as CHECKPOINT_RECEIPT",
+      "fields": {
+        "kind": {
+          "type": "const",
+          "value": "ledger.anchor_refusal.v1"
+        },
+        "license_commitment": {
+          "type": "hex64"
+        },
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "chain_id": {
+          "type": "uuid"
+        },
+        "tree_size": {
+          "type": "int",
+          "min": 1
+        },
+        "merkle_root": {
+          "type": "hex64"
+        },
+        "server_ts": {
+          "type": "rfc3339"
+        },
+        "valid_until": {
+          "type": "rfc3339?"
+        },
+        "grace_until": {
+          "type": "rfc3339?"
+        }
+      }
+    },
+    "activation_receipt": {
+      "comment": "in every 200 answer to an activation (heartbeat spec 9.3, 9.8, from 1.9): the registration of appliance_id with device_pubkey is held under license_commitment at server_ts; a statement of state, not bound to one request; required with the licence statement to accept a rebinding (4.1)",
+      "fields": {
+        "kind": {
+          "type": "const",
+          "value": "ledger.activation_receipt.v1"
+        },
+        "appliance_id": {
+          "type": "uuid"
+        },
+        "device_pubkey": {
+          "type": "hex64"
+        },
+        "license_commitment": {
+          "type": "hex64",
+          "comment": "the commitment the vendor holds this registration under at server_ts"
+        },
+        "server_ts": {
+          "type": "rfc3339"
+        }
+      }
+    },
+    "anchor_history": {
+      "comment": "the signed anchor history of one chain (heartbeat spec 9.7, from spec 1.9): GET /v1/anchors?chain_id=<uuid>[&since_tree_size=n], no login, no personal data; every root the server recorded (countersigned, gap_witness) or received device-signed without accepting it (reported: heartbeat last_checkpoint, anchors answered with consistency_required). The auditor fetches it himself and passes every root recorded before the package was requested as an expected root (format spec 8.6, 10.8, 11.2)",
+      "fields": {
+        "kind": {
+          "type": "const",
+          "value": "ledger.anchor_history.v1"
+        },
+        "chain_id": {
+          "type": "uuid"
+        },
+        "predecessor": {
+          "type": "object?",
+          "fields": {
+            "chain_id": {
+              "type": "uuid"
+            },
+            "tree_size": {
+              "type": "int",
+              "min": 1
+            }
+          },
+          "comment": "registered chain succession: the predecessor chain and the tree_size handed over there"
+        },
+        "successor": {
+          "type": "object?",
+          "fields": {
+            "chain_id": {
+              "type": "uuid"
+            },
+            "tree_size": {
+              "type": "int",
+              "min": 1
+            }
+          },
+          "comment": "registered successor: its chain_id and the tree_size handed over from this chain (the end of this chain)"
+        },
+        "reference_tree_size": {
+          "type": "int",
+          "min": 0
+        },
+        "roots": {
+          "type": "array",
+          "max_items": 500,
+          "items": {
+            "type": "object",
+            "fields": {
+              "tree_size": {
+                "type": "int",
+                "min": 1
+              },
+              "merkle_root": {
+                "type": "hex64"
+              },
+              "recorded_as": {
+                "type": "enum",
+                "values": [
+                  "countersigned",
+                  "gap_witness",
+                  "reported"
+                ]
+              },
+              "server_ts": {
+                "type": "rfc3339"
+              }
+            }
+          }
+        },
+        "forks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "fields": {
+              "tree_size": {
+                "type": "int",
+                "min": 1
+              },
+              "merkle_root": {
+                "type": "hex64"
+              },
+              "detected_ts": {
+                "type": "rfc3339"
+              }
+            }
+          }
+        },
+        "since_tree_size": {
+          "type": "int",
+          "min": 0
+        },
+        "truncated": {
+          "type": "bool"
+        },
+        "server_ts": {
+          "type": "rfc3339"
+        }
+      }
+    }
+  },
+  "cloud_response_members": {
+    "comment_de": "Unsignierte Member von Antworten auf Cloud-Nachrichten (Heartbeat-Spezifikation §9.3). Sie sind Hinweise, keine Beweise: Die Appliance leitet aus ihnen keine Entscheidung ab, die Aufzeichnung, Kette oder Verankerung betrifft; ein Hinweis, der seinem Schema nicht entspricht, wird verworfen.",
+    "comment_en": "Unsigned members of responses to cloud messages (heartbeat spec 9.3). They are notices, not evidence: the appliance derives from them no decision that concerns recording, the chain or anchoring; a notice that does not match its schema is discarded.",
+    "update": {
+      "comment": "heartbeat 200 member 'update' (from spec 1.9, request of lane B): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
+      "fields": {
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "maxlen": 32
+        },
+        "channel": {
+          "type": "string",
+          "pattern": "^[a-z]{1,16}$"
+        },
+        "min_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "maxlen": 32
+        },
+        "release_ts": {
+          "type": "rfc3339"
+        },
+        "sha256": {
+          "type": "hex64",
+          "comment": "SHA-256 over the whole bundle file; transport integrity only, not authenticity; since the addition of 2026-10-07 it names the amd64 bundle"
+        }
+      }
+    },
+    "update_arch": {
+      "comment": "heartbeat 200 member 'update_arch' (from spec 1.9, addition of 2026-10-07, request A14 of lanes B and C): SHA-256 of the bundle per architecture; present exactly when 'update' is and taken only together with it; a malformed one discards the whole notice; unsigned, transport integrity only; the updater fetches <source>/<version>/ledger-<version>-<architecture>.rbundle and nothing without its own architecture (heartbeat spec 1, 9.3)",
+      "fields": {
+        "amd64": {
+          "type": "hex64",
+          "comment": "SHA-256 over the whole bundle for amd64 (x86_64)"
+        },
+        "arm64": {
+          "type": "hex64",
+          "comment": "SHA-256 over the whole bundle for arm64 (aarch64)"
+        }
+      }
+    }
+  },
+  "duty_mapping": {
+    "comment_de": "Sprachregel verbindlich: jede Kachel sagt „unterstützt die Erfüllung“, nie „erfüllt“. Wo LEDGER keinen Beleg erzeugt, sagt die Kachel ehrlich „kein Beleg durch LEDGER“.",
+    "comment_en": "Binding language rule: every tile says 'supports fulfilment', never 'fulfils'. Where LEDGER produces no evidence, the tile honestly says 'no evidence produced by LEDGER'.",
+    "duties": {
+      "protokollaufbewahrung": {
+        "de": "Protokollaufbewahrung",
+        "en": "Log retention",
+        "evidence_event_types": [
+          "GENESIS",
+          "AI_CALL",
+          "CHECKPOINT",
+          "CHECKPOINT_RECEIPT"
+        ],
+        "evidence_kind": "chain"
+      },
+      "aufsichts_nachweis": {
+        "de": "Aufsichts-Nachweis (menschliche Aufsicht)",
+        "en": "Human oversight evidence",
+        "evidence_event_types": [
+          "OVERSIGHT"
+        ],
+        "evidence_kind": "chain"
+      },
+      "betriebsueberwachung": {
+        "de": "Betriebsüberwachung",
+        "en": "Operational monitoring",
+        "evidence_event_types": [
+          "TICK",
+          "ALARM",
+          "CONFIG_CHANGE"
+        ],
+        "evidence_kind": "chain"
+      },
+      "transparenzbelege": {
+        "de": "Transparenzbelege",
+        "en": "Transparency evidence",
+        "evidence_event_types": [
+          "REPORT_ISSUED"
+        ],
+        "evidence_kind": "descriptive",
+        "honest_limit_de": "LEDGER belegt erzeugte Berichte und Aufruf-Metadaten; Endnutzer-Transparenz (Kennzeichnungspflichten) erzeugt LEDGER nicht.",
+        "honest_limit_en": "LEDGER evidences issued reports and call metadata; it does not produce end-user transparency (labelling) itself."
+      },
+      "zweckbindung": {
+        "de": "Zweckbindung",
+        "en": "Purpose limitation",
+        "evidence_event_types": [
+          "GENESIS",
+          "CONFIG_CHANGE"
+        ],
+        "evidence_kind": "descriptive",
+        "honest_limit_de": "Belegt sind deklarierter Systemzweck (Genesis) und dessen Änderungen sowie Anbieter-/Modell-Konstanz; eine inhaltliche Zweckprüfung findet nicht statt.",
+        "honest_limit_en": "Evidenced are the declared system purpose (genesis), its changes, and provider/model constancy; no substantive purpose assessment takes place."
+      }
+    }
+  },
+  "testvectors": {
+    "comment": "Each vector = directory spec/testvectors/<name>/ with package files + spec/testvectors/expected/<name>.json {exit_code, finding_classes:[...]} . Crypto-valid bytes are generated in P02 by the ledger vector generator and then frozen (hash pin in spec/testvectors/PINS.sha256). From spec 1.4 the expectations hold for the audit environment spec/testvectors/pruefer_herstellerwurzel.json (--vendor-root) and pruefer_herstellerschluessel.txt (--vendor-key): the vendor keys of a receipt are established by the auditor's anchors, not by the package (format spec 7.1, 10.7). From spec 1.6 (format spec 8.6) every vector that is not a format error is also judged on its chain end: all vectors frozen up to 1.5 end without a seal, like an export from a running installation, and are therefore incomplete (UNSEALED_END, exit 4). Their bytes are unchanged; only the expectation follows the released edition 1.6 (precedent: spec 1.1, format_unknown_event_type). The group 'end' holds the chain-end cases of edition 1.6. From spec 1.7 the group 'hold' holds the legal-hold cases (format spec 4.24, 9.3); its chains are sealed, so their verdict shows the hold rule alone. From spec 1.8 the group 'license' holds the licence-commitment cases (format spec 4.1): GENESIS.license_id is the commitment from the GENESIS entry's own spec_version 1.8 on, a 1.8 GENESIS with the key in cleartext is FORMAT_ERROR, and a GENESIS of 1.7 keeps its cleartext with a notice (no finding); its chains are sealed, so their verdict shows the licence rule alone. From spec 1.9 the group 'export' holds the export-seal cases (format spec 4.10, 8.4, 8.6); the covered late immediate checkpoint (8.2 conditions 3 and 4) extends 'gap' and 'tamper', and four clarifications both verifiers used to read differently (10.1 segment path and presented plaintexts, 2 integer range, 10.5 processing stages) extend 'tamper' and 'format'.",
+    "valid": {
+      "valid_basic": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "valid_update_handover": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "valid_content_deleted": {
+        "exit": 4,
+        "findings": [
+          "CONTENT_DELETED",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_content_disclosed": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "valid_clock_jump": {
+        "exit": 4,
+        "findings": [
+          "CLOCK_JUMP_NOTE",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_reconciliation": {
+        "exit": 4,
+        "findings": [
+          "RECONCILIATION_DELTA",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_source_gap": {
+        "exit": 4,
+        "findings": [
+          "COVERED_SOURCE_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_no_anchor": {
+        "exit": 4,
+        "findings": [
+          "NO_ANCHOR",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_stale": {
+        "exit": 4,
+        "findings": [
+          "TRAILING_SILENCE",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_time_anchor": {
+        "exit": 4,
+        "findings": [
+          "TIME_ANCHOR_UNVERIFIED",
+          "UNSEALED_END"
+        ]
+      },
+      "valid_vendor_list": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "valid_capture_truncated": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "valid_sealed_shutdown": {
+        "exit": 0,
+        "findings": []
+      },
+      "valid_sealed_update_receipt": {
+        "exit": 0,
+        "findings": []
+      }
+    },
+    "gap": {
+      "gap_bypass": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_proxy_restart": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_power_loss": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_spool_unwritable": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_host_down": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_update": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_manual": {
+        "exit": 4,
+        "findings": [
+          "COVERED_GAP",
+          "UNSEALED_END"
+        ]
+      },
+      "gap_late_checkpoint_restart": {
+        "exit": 1,
+        "findings": [
+          "COVERED_GAP"
+        ]
+      },
+      "gap_late_seal_checkpoint": {
+        "exit": 0,
+        "findings": []
+      },
+      "gap_late_seal_checkpoint_end": {
+        "exit": 0,
+        "findings": []
+      }
+    },
+    "end": {
+      "end_sealed_stale": {
+        "exit": 1,
+        "findings": [
+          "TRAILING_SILENCE"
+        ]
+      },
+      "end_unsealed_bare_critical": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "end_unsealed_bare_seal": {
+        "exit": 4,
+        "findings": [
+          "UNSEALED_END"
+        ]
+      },
+      "end_truncated_at_seal": {
+        "exit": 0,
+        "findings": []
+      }
+    },
+    "hold": {
+      "hold_respected": {
+        "exit": 1,
+        "findings": [
+          "CONTENT_DELETED"
+        ]
+      },
+      "hold_released": {
+        "exit": 1,
+        "findings": [
+          "CONTENT_DELETED"
+        ]
+      },
+      "hold_violated": {
+        "exit": 1,
+        "findings": [
+          "CONTENT_DELETED",
+          "HOLD_VIOLATION"
+        ]
+      }
+    },
+    "license": {
+      "valid_genesis_commitment": {
+        "exit": 0,
+        "findings": []
+      },
+      "valid_genesis_upgraded": {
+        "exit": 0,
+        "findings": []
+      },
+      "format_genesis_license_cleartext": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR"
+        ]
+      }
+    },
+    "export": {
+      "valid_sealed_export": {
+        "exit": 0,
+        "findings": []
+      },
+      "valid_export_handover": {
+        "exit": 0,
+        "findings": []
+      }
+    },
+    "tamper": {
+      "tamper_rewrite": {
+        "exit": 2,
+        "findings": [
+          "HASH_MISMATCH",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_truncate": {
+        "exit": 2,
+        "findings": [
+          "MERKLE_INCONSISTENT",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "truncate"
+      },
+      "tamper_fork": {
+        "exit": 2,
+        "findings": [
+          "FORK_DETECTED",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "fork"
+      },
+      "tamper_clock": {
+        "exit": 2,
+        "findings": [
+          "CLOCK_ANOMALY",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "clock"
+      },
+      "tamper_silent_gap": {
+        "exit": 2,
+        "findings": [
+          "CONCEALED_SILENCE",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "silent_gap"
+      },
+      "tamper_seq": {
+        "exit": 2,
+        "findings": [
+          "SEQ_BREAK",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_sig": {
+        "exit": 2,
+        "findings": [
+          "SIG_INVALID",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_receipt": {
+        "exit": 2,
+        "findings": [
+          "RECEIPT_INVALID",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "fork"
+      },
+      "tamper_handover": {
+        "exit": 2,
+        "findings": [
+          "HANDOVER_BROKEN",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "truncate"
+      },
+      "tamper_mono": {
+        "exit": 2,
+        "findings": [
+          "CLOCK_ANOMALY",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "clock"
+      },
+      "tamper_content": {
+        "exit": 2,
+        "findings": [
+          "CONTENT_MISMATCH",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_report": {
+        "exit": 2,
+        "findings": [
+          "REPORT_MISMATCH",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_missing_checkpoint": {
+        "exit": 2,
+        "findings": [
+          "MISSING_CHECKPOINT",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "truncate"
+      },
+      "tamper_time_anchor": {
+        "exit": 2,
+        "findings": [
+          "TIME_ANCHOR_INVALID",
+          "UNSEALED_END"
+        ]
+      },
+      "tamper_vendor_key": {
+        "exit": 4,
+        "findings": [
+          "RECEIPT_UNVERIFIED",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "fork"
+      },
+      "tamper_vendor_revoked": {
+        "exit": 2,
+        "findings": [
+          "NO_ANCHOR",
+          "RECEIPT_INVALID",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "fork"
+      },
+      "tamper_seal_then_entry": {
+        "exit": 2,
+        "findings": [
+          "HANDOVER_BROKEN",
+          "UNSEALED_END"
+        ],
+        "manipulation_class": "truncate"
+      },
+      "tamper_sealed_rewrite": {
+        "exit": 2,
+        "findings": [
+          "HASH_MISMATCH"
+        ],
+        "manipulation_class": "rewrite"
+      },
+      "tamper_late_checkpoint_stalled": {
+        "exit": 2,
+        "findings": [
+          "CONCEALED_SILENCE"
+        ]
+      },
+      "tamper_content_unpaired": {
+        "exit": 2,
+        "findings": [
+          "CONTENT_MISMATCH"
+        ]
+      }
+    },
+    "format": {
+      "format_broken_json": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR"
+        ]
+      },
+      "format_bad_schema": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR"
+        ]
+      },
+      "format_newer_minor": {
+        "exit": 4,
+        "findings": [
+          "SPEC_NEWER",
+          "UNSEALED_END"
+        ]
+      },
+      "format_unknown_event_type": {
+        "exit": 4,
+        "findings": [
+          "UNKNOWN_ENTRY_TYPE",
+          "UNSEALED_END"
+        ]
+      },
+      "format_unknown_manifest_field": {
+        "exit": 4,
+        "findings": [
+          "UNKNOWN_MANIFEST_FIELD",
+          "UNSEALED_END"
+        ]
+      },
+      "format_segment_path": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR"
+        ]
+      },
+      "format_int_range": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR"
+        ]
+      },
+      "format_unknown_type_broken_line": {
+        "exit": 3,
+        "findings": [
+          "FORMAT_ERROR",
+          "UNKNOWN_ENTRY_TYPE"
+        ]
+      }
+    }
+  },
+  "pruefpaket_manifest": {
+    "unknown_field_finding": "UNKNOWN_MANIFEST_FIELD",
+    "fields": {
+      "spec_version": {
+        "type": "version"
+      },
+      "chain_id": {
+        "type": "uuid"
+      },
+      "created_ts": {
+        "type": "rfc3339"
+      },
+      "tree_size": {
+        "type": "int",
+        "min": 0
+      },
+      "segments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "file": {
+              "type": "string",
+              "maxlen": 128
+            },
+            "sha256": {
+              "type": "hex64"
+            },
+            "first_seq": {
+              "type": "int",
+              "min": 1
+            },
+            "last_seq": {
+              "type": "int",
+              "min": 1
+            }
+          }
+        }
+      },
+      "device_pubkeys": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "key_id": {
+              "type": "string",
+              "maxlen": 64
+            },
+            "pubkey": {
+              "type": "hex64"
+            }
+          }
+        }
+      },
+      "vendor_pubkeys": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "key_id": {
+              "type": "string",
+              "maxlen": 64
+            },
+            "pubkey": {
+              "type": "hex64"
+            }
+          }
+        }
+      }
+    }
+  },
+  "vendor_key_list": {
+    "comment_de": "Signierte Liste der Hersteller-Gegenzeichnungsschlüssel im Prüfpaket (Format-Spezifikation 10.7). Sie zählt nur, wenn ihre Signatur gegen eine Herstellerwurzel prüft, die der PRÜFER beibringt (7.1).",
+    "comment_en": "Signed list of vendor countersigning keys in the verification package (format spec 10.7). It counts only if its signature verifies against a vendor root the AUDITOR supplies (7.1).",
+    "path": "keys/vendor/schluesselliste.json",
+    "format": "rekorder-herstellerschluessel/1",
+    "max_keys": 64,
+    "signed_bytes": "JCS (RFC 8785) of the list object without its member signatur; Ed25519 by the root key named in signatur.wurzel_id",
+    "fields": {
+      "format": {
+        "type": "const",
+        "value": "rekorder-herstellerschluessel/1"
+      },
+      "version": {
+        "type": "int",
+        "min": 1
+      },
+      "ausgestellt": {
+        "type": "rfc3339"
+      },
+      "schluessel": {
+        "type": "array",
+        "min_items": 1,
+        "max_items": 64,
+        "items": {
+          "type": "object",
+          "fields": {
+            "key_id": {
+              "type": "key_id"
+            },
+            "pubkey": {
+              "type": "hex64"
+            },
+            "gueltig_ab": {
+              "type": "rfc3339"
+            },
+            "gueltig_bis": {
+              "type": "rfc3339",
+              "optional": true
+            },
+            "widerrufen_ab": {
+              "type": "rfc3339",
+              "optional": true
+            }
+          }
+        }
+      },
+      "signatur": {
+        "type": "object",
+        "fields": {
+          "wurzel_id": {
+            "type": "key_id"
+          },
+          "sig": {
+            "type": "hex128"
+          }
+        }
+      }
+    },
+    "key_id_grammar": "^[A-Za-z0-9._-]{1,64}$",
+    "valid_at": "gueltig_ab <= server_ts, and server_ts < gueltig_bis if present, and server_ts < widerrufen_ab if present",
+    "vendor_root": {
+      "fields": {
+        "wurzel_id": {
+          "type": "key_id"
+        },
+        "pubkey": {
+          "type": "hex64"
+        }
+      }
+    },
+    "unestablished_finding": "RECEIPT_UNVERIFIED",
+    "contradiction_finding": "RECEIPT_INVALID"
+  },
+  "language_rule": {
+    "forbidden_patterns_file": "spec/sprachregel_verbote.txt",
+    "required_phrase_de": "unterstützt die Erfüllung",
+    "required_phrase_en": "supports fulfilment"
+  }
+}

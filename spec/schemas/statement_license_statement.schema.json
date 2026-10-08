@@ -1,0 +1,89 @@
+{
+  "$id": "statement_license_statement.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "in the 200 responses to activation and heartbeat (heartbeat spec 9.3, 9.4); display only",
+  "properties": {
+    "server_key_id": {
+      "description": "the vendor countersigning key (format spec 10.7 key_id grammar)",
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": "string"
+    },
+    "server_signature": {
+      "description": "Ed25519 over the UTF-8 bytes of statement_jcs",
+      "pattern": "^[0-9a-f]{128}$",
+      "type": "string"
+    },
+    "statement": {
+      "additionalProperties": false,
+      "properties": {
+        "countersigning": {
+          "description": "true exactly when state is not expired; a contradiction makes the statement ineffective",
+          "type": "boolean"
+        },
+        "grace_until": {
+          "description": "null for a license without a term",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "const": "ledger.license_statement.v1"
+        },
+        "license_commitment": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "server_ts": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "valid",
+            "grace",
+            "expired"
+          ]
+        },
+        "updates": {
+          "description": "entitlement to feature updates; in spec 1.8 equal to countersigning; security fixes do not depend on it (decision 2026-09-29)",
+          "type": "boolean"
+        },
+        "valid_until": {
+          "description": "null for a license without a term",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "countersigning",
+        "grace_until",
+        "kind",
+        "license_commitment",
+        "server_ts",
+        "state",
+        "updates",
+        "valid_until"
+      ],
+      "type": "object"
+    },
+    "statement_jcs": {
+      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed",
+      "maxLength": 2048,
+      "type": "string"
+    }
+  },
+  "required": [
+    "server_key_id",
+    "server_signature",
+    "statement",
+    "statement_jcs"
+  ],
+  "title": "Signed vendor statement: license_statement",
+  "type": "object"
+}

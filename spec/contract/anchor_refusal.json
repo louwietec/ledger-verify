@@ -1,0 +1,550 @@
+{
+  "appliance": {
+    "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+    "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+    "pinned_keys": {
+      "vendor-contract-001": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb"
+    }
+  },
+  "cases": [
+    {
+      "name": "bound_to_this_anchor",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d57e7d262b9e040360836da09b4efbab56742ccb833ec878430347bf0481208ea955405a89d226d42e2631514211279cde463a201a2f1e219538d1505eb8720e"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "license_lock",
+      "why": "effective refusal statement for exactly the anchor sent (9.5 items 1-4)"
+    },
+    {
+      "name": "replay_for_the_previous_anchor",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "8a39e2e6fe737bc80b85daaef11f7961e9aff0f571ea31b13887299020073c8f",
+              "server_ts": "2027-11-01T11:57:59.000Z",
+              "tree_size": 1229,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"8a39e2e6fe737bc80b85daaef11f7961e9aff0f571ea31b13887299020073c8f\",\"server_ts\":\"2027-11-01T11:57:59.000Z\",\"tree_size\":1229,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "323d07da9b2c06f346c1f3637d960ce29c6088dfb263213e4dc09bafb1032413cbc4b87def0c87d454eb2b835b855e780b8f95be727ca711c9e5750f78235103"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "the statement answers another anchor (tree_size, merkle_root): a captured refusal does not fit a new anchor (9.5 item 3)"
+    },
+    {
+      "name": "same_size_other_root",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "7bd9b2fa8d5dc4683795d5c871462c67e19ff0304b8864f2c4982ac9f6554b43",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"7bd9b2fa8d5dc4683795d5c871462c67e19ff0304b8864f2c4982ac9f6554b43\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d32a28a978bc34c40de581f9832e5e463a00783f7dca598345a0c2a3b12108220c220fab0c411bda30edcd6bd6e93e3ce7e0ec402e9c626c6d59f61f73024307"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "merkle_root differs from the anchor sent (9.5 item 3)"
+    },
+    {
+      "name": "other_chain",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "bdfa2bcc-c9a0-445e-93b8-9ec0dadf5518",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"bdfa2bcc-c9a0-445e-93b8-9ec0dadf5518\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "62face1d65250dbe5203b1e8731c2b99b6fd22f69522cd7e4157e13df8787d645d38b872019517d444bbf7d17863e67ab9f690988b63f295f8296d83542a030f"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "chain_id differs from the anchor sent (9.5 item 3)"
+    },
+    {
+      "name": "other_appliance",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "c962a03c-5acb-4455-ad90-29cc348177de",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"c962a03c-5acb-4455-ad90-29cc348177de\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "e19e18083aab01a3ff85b75b92c792f1e2118fed45253c0a579af9c918ba140f2b4ca64aa4c6e0f88f7dfa5f5160e72ed9505e840fb473157bf87b2c6c55440f"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "appliance_id is not the appliance's own (9.5 item 3)"
+    },
+    {
+      "name": "foreign_commitment",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "2982044b1934b4413901a890ff27d40f144de27eaa3a22583057a7ca29a49ce1",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"2982044b1934b4413901a890ff27d40f144de27eaa3a22583057a7ca29a49ce1\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "f6759f95e8abb5ca57f8e28baa07438267e10351c3745af582659b68524735f8fb560912d06ce5a195b312a044b021498a1e482de66ab074f277b23c12fee605"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "license_commitment is not the appliance's own (9.4 item 4)"
+    },
+    {
+      "name": "unbound_licence_statement",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "countersigning": false,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.license_statement.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "state": "expired",
+              "updates": false,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "fc867e4dd4b5c9e4b5bfef5e4f33473a69c6c500616ea71ffb902b8f06950a00ca5f32ca1bdbaa3ace45580d144ee284e94ae9473b51c254fd6c43b742983605"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "a ledger.license_statement.v1 names no anchor; only ledger.anchor_refusal.v1 is a refusal (9.5 item 2)"
+    },
+    {
+      "name": "fifteen_minutes_old",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T11:48:00.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T11:48:00.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "c8948a86bbfe6e3f7cbc2b06843ccea9fe0c4a2d40b94a9947ef46dec68e221218b84fff17543ffa5a719c2cb3634fece0b3772f002e3de2f6a981938478cd03"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "license_lock",
+      "why": "server_ts deviates by exactly 15 minutes: at most 15 minutes is admissible (9.5 item 4)"
+    },
+    {
+      "name": "fifteen_minutes_and_a_millisecond_old",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T11:47:59.999Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T11:47:59.999Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "39c5a3798a22b12b499428dc32da36d2f583dfa7cebd03b8e108044a92ef32b3d2fd85fa390ea3687acb731b3e0e4d85c5192f021c7355b7c6335b813fd08202"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "server_ts deviates by more than 15 minutes (9.5 item 4)"
+    },
+    {
+      "name": "fifteen_minutes_ahead",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:18:00.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:18:00.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "2fdb4bf653f9f10c1cf9cb87872572a8858ed870a7c531c97db607bbc9ba0ffa2c597332fa1362059f342743c8bec5c4801e611b20143ea591c282186f756507"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "license_lock",
+      "why": "the deviation is judged in both directions: exactly 15 minutes ahead is admissible (9.5 item 4)"
+    },
+    {
+      "name": "fifteen_minutes_and_a_millisecond_ahead",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:18:00.001Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:18:00.001Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "efaef030ea247b12b50f3e4ad6491b837e8463894dcb3dc9eeeb1f258d463bbb4deaa8aaa27efa63fea63e57c8c17c305ec45c9d9919ea1798e9b0c0bda36b07"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "server_ts deviates by more than 15 minutes (9.5 item 4)"
+    },
+    {
+      "name": "other_error_code",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "unknown_license",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d57e7d262b9e040360836da09b4efbab56742ccb833ec878430347bf0481208ea955405a89d226d42e2631514211279cde463a201a2f1e219538d1505eb8720e"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "error is not license_expired (9.5 item 1)"
+    },
+    {
+      "name": "without_statement",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "no license member: an unsigned 403 is an ordinary failure (9.5 item 1)"
+    },
+    {
+      "name": "unknown_key",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-999",
+            "server_signature": "5ae230886ef6ca1b822f60493053dab72adbe8b31a35839d20858e4b6e277dd0bbf570604888cdbbe116b6c22dc84c50ad2e0f231f2901ebf7f51c671b5e3804"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "server_key_id names no key valid for the appliance (9.4 item 3)"
+    },
+    {
+      "name": "reading_copy_names_the_sent_anchor",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"8a39e2e6fe737bc80b85daaef11f7961e9aff0f571ea31b13887299020073c8f\",\"server_ts\":\"2027-11-01T11:57:59.000Z\",\"tree_size\":1229,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "323d07da9b2c06f346c1f3637d960ce29c6088dfb263213e4dc09bafb1032413cbc4b87def0c87d454eb2b835b855e780b8f95be727ca711c9e5750f78235103"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "the signed bytes name another anchor; the reading copy that names the sent one is ignored (9.4, 9.5 item 3)"
+    },
+    {
+      "name": "reading_copy_claims_fresh_server_ts",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T11:43:00.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "7af955fbb6f04b01ac46d670e9ca71882cd608188be6657196c93d80f74eae5308dbde98039469ab71ce8a6da346cf0d4dff1c13123b909b9ec613d6b52bae0b"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "the signed server_ts is 20 minutes old; the reading copy that claims a fresh one is ignored (9.4, 9.5 item 4)"
+    },
+    {
+      "name": "tampered_after_signing",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1235,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "d57e7d262b9e040360836da09b4efbab56742ccb833ec878430347bf0481208ea955405a89d226d42e2631514211279cde463a201a2f1e219538d1505eb8720e"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "server_signature does not hold over statement_jcs (9.4 item 3)"
+    },
+    {
+      "name": "extra_member",
+      "response": {
+        "status": 403,
+        "body": {
+          "detail": "license expired and the 30-day grace period is over: no new countersignatures until renewal; recording on the appliance is not affected",
+          "error": "license_expired",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "license": {
+            "statement": {
+              "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+              "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+              "countersigning": false,
+              "grace_until": "2027-10-29T00:00:00.000Z",
+              "kind": "ledger.anchor_refusal.v1",
+              "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+              "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+              "server_ts": "2027-11-01T12:02:59.000Z",
+              "tree_size": 1234,
+              "valid_until": "2027-09-29T00:00:00.000Z"
+            },
+            "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:02:59.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+            "server_key_id": "vendor-contract-001",
+            "server_signature": "56ab235a62ebfc8d04312f78c3ff15e8beefae9113e87f953ec2689e1a2e9f2bd696ff35f73aa2d72e126dacf59c4102a2b76b609681d537e5937c1df39ce309"
+          },
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        }
+      },
+      "expect": "failure",
+      "why": "members are not exactly those of the refusal table (9.4 item 2)"
+    }
+  ],
+  "comment": "The appliance sent exactly sent_anchor and received response. It MUST treat the response as a licence lock only if expect is license_lock; failure means the anchor stays due. now is the appliance's clock when the response arrives.",
+  "format": "ledger-vertrag/1",
+  "now": "2027-11-01T12:03:00.000Z",
+  "section": "heartbeat spec 9.5",
+  "sent_anchor": {
+    "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+    "tree_size": 1234,
+    "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3"
+  },
+  "vendor_test_key": {
+    "key_id": "vendor-contract-001",
+    "note": "test only - never configured on a real server",
+    "pubkey": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb",
+    "seed_hex": "616910079687032a1e54eb4ee2e64b809e031d6b0597da8b8aa7c2c446d2bd91"
+  }
+}

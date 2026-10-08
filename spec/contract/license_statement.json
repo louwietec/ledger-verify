@@ -1,0 +1,501 @@
+{
+  "cases": [
+    {
+      "name": "valid",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "198ecbdf3aa10925cc87ac7d1aafb3dd3923ec4cf4efa01ccccd5abba68a15b54451ab4388aa34eb810c22a66f14244c1e61cbb7eb84166f0ec2ce1cf6c6b608"
+      },
+      "expect": {
+        "effective": true,
+        "state": "valid",
+        "countersigning": true,
+        "updates": true
+      }
+    },
+    {
+      "name": "grace",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-10-01T12:00:00.000Z",
+          "state": "grace",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-10-01T12:00:00.000Z\",\"state\":\"grace\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "294ef646e57d52af9ad89bceab64735b83e0d918b7de32618d252dfebc1ea5e675e9104d6028ea97c264a1dbab5697af5c03aa0441b0a4f826cee9abf5bbbe05"
+      },
+      "expect": {
+        "effective": true,
+        "state": "grace",
+        "countersigning": true,
+        "updates": true
+      }
+    },
+    {
+      "name": "expired",
+      "license": {
+        "statement": {
+          "countersigning": false,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-01T12:00:00.000Z",
+          "state": "expired",
+          "updates": false,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "ca6c7fe9d2eabe92e851192a0104ca35c989335b1aca442615ced81dc517d2f98fa62976b3714a55a699d1be562b887bf06616ae33f08b185ce90379ab8b1b01"
+      },
+      "expect": {
+        "effective": true,
+        "state": "expired",
+        "countersigning": false,
+        "updates": false
+      }
+    },
+    {
+      "name": "without_term",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": null,
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": null
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":null,\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":null}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "bd810e30966884d40064234f59777818f09c150425461d15bf56aa8fe4495aa902285f0c6f0fb78e68710594d80396fbd78f9a45db00b40b40e8feb131ee0208"
+      },
+      "expect": {
+        "effective": true,
+        "state": "valid",
+        "countersigning": true,
+        "updates": true
+      }
+    },
+    {
+      "name": "reading_copy_contradicts_signed_bytes",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "ca6c7fe9d2eabe92e851192a0104ca35c989335b1aca442615ced81dc517d2f98fa62976b3714a55a699d1be562b887bf06616ae33f08b185ce90379ab8b1b01"
+      },
+      "expect": {
+        "effective": true,
+        "state": "expired",
+        "countersigning": false,
+        "updates": false
+      }
+    },
+    {
+      "name": "tampered_after_signing",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"grace\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "198ecbdf3aa10925cc87ac7d1aafb3dd3923ec4cf4efa01ccccd5abba68a15b54451ab4388aa34eb810c22a66f14244c1e61cbb7eb84166f0ec2ce1cf6c6b608"
+      },
+      "expect": {
+        "effective": false,
+        "why": "server_signature does not hold over statement_jcs (9.4 item 3)"
+      }
+    },
+    {
+      "name": "not_jcs_form",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\": \"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "3baffdf67aec069ef286eb79db1f88e7744619ec59702053846894eabd821330775d1a7a0e610517832939e3945e0ae9a8efde486e53a005c77591ffd41c2100"
+      },
+      "expect": {
+        "effective": false,
+        "why": "statement_jcs is not the JCS form of its content (9.4 item 1)"
+      }
+    },
+    {
+      "name": "duplicate_member",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"expired\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "9a45ca91aca6508e4f69e269007b968b90f45b2b42723829fb9d34ab0290047109c694af3e501e6eb416a189a2c651dbf20b0dc6eda5dec5d607e232ee13b609"
+      },
+      "expect": {
+        "effective": false,
+        "why": "statement_jcs has a duplicate member name (9.4 item 1)"
+      }
+    },
+    {
+      "name": "extra_member",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "seats": 5,
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"seats\":5,\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "68c0ee21c4d20bb945ba2b6fdab35db1a5558af5a14da6679ed0bdc61068581cd190c2952cf8fe365e1517a631ba38a243c1c46627c01e702456b1745821a109"
+      },
+      "expect": {
+        "effective": false,
+        "why": "members are not exactly those of the table (9.4 item 2)"
+      }
+    },
+    {
+      "name": "missing_member",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "44ab95307717d5c85f719c1a7bf3acbe0d0a270fa82023871d946cd88b3c86216761e145fa4339b89d4bc58cea5ff27a71435ac77c7ee44961b63f7569c5ad06"
+      },
+      "expect": {
+        "effective": false,
+        "why": "members are not exactly those of the table (9.4 item 2)"
+      }
+    },
+    {
+      "name": "instant_without_milliseconds",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "620313afb0263aa087cb452cf50d97c90b83d6e9b8e7361bd94df56605cf92fd62409ce6ff25fc35c87e3abd1b340ee41d0eaea5bbceeb2f2427422f1c8bed08"
+      },
+      "expect": {
+        "effective": false,
+        "why": "server_ts does not follow the rfc3339 grammar of heartbeat spec 3 (9.4 item 2)"
+      }
+    },
+    {
+      "name": "kind_is_anchor_refusal",
+      "license": {
+        "statement": {
+          "appliance_id": "8605e5e5-9b71-42bb-81c2-71896e555bd4",
+          "chain_id": "399ec54c-cd4d-479c-bffe-c8b01b18e7f4",
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.anchor_refusal.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "merkle_root": "e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3",
+          "server_ts": "2027-11-01T12:00:00.000Z",
+          "tree_size": 1234,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"appliance_id\":\"8605e5e5-9b71-42bb-81c2-71896e555bd4\",\"chain_id\":\"399ec54c-cd4d-479c-bffe-c8b01b18e7f4\",\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.anchor_refusal.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"merkle_root\":\"e647b6c8dd172c4e57664704746192ac60689673c2e44519bbeefcce3e9876c3\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"tree_size\":1234,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "3902f37625a25652a6a93abfbb0feaafdabd45265b2640c19efc6e18e7e9fd9a82151f0e4f68ec26d5525e5d8874cd8ee276905800b2fe7374d1a60006c5480f"
+      },
+      "expect": {
+        "effective": false,
+        "why": "kind is not ledger.license_statement.v1 (9.4 item 2)"
+      }
+    },
+    {
+      "name": "contradiction_expired_countersigning",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-01T12:00:00.000Z",
+          "state": "expired",
+          "updates": false,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "82af0b85c224ed8d91bbbb68cb4be9cefe4f4da0545ad90efe4cf1bf560d4e2ca14ffb690c5e2401eaddb1f5a4de68ef5cd38143a19fcc51e37651562599fe08"
+      },
+      "expect": {
+        "effective": false,
+        "why": "countersigning is true although state is expired (9.4 item 5)"
+      }
+    },
+    {
+      "name": "foreign_commitment",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "2982044b1934b4413901a890ff27d40f144de27eaa3a22583057a7ca29a49ce1",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"2982044b1934b4413901a890ff27d40f144de27eaa3a22583057a7ca29a49ce1\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "84e70d7754cd52cb02a22c334ff79948a8bdfea268a224a0720049041ed146036a30cd4b9d899b112ec569a7f6a48fbf603481f28380fa2e89335643a035880b"
+      },
+      "expect": {
+        "effective": false,
+        "why": "license_commitment is not the recipient's own (9.4 item 4)"
+      }
+    },
+    {
+      "name": "unknown_key",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-999",
+        "server_signature": "9a785b417de639580f170f6a2f3616ded64a3486d3b856982fefbc726025353b333b0a26c4cea2f232213a7030c9a6652808394e027b798f116c90c70f14e90b"
+      },
+      "expect": {
+        "effective": false,
+        "why": "server_key_id names no key valid for the recipient (9.4 item 3)"
+      }
+    },
+    {
+      "name": "key_id_with_foreign_signature",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "9a785b417de639580f170f6a2f3616ded64a3486d3b856982fefbc726025353b333b0a26c4cea2f232213a7030c9a6652808394e027b798f116c90c70f14e90b"
+      },
+      "expect": {
+        "effective": false,
+        "why": "server_signature does not hold under the key server_key_id names (9.4 item 3)"
+      }
+    },
+    {
+      "name": "fifteen_minutes_ahead",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-02T12:15:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-02T12:15:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "c4791f1f91063e974a82b09ef53c65c0d51ab63b568e14c28391d8261a60caf2c9cf2fe97f14994a732231cef569ada11d657a782ba90dab73bf428a1ec6460f"
+      },
+      "expect": {
+        "effective": true,
+        "state": "valid",
+        "countersigning": true,
+        "updates": true
+      }
+    },
+    {
+      "name": "fifteen_minutes_and_a_millisecond_ahead",
+      "license": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-02T12:15:00.001Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-02T12:15:00.001Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "dfe19b027bcaab8d535f319bdc444864c70fe14930ee6b6e9b40e949de7ae0c06da6d3d07178f616016b768426bf46bfee83693638f6ac5b8dc54f78d767cb00"
+      },
+      "expect": {
+        "effective": false,
+        "why": "server_ts more than 15 minutes after the recipient's clock (9.4 item 6)"
+      }
+    }
+  ],
+  "comment": "The recipient holds license_commitment and the pinned vendor key below. For each case it MUST reach the verdict in expect; an effective statement is shown, an ineffective one changes nothing. The vendor key is a TEST key; its seed is published so implementations can sign their own cases.",
+  "format": "ledger-vertrag/1",
+  "recipient": {
+    "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+    "now": "2027-11-02T12:00:00.000Z",
+    "pinned_keys": {
+      "vendor-contract-001": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb"
+    }
+  },
+  "section": "heartbeat spec 9.4",
+  "sequence": [
+    {
+      "arriving": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2026-09-29T20:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2026-09-29T20:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "198ecbdf3aa10925cc87ac7d1aafb3dd3923ec4cf4efa01ccccd5abba68a15b54451ab4388aa34eb810c22a66f14244c1e61cbb7eb84166f0ec2ce1cf6c6b608"
+      },
+      "expect": "keep_held",
+      "held": {
+        "statement": {
+          "countersigning": false,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-01T12:00:00.000Z",
+          "state": "expired",
+          "updates": false,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "ca6c7fe9d2eabe92e851192a0104ca35c989335b1aca442615ced81dc517d2f98fa62976b3714a55a699d1be562b887bf06616ae33f08b185ce90379ab8b1b01"
+      },
+      "name": "older_statement_does_not_replace_the_held_one",
+      "why": "the arriving statement is effective on its own but older than the one held (9.4, after item 6)"
+    },
+    {
+      "arriving": {
+        "statement": {
+          "countersigning": true,
+          "grace_until": "2028-12-02T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-02T09:00:00.000Z",
+          "state": "valid",
+          "updates": true,
+          "valid_until": "2028-11-02T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2028-12-02T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-02T09:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2028-11-02T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "e3ea810d57c2fa8bc850578c5b1e904549454708633acc456b0651d73bf4ddc35e2010a95330833a9005838b580c2f3891f0db99124399bc56aec032dd0fcb0d"
+      },
+      "expect": "replace",
+      "held": {
+        "statement": {
+          "countersigning": false,
+          "grace_until": "2027-10-29T00:00:00.000Z",
+          "kind": "ledger.license_statement.v1",
+          "license_commitment": "ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf",
+          "server_ts": "2027-11-01T12:00:00.000Z",
+          "state": "expired",
+          "updates": false,
+          "valid_until": "2027-09-29T00:00:00.000Z"
+        },
+        "statement_jcs": "{\"countersigning\":false,\"grace_until\":\"2027-10-29T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"ff536980a55aa82ca5b5854bee5329e0185ecf57beac55b85cc125a3859fe3cf\",\"server_ts\":\"2027-11-01T12:00:00.000Z\",\"state\":\"expired\",\"updates\":false,\"valid_until\":\"2027-09-29T00:00:00.000Z\"}",
+        "server_key_id": "vendor-contract-001",
+        "server_signature": "ca6c7fe9d2eabe92e851192a0104ca35c989335b1aca442615ced81dc517d2f98fa62976b3714a55a699d1be562b887bf06616ae33f08b185ce90379ab8b1b01"
+      },
+      "name": "newer_statement_replaces_the_held_one",
+      "why": "effective and newer than the one held"
+    }
+  ],
+  "vendor_test_key": {
+    "key_id": "vendor-contract-001",
+    "note": "test only - never configured on a real server",
+    "pubkey": "6245577e41cc3ae72f8708ea7e97987ecbd80c52a657af6fec43215d48a5b3cb",
+    "seed_hex": "616910079687032a1e54eb4ee2e64b809e031d6b0597da8b8aa7c2c446d2bd91"
+  }
+}

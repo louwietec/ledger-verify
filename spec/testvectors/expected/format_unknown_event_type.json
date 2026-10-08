@@ -1,0 +1,7 @@
+{
+  "exit_code": 4,
+  "finding_classes": [
+    "UNKNOWN_ENTRY_TYPE",
+    "UNSEALED_END"
+  ]
+}
