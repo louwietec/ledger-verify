@@ -33,7 +33,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // VendorListPath is where a package carries the vendor's signed key list.
@@ -353,7 +353,7 @@ func (r *run) noteUnverifiedVendorKey(seq int64, keyID string) {
 // BuiltinVendorRoot is the vendor root compiled into a release build, as
 // "wurzel_id=hex64". It is set with
 //
-//	-ldflags "-X github.com/louwietec/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=<id>=<hex>"
+//	-ldflags "-X louwietec.com/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=<id>=<hex>"
 //
 // by verifier/build.sh when the vendor's root is at hand, and it is EMPTY in
 // every other build: a developer build and the test harnesses trust nothing

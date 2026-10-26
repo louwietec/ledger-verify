@@ -28,7 +28,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // (1) Ein unbekanntes Manifest-Feld wird angenommen und gemeldet.

@@ -137,10 +137,21 @@ echo "   OpenSSH                 : $(ssh -V 2>&1 || echo 'ssh -V nicht verfuegba
 
 echo
 echo "== 1) Schluessel / signing key"
-# allowed_signers: <identitaet> [optionen] <schluesseltyp> <base64> [kommentar]
-ZEILE="$(awk -v id="$IDENTITAET" '{ n = split($1, p, ","); for (i = 1; i <= n; i++) if (p[i] == id) { print; exit } }' "$ALLOWED")"
+# allowed_signers: genau EINE Zeile fuer die Identitaet, in genau der Form,
+# die signieren.sh schreibt: <identitaet> namespaces="file" ssh-ed25519 <base64>.
+# Optionen in Anfuehrungszeichen koennten einen Schluessel verstecken: Der
+# angezeigte Fingerabdruck waere dann ein anderer als der, gegen den
+# ssh-keygen prueft (Befund vom 08.10.2026). Deshalb wird nur diese Form
+# angenommen, und die Signatur wird unten gegen eine aus dem verglichenen
+# Schluessel NEU gebaute Zeile geprueft, nie gegen die gelieferte Datei.
+# / Exactly one line in the canonical form; the signature is checked against
+# a line rebuilt from the compared key, never against the supplied file.
+ZEILE="$(awk -v id="$IDENTITAET" '$1 == id' "$ALLOWED")"
 [ -n "$ZEILE" ] || rot "allowed_signers nennt $IDENTITAET nicht / does not name the identity"
-echo "$ZEILE" | awk '{for (i = 2; i < NF; i++) if ($i ~ /^(ssh-|ecdsa-|sk-)/) { print $i, $(i+1); exit }}' > "$ARBEIT/signierer.pub"
+[ "$(printf '%s\n' "$ZEILE" | wc -l | tr -d ' ')" = 1 ] || rot "allowed_signers nennt $IDENTITAET mehrfach / names the identity more than once"
+printf '%s\n' "$ZEILE" | tr -d '\r' | grep -Eq '^[^ ]+ namespaces="file" ssh-ed25519 [A-Za-z0-9+/]+={0,2}$' \
+  || rot "allowed_signers-Zeile hat nicht die Form <identitaet> namespaces=\"file\" ssh-ed25519 <schluessel> / unexpected form"
+printf '%s\n' "$ZEILE" | tr -d '\r' | awk '{print $3, $4}' > "$ARBEIT/signierer.pub"
 [ -s "$ARBEIT/signierer.pub" ] || rot "kein Schluessel in der allowed_signers-Zeile / no key in the line"
 FP_IST="$(ssh-keygen -lf "$ARBEIT/signierer.pub" | awk '{print $2}')"
 echo "   $(ssh-keygen -lf "$ARBEIT/signierer.pub")"
@@ -158,12 +169,16 @@ fi
 
 echo
 echo "== 2) Signatur / signature (ssh-keygen -Y verify -n file)"
-if ! ssh-keygen -Y verify -f "$ALLOWED" -I "$IDENTITAET" -n file -s "$DIST/SHA256SUMS.sig" \
+printf '%s namespaces="file" %s\n' "$IDENTITAET" "$(cat "$ARBEIT/signierer.pub")" > "$ARBEIT/allowed_signers.geprueft"
+if ! ssh-keygen -Y verify -f "$ARBEIT/allowed_signers.geprueft" -I "$IDENTITAET" -n file -s "$DIST/SHA256SUMS.sig" \
      < "$DIST/SHA256SUMS" > "$ARBEIT/sig.txt" 2>&1; then
   sed 's/^/   /' "$ARBEIT/sig.txt"
   rot "Signatur ueber SHA256SUMS ungueltig / signature over SHA256SUMS invalid"
 fi
 sed 's/^/   /' "$ARBEIT/sig.txt"
+# Gegenprobe: ssh-keygen nennt den Schluessel, der die Signatur traegt.
+grep -q "key $FP_IST\$" "$ARBEIT/sig.txt" \
+  || rot "die Signatur traegt nicht der Schluessel $FP_IST / not signed by that key"
 echo "   GRUEN: SHA256SUMS ist vom Schluessel $FP_IST signiert / signed by that key"
 
 echo

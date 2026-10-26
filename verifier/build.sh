@@ -29,7 +29,7 @@ TARGETS="linux/amd64 darwin/arm64 windows/amd64"
 WURZEL_LDFLAG=""
 if [ -n "${REKORDER_VERIFY_HERSTELLER_WURZEL:-}" ]; then
     WURZEL_WERT=$(python3 -c 'import json,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}; print(w["wurzel_id"]+"="+w["pubkey"])' "$REKORDER_VERIFY_HERSTELLER_WURZEL")
-    WURZEL_LDFLAG="-X github.com/louwietec/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
+    WURZEL_LDFLAG="-X louwietec.com/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
 fi
 
 build_all() {

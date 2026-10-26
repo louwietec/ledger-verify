@@ -2,7 +2,7 @@
 
 **Language: English (German version: `README.de.md`, identical structure)**
 
-These files are the reference values for the vendor side of the licence: what a metadata server MUST decide on activation and on anchors, and what an appliance MAY conclude from its responses. The heartbeat specification (`spec/heartbeat.en.md`) is normative; these vectors make "per specification" checkable byte for byte. Lane B (cloud operation) and lane C (licence) test their code against them.
+These files are the reference values for the vendor side of the licence: what a metadata server MUST decide on activation and on anchors, and what an appliance MAY conclude from its responses. The heartbeat specification (`spec/heartbeat.en.md`) is normative; these vectors make "per specification" checkable byte for byte. The vendor side and the appliance test their code against them.
 
 ## 1. Files
 

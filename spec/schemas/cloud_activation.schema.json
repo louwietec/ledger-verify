@@ -30,7 +30,7 @@
       ]
     },
     "license_commitment": {
-      "description": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported (client decision 2026-09-03). The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof",
+      "description": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported. The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof",
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },

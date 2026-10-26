@@ -27,7 +27,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // futureNote appends an entry of a type this verifier does not know

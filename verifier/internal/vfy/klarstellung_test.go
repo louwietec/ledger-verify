@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // Klarstellungen der Spezifikation 1.4 vom 25.09. (freigegeben): vier

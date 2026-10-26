@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/tsa"
+	"louwietec.com/ledger-verify/verifier/internal/tsa"
 )
 
 // maxTokenDER is the ceiling of spec 4.22 on the decoded token. It is checked

@@ -83,7 +83,7 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/vfy"
+	"louwietec.com/ledger-verify/verifier/internal/vfy"
 )
 
 // name und product stehen in ledgerVerifyVersion und damit in der Fusszeile
@@ -99,7 +99,7 @@ const (
 )
 
 // Version ist eine Variable, damit ein Release-Bau sie wie cli.Version per
-// -ldflags "-X github.com/louwietec/ledger-verify/verifier/internal/wasmapi.Version=..."
+// -ldflags "-X louwietec.com/ledger-verify/verifier/internal/wasmapi.Version=..."
 // setzen kann. / A var so a release build can stamp it.
 var Version = "1.0.0"
 

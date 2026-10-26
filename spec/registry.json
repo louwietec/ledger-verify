@@ -1044,7 +1044,7 @@
       "fields": {
         "license_commitment": {
           "type": "hex64",
-          "comment": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported (client decision 2026-09-03). The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof"
+          "comment": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported. The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof"
         },
         "license_proof": {
           "type": "hex64",
@@ -1457,7 +1457,7 @@
     "comment_de": "Unsignierte Member von Antworten auf Cloud-Nachrichten (Heartbeat-Spezifikation §9.3). Sie sind Hinweise, keine Beweise: Die Appliance leitet aus ihnen keine Entscheidung ab, die Aufzeichnung, Kette oder Verankerung betrifft; ein Hinweis, der seinem Schema nicht entspricht, wird verworfen.",
     "comment_en": "Unsigned members of responses to cloud messages (heartbeat spec 9.3). They are notices, not evidence: the appliance derives from them no decision that concerns recording, the chain or anchoring; a notice that does not match its schema is discarded.",
     "update": {
-      "comment": "heartbeat 200 member 'update' (from spec 1.9, request of lane B): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
+      "comment": "heartbeat 200 member 'update' (from spec 1.9): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
       "fields": {
         "version": {
           "type": "string",
@@ -1483,7 +1483,7 @@
       }
     },
     "update_arch": {
-      "comment": "heartbeat 200 member 'update_arch' (from spec 1.9, addition of 2026-10-07, request A14 of lanes B and C): SHA-256 of the bundle per architecture; present exactly when 'update' is and taken only together with it; a malformed one discards the whole notice; unsigned, transport integrity only; the updater fetches <source>/<version>/ledger-<version>-<architecture>.rbundle and nothing without its own architecture (heartbeat spec 1, 9.3)",
+      "comment": "heartbeat 200 member 'update_arch' (from spec 1.9, addition of 2026-10-07): SHA-256 of the bundle per architecture; present exactly when 'update' is and taken only together with it; a malformed one discards the whole notice; unsigned, transport integrity only; the updater fetches <source>/<version>/ledger-<version>-<architecture>.rbundle and nothing without its own architecture (heartbeat spec 1, 9.3)",
       "fields": {
         "amd64": {
           "type": "hex64",
@@ -1553,7 +1553,7 @@
     }
   },
   "testvectors": {
-    "comment": "Each vector = directory spec/testvectors/<name>/ with package files + spec/testvectors/expected/<name>.json {exit_code, finding_classes:[...]} . Crypto-valid bytes are generated in P02 by the ledger vector generator and then frozen (hash pin in spec/testvectors/PINS.sha256). From spec 1.4 the expectations hold for the audit environment spec/testvectors/pruefer_herstellerwurzel.json (--vendor-root) and pruefer_herstellerschluessel.txt (--vendor-key): the vendor keys of a receipt are established by the auditor's anchors, not by the package (format spec 7.1, 10.7). From spec 1.6 (format spec 8.6) every vector that is not a format error is also judged on its chain end: all vectors frozen up to 1.5 end without a seal, like an export from a running installation, and are therefore incomplete (UNSEALED_END, exit 4). Their bytes are unchanged; only the expectation follows the released edition 1.6 (precedent: spec 1.1, format_unknown_event_type). The group 'end' holds the chain-end cases of edition 1.6. From spec 1.7 the group 'hold' holds the legal-hold cases (format spec 4.24, 9.3); its chains are sealed, so their verdict shows the hold rule alone. From spec 1.8 the group 'license' holds the licence-commitment cases (format spec 4.1): GENESIS.license_id is the commitment from the GENESIS entry's own spec_version 1.8 on, a 1.8 GENESIS with the key in cleartext is FORMAT_ERROR, and a GENESIS of 1.7 keeps its cleartext with a notice (no finding); its chains are sealed, so their verdict shows the licence rule alone. From spec 1.9 the group 'export' holds the export-seal cases (format spec 4.10, 8.4, 8.6); the covered late immediate checkpoint (8.2 conditions 3 and 4) extends 'gap' and 'tamper', and four clarifications both verifiers used to read differently (10.1 segment path and presented plaintexts, 2 integer range, 10.5 processing stages) extend 'tamper' and 'format'.",
+    "comment": "Each vector = directory spec/testvectors/<name>/ with package files + spec/testvectors/expected/<name>.json {exit_code, finding_classes:[...]} . Crypto-valid bytes are generated by the ledger vector generator and then frozen (hash pin in spec/testvectors/PINS.sha256). From spec 1.4 the expectations hold for the audit environment spec/testvectors/pruefer_herstellerwurzel.json (--vendor-root) and pruefer_herstellerschluessel.txt (--vendor-key): the vendor keys of a receipt are established by the auditor's anchors, not by the package (format spec 7.1, 10.7). From spec 1.6 (format spec 8.6) every vector that is not a format error is also judged on its chain end: all vectors frozen up to 1.5 end without a seal, like an export from a running installation, and are therefore incomplete (UNSEALED_END, exit 4). Their bytes are unchanged; only the expectation follows the released edition 1.6 (precedent: spec 1.1, format_unknown_event_type). The group 'end' holds the chain-end cases of edition 1.6. From spec 1.7 the group 'hold' holds the legal-hold cases (format spec 4.24, 9.3); its chains are sealed, so their verdict shows the hold rule alone. From spec 1.8 the group 'license' holds the licence-commitment cases (format spec 4.1): GENESIS.license_id is the commitment from the GENESIS entry's own spec_version 1.8 on, a 1.8 GENESIS with the key in cleartext is FORMAT_ERROR, and a GENESIS of 1.7 keeps its cleartext with a notice (no finding); its chains are sealed, so their verdict shows the licence rule alone. From spec 1.9 the group 'export' holds the export-seal cases (format spec 4.10, 8.4, 8.6); the covered late immediate checkpoint (8.2 conditions 3 and 4) extends 'gap' and 'tamper', and four clarifications both verifiers used to read differently (10.1 segment path and presented plaintexts, 2 integer range, 10.5 processing stages) extend 'tamper' and 'format'.",
     "valid": {
       "valid_basic": {
         "exit": 4,

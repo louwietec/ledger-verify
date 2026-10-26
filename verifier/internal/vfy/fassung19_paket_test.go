@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // --- helpers -----------------------------------------------------------------

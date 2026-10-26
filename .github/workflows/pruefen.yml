@@ -23,7 +23,9 @@ permissions:
 
 jobs:
   pruefen:
-    runs-on: ubuntu-latest
+    # fest statt ubuntu-latest: ein Wechsel des Abbilds soll das Release nicht
+    # still veraendern. / pinned, an image switch must not change the release silently.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 

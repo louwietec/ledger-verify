@@ -80,7 +80,7 @@ echo "   Version       : -X internal/cli.Version=$VERSION, -X internal/wasmapi.V
 MODUL="$(sed -n 's/^module \(.*\)$/\1/p' "$V/go.mod" | head -1)"
 WURZEL_LDFLAG=""
 if [ -n "${LEDGER_VERIFY_HERSTELLER_WURZEL:-}" ]; then
-  WURZEL_WERT="$(python3 -c 'import json,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}; print(w["wurzel_id"]+"="+w["pubkey"])' "$LEDGER_VERIFY_HERSTELLER_WURZEL")"
+  WURZEL_WERT="$(python3 -c 'import json,re,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}, "genau wurzel_id und pubkey / exactly wurzel_id and pubkey"; assert re.fullmatch("[0-9a-f]{64}", w["pubkey"]), "pubkey ist kein 64-stelliger Hexwert / pubkey is not 64 hex digits"; assert re.fullmatch("[A-Za-z0-9._-]{1,64}", w["wurzel_id"]), "wurzel_id ungueltig / invalid"; print(w["wurzel_id"]+"="+w["pubkey"])' "$LEDGER_VERIFY_HERSTELLER_WURZEL")"
   WURZEL_LDFLAG=" -X $MODUL/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
   echo "   Herstellerwurzel eingebaut / vendor root compiled in: $WURZEL_WERT"
 else

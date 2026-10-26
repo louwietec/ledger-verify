@@ -74,7 +74,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/vfy"
+	"louwietec.com/ledger-verify/verifier/internal/vfy"
 )
 
 // Name is the verifier's name in every text it prints: version line, usage,
@@ -88,7 +88,7 @@ const Product = "LEDGER"
 // Version is the verifier's release version. A var, not a const, so that a
 // release build can stamp it:
 //
-//	go build -ldflags "-X github.com/louwietec/ledger-verify/verifier/internal/cli.Version=1.2.0" ./cmd/ledger-verify
+//	go build -ldflags "-X louwietec.com/ledger-verify/verifier/internal/cli.Version=1.2.0" ./cmd/ledger-verify
 var Version = "1.0.0"
 
 // SpecVersion ist die Spezifikationsversion, die dieser Verifier umsetzt —

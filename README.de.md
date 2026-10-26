@@ -44,7 +44,7 @@ es der Schlüssel des Herstellers ist.
 ### Linux und macOS
 
 ```sh
-V=1.0.0            # die Version des Releases
+V=1.0.1        # die Version des Releases
 P=linux_amd64      # oder linux_arm64, darwin_amd64, darwin_arm64
 R=https://github.com/louwietec/ledger-verify/releases/download/v$V
 for f in SHA256SUMS SHA256SUMS.sig allowed_signers ledger-verify_${V}_$P ledger-verify_${V}_source.tar.gz; do
@@ -52,10 +52,14 @@ for f in SHA256SUMS SHA256SUMS.sig allowed_signers ledger-verify_${V}_$P ledger-
 done
 
 # 1) Fingerabdruck des Signaturschlüssels: mit dem veröffentlichten vergleichen
-awk '{print $3, $4}' allowed_signers > release.pub && ssh-keygen -lf release.pub
+awk 'NR==1{print $3, $4}' allowed_signers > release.pub && ssh-keygen -lf release.pub
 
-# 2) Signatur über SHA256SUMS; erwartet: Good "file" signature for release@louwietec.com ...
-ssh-keygen -Y verify -f allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS
+# 2) Signatur über SHA256SUMS, NUR gegen den Schlüssel aus Schritt 1 geprüft, nie gegen die
+#    mitgelieferte allowed_signers (eine Zeile darin kann einen Schlüssel zeigen und einen
+#    anderen prüfen lassen); erwartet: Good "file" signature for release@louwietec.com with ED25519 key
+#    <Fingerabdruck aus Schritt 1>
+printf '%s namespaces="file" %s\n' release@louwietec.com "$(cat release.pub)" > geprueft_allowed_signers
+ssh-keygen -Y verify -f geprueft_allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS
 
 # 3) Prüfsummen der geladenen Dateien (macOS: shasum -a 256 -c --ignore-missing SHA256SUMS)
 sha256sum -c --ignore-missing SHA256SUMS
@@ -73,7 +77,7 @@ prüft es die Beispielketten aus Abschnitt 2 offline mit dem Binary für Ihren
 Rechner:
 
 ```sh
-bash tools/pruefen.sh <verzeichnis> <verzeichnis>/allowed_signers SHA256:<veröffentlichter Fingerabdruck>
+bash tools/pruefen.sh <verzeichnis> <vom Hersteller veröffentlichte allowed_signers-Zeile, als Datei> SHA256:<veröffentlichter Fingerabdruck>
 ```
 
 `tools/pruefen.sh` liegt in diesem Repository und im Quellarchiv. Es ist kurz
@@ -84,7 +88,7 @@ in `SHA256SUMS`, in der Signatur oder in einer Release-Datei macht sie ROT.
 ### Windows (PowerShell)
 
 ```powershell
-$V = "1.0.0"
+$V = "1.0.1"
 $R = "https://github.com/louwietec/ledger-verify/releases/download/v$V"
 foreach ($f in "SHA256SUMS", "SHA256SUMS.sig", "allowed_signers",
                "ledger-verify_${V}_windows_amd64.exe", "ledger-verify_${V}_source.tar.gz") {
@@ -96,8 +100,10 @@ $k = (Get-Content allowed_signers -TotalCount 1).Split(" ")
 "$($k[2]) $($k[3])" | Set-Content -Encoding ascii release.pub
 ssh-keygen -lf release.pub
 
-# 2) Signatur; über cmd, damit SHA256SUMS byte-genau bei ssh-keygen ankommt
-cmd /c "ssh-keygen -Y verify -f allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS"
+# 2) Signatur, NUR gegen den Schlüssel aus Schritt 1 geprüft (nie gegen die mitgelieferte
+#    allowed_signers); über cmd, damit SHA256SUMS byte-genau bei ssh-keygen ankommt
+[IO.File]::WriteAllText("$PWD\geprueft_allowed_signers", "release@louwietec.com namespaces=`"file`" $($k[2]) $($k[3])`n")
+cmd /c "ssh-keygen -Y verify -f geprueft_allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS"
 
 # 3) Prüfsummen der geladenen Dateien
 Get-Content SHA256SUMS | ForEach-Object {
@@ -276,9 +282,16 @@ python3 verifier2/verifier2.py --now-from-package \
 
 ```sh
 tar -xzf ledger-verify_${V}_source.tar.gz && cd ledger-verify-$V
-bash tools/bauen.sh ../nachbau $V ledger-verify
+# Die eingebaute Herstellerwurzel als Datei: wurzel_id und pubkey wie auf
+# louwietec.com und in Zeile 2 von --version eines Release-Binaries
+printf '%s\n' '{"wurzel_id":"<wurzel_id>","pubkey":"<pubkey>"}' > ../herstellerwurzel.json
+LEDGER_VERIFY_HERSTELLER_WURZEL=../herstellerwurzel.json bash tools/bauen.sh ../nachbau $V ledger-verify
 cd ../nachbau && sha256sum -c --ignore-missing ../SHA256SUMS
 ```
+
+Die Release-Binaries tragen die Herstellerwurzel eingebaut. Ohne die
+Wurzel-Datei entstehen Binaries ohne eingebaute Wurzel und damit andere
+Prüfsummen.
 
 Der Bau ist mit derselben Go-Fassung (go1.24.7) reproduzierbar. Eine
 andere Go-Fassung ergibt andere Bytes, und `tools/bauen.sh` warnt dann.

@@ -39,7 +39,7 @@ what shows that it is the vendor's key.
 ### Linux and macOS
 
 ```sh
-V=1.0.0            # the release version
+V=1.0.1        # the release version
 P=linux_amd64      # or linux_arm64, darwin_amd64, darwin_arm64
 R=https://github.com/louwietec/ledger-verify/releases/download/v$V
 for f in SHA256SUMS SHA256SUMS.sig allowed_signers ledger-verify_${V}_$P ledger-verify_${V}_source.tar.gz; do
@@ -47,10 +47,13 @@ for f in SHA256SUMS SHA256SUMS.sig allowed_signers ledger-verify_${V}_$P ledger-
 done
 
 # 1) fingerprint of the signing key: compare it with the published one
-awk '{print $3, $4}' allowed_signers > release.pub && ssh-keygen -lf release.pub
+awk 'NR==1{print $3, $4}' allowed_signers > release.pub && ssh-keygen -lf release.pub
 
-# 2) signature over SHA256SUMS; expected: Good "file" signature for release@louwietec.com ...
-ssh-keygen -Y verify -f allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS
+# 2) signature over SHA256SUMS, checked against the key from step 1 and never against
+#    the shipped allowed_signers (a line there can show one key and have another checked);
+#    expected: Good "file" signature for release@louwietec.com with ED25519 key <fingerprint from step 1>
+printf '%s namespaces="file" %s\n' release@louwietec.com "$(cat release.pub)" > checked_allowed_signers
+ssh-keygen -Y verify -f checked_allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS
 
 # 3) checksums of the downloaded files (macOS: shasum -a 256 -c --ignore-missing SHA256SUMS)
 sha256sum -c --ignore-missing SHA256SUMS
@@ -67,7 +70,7 @@ downloaded in a browser does, and it is removed with
 example chains of section 2 offline with the binary for your machine:
 
 ```sh
-bash tools/pruefen.sh <directory> <directory>/allowed_signers SHA256:<published fingerprint>
+bash tools/pruefen.sh <directory> <allowed_signers line published by the vendor, saved as a file> SHA256:<published fingerprint>
 ```
 
 `tools/pruefen.sh` is in this repository and in the source archive, and it is
@@ -78,7 +81,7 @@ short enough to read before you run it. Its last line is
 ### Windows (PowerShell)
 
 ```powershell
-$V = "1.0.0"
+$V = "1.0.1"
 $R = "https://github.com/louwietec/ledger-verify/releases/download/v$V"
 foreach ($f in "SHA256SUMS", "SHA256SUMS.sig", "allowed_signers",
                "ledger-verify_${V}_windows_amd64.exe", "ledger-verify_${V}_source.tar.gz") {
@@ -90,8 +93,10 @@ $k = (Get-Content allowed_signers -TotalCount 1).Split(" ")
 "$($k[2]) $($k[3])" | Set-Content -Encoding ascii release.pub
 ssh-keygen -lf release.pub
 
-# 2) signature; run through cmd so that SHA256SUMS reaches ssh-keygen byte for byte
-cmd /c "ssh-keygen -Y verify -f allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS"
+# 2) signature, checked against the key from step 1 (never against the shipped
+#    allowed_signers); run through cmd so that SHA256SUMS reaches ssh-keygen byte for byte
+[IO.File]::WriteAllText("$PWD\checked_allowed_signers", "release@louwietec.com namespaces=`"file`" $($k[2]) $($k[3])`n")
+cmd /c "ssh-keygen -Y verify -f checked_allowed_signers -I release@louwietec.com -n file -s SHA256SUMS.sig < SHA256SUMS"
 
 # 3) checksums of the downloaded files
 Get-Content SHA256SUMS | ForEach-Object {
@@ -262,9 +267,15 @@ python3 verifier2/verifier2.py --now-from-package \
 
 ```sh
 tar -xzf ledger-verify_${V}_source.tar.gz && cd ledger-verify-$V
-bash tools/bauen.sh ../rebuild $V ledger-verify
+# The compiled-in vendor root as a file: wurzel_id and pubkey as on
+# louwietec.com and on line 2 of --version of a release binary
+printf '%s\n' '{"wurzel_id":"<wurzel_id>","pubkey":"<pubkey>"}' > ../herstellerwurzel.json
+LEDGER_VERIFY_HERSTELLER_WURZEL=../herstellerwurzel.json bash tools/bauen.sh ../rebuild $V ledger-verify
 cd ../rebuild && sha256sum -c --ignore-missing ../SHA256SUMS
 ```
+
+The release binaries carry the vendor root compiled in. Without the root file
+the binaries carry no compiled-in root and so have other checksums.
 
 The build is reproducible with the same Go release (go1.24.7). A different
 Go release yields different bytes, and `tools/bauen.sh` warns about that.

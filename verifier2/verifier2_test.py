@@ -303,6 +303,23 @@ class ForwardCompat(V2Case):
         self.assertTrue(V.ed25519_verify(pubkey(DEV_SEED), sign(DEV_SEED, msg), msg))
         self.assertFalse(V.ed25519_verify(pubkey(DEV_SEED), sign(DEV_SEED, msg), msg + b"x"))
 
+    def test_0_signature_r_in_canonical_encoding_only(self):
+        """RFC 8032 5.1.3 step 4 and 5.1.7: R = identity with S = k*a holds as points; encoded with the sign bit set
+        (x = 0), it is no valid encoding and never verifies, as in Go's crypto/ed25519. R with y >= p and S >= L do
+        not verify either."""
+        msg = b"negative zero"
+        a, _prefix = _scalar(DEV_SEED)
+        pub = pubkey(DEV_SEED)
+        for r_enc, ok in ((b"\x01" + b"\x00" * 31, True), (b"\x01" + b"\x00" * 30 + b"\x80", False)):
+            k = int.from_bytes(hashlib.sha512(r_enc + pub + msg).digest(), "little") % V._L
+            with self.subTest(r=r_enc.hex()):
+                self.assertEqual(V.ed25519_verify(pub, r_enc + (k * a % V._L).to_bytes(32, "little"), msg), ok)
+        q1 = (V._Q + 1).to_bytes(32, "little")         # y = p + 1 encodes the identity a second time, not canonically
+        k = int.from_bytes(hashlib.sha512(q1 + pub + msg).digest(), "little") % V._L
+        self.assertFalse(V.ed25519_verify(pub, q1 + (k * a % V._L).to_bytes(32, "little"), msg))
+        sig = sign(DEV_SEED, msg)
+        self.assertFalse(V.ed25519_verify(pub, sig[:32] + (int.from_bytes(sig[32:], "little") + V._L).to_bytes(32, "little"), msg))
+
     def test_0_baseline_is_clean(self):
         c = Chain(); c.tick(); c.tick(); c.close()
         code, f = self.run_v2(c)
@@ -553,7 +570,7 @@ class GenesisLicense(V2Case):
             code, txt = self.run_cli(self.sealed("1.7", self.KEY), args=["--lang", lang], json_out=False)
             self.assertIn(want, txt)
             self.assertNotIn(self.KEY, txt)
-        code, f = self.run_v2(self.sealed("1.7"))   # commitment already under 1.7 (lane B's mitigation): no notice
+        code, f = self.run_v2(self.sealed("1.7"))   # commitment already under 1.7 (the vendor-side mitigation): no notice
         self.assertEqual((code, f), (0, []), f)
         self.assertIs(self.res.glic, False)
 
@@ -808,6 +825,29 @@ class Klarstellung(V2Case):
         c = Chain(); c.close()
         code, f = self.run_v2(c, patch=lambda es: es[0].update(ts_captured="0000-01-01T00:00:00Z"))
         self.assertEqual(code, 3, f)
+
+    def test_4b_uuid_with_a_line_feed_at_the_end_is_a_format_error(self):
+        """A value of type uuid is the whole string 8-4-4-4-12 (format.de.md 2). re's $ also matches before a final line
+        feed, so _UUID.match took "...\\n" where ledger-verify (Go regexp: $ is the end of the text) says FORMAT_ERROR.
+        Red against the state before 28.10.: there both packages below were valid (exit 0)."""
+        class NlGenesis(Chain):
+            def add(self, et, payload, **kw):
+                if et == "GENESIS": payload["appliance_id"] += "\n"
+                return super().add(et, payload, **kw)
+        c = NlGenesis(); c.tick(); c.close()
+        code, f = self.run_v2(c)
+        self.assertEqual((code, self.classes(f)), (3, ["FORMAT_ERROR"]), f)
+        self.assertTrue(any("appliance_id: not a lowercase uuid" in x["detail"] for x in f), f)
+        g, old = globals(), CHAIN
+        g["CHAIN"] = old + "\n"                 # manifest and every entry alike, as in the package that found it
+        try:
+            c = Chain(); c.tick(); c.close()
+            code, f = self.run_v2(c)
+        finally: g["CHAIN"] = old
+        self.assertEqual((code, self.classes(f)), (3, ["FORMAT_ERROR"]), f)
+        self.assertTrue(any("manifest.chain_id: not a lowercase uuid" in x["detail"] for x in f), f)
+        c = Chain(); c.tick(); c.close()
+        self.assertEqual(self.run_v2(c), (0, []))
 
     def test_5_zip_names_in_normal_form(self):
         c = Chain(); c.close()

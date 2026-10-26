@@ -2,7 +2,7 @@
 
 **Sprache: Deutsch (englische Fassung: `README.en.md`, identische Struktur)**
 
-Diese Dateien sind die Referenzwerte für die Hersteller-Seite der Lizenz: was ein Metadatenserver bei der Aktivierung und bei Ankern entscheiden MUSS und was eine Appliance aus seinen Antworten schließen DARF. Normativ ist die Heartbeat-Spezifikation (`spec/heartbeat.de.md`); diese Vektoren machen „nach Spezifikation" byteweise prüfbar. Spur B (Cloud-Betrieb) und Spur C (Lizenz) testen ihren Code gegen sie.
+Diese Dateien sind die Referenzwerte für die Hersteller-Seite der Lizenz: was ein Metadatenserver bei der Aktivierung und bei Ankern entscheiden MUSS und was eine Appliance aus seinen Antworten schließen DARF. Normativ ist die Heartbeat-Spezifikation (`spec/heartbeat.de.md`); diese Vektoren machen „nach Spezifikation" byteweise prüfbar. Die Hersteller-Seite und die Appliance testen ihren Code gegen sie.
 
 ## 1. Dateien
 

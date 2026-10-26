@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // Spec 1.6 (8.6): the ordinary chain of a running installation — it ends with

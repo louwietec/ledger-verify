@@ -12,7 +12,7 @@ package main
 import (
 	"os"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/cli"
+	"louwietec.com/ledger-verify/verifier/internal/cli"
 )
 
 func main() {

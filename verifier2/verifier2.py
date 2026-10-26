@@ -33,7 +33,7 @@
 
 import argparse, base64, datetime, hashlib, hmac, json, os, re, sys, zipfile
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 ZERO = "0" * 64
 TICK_TOLERANCE_MS = 450000     # format.de.md 8.2: 1.5 x the 5 min TICK interval, in whole milliseconds (2)
 CLOCK_TOLERANCE_MS = 300000    # format.de.md 9.2
@@ -116,15 +116,24 @@ def _point(b):
     return (x, y, 1, x * y % _Q)
 
 
+def _encode(p):
+    x, y, z, _t = p
+    zi = pow(z, _Q - 2, _Q)
+    x, y = x * zi % _Q, y * zi % _Q
+    return (y | (x & 1) << 255).to_bytes(32, "little")
+
+
 def ed25519_verify(pubkey, sig, msg):
+    """RFC 8032 5.1.7 without the cofactor, as Go's crypto/ed25519: S < L, and the encoding of [S]B - [k]A equals R
+    byte for byte. An R that is not the canonical encoding of its point (x = 0 with the sign bit set) never verifies
+    (RFC 8032 5.1.3 step 4); the public key is decoded as before (x = 0 with the sign bit set reads as x = 0)."""
     if len(pubkey) != 32 or len(sig) != 64: return False
-    a, r = _point(pubkey), _point(sig[:32])
+    a = _point(pubkey)
     s = int.from_bytes(sig[32:], "little")
-    if a is None or r is None or s >= _L: return False
+    if a is None or s >= _L: return False
     h = int.from_bytes(hashlib.sha512(sig[:32] + pubkey + msg).digest(), "little") % _L
-    x1, y1, z1, _u = _mul(_B, s)
-    x2, y2, z2, _v = _add(r, _mul(a, h))
-    return (x1 * z2 - x2 * z1) % _Q == 0 and (y1 * z2 - y2 * z1) % _Q == 0
+    x, y, z, t = _mul(a, h)
+    return _encode(_add(_mul(_B, s), ((-x) % _Q, y, z, (-t) % _Q))) == sig[:32]
 
 
 # -------------------------------------------------- Merkle tree (RFC 6962, §5)
@@ -175,7 +184,7 @@ def _check(v, spec, reg, path, errs, res, offen=None):
     if t not in ("const", "uuid", "rfc3339", "bool", "hex64", "hex128", "enum", "version", "open_enum", "int", "string", "object", "array"): errs.append(f"{path}: registry type {t!r} is unknown to this verifier version - loud, not silent")
     elif t == "const" and v != spec["value"]:
         errs.append(f"{path}: expected {spec['value']!r}, got {v!r}")
-    elif t == "uuid" and not (isinstance(v, str) and _UUID.match(v)):
+    elif t == "uuid" and not (isinstance(v, str) and _UUID.fullmatch(v)):   # fullmatch: $ alone matches before a final line end
         errs.append(f"{path}: not a lowercase uuid")
     elif t == "rfc3339" and not _is_ts(v):
         errs.append(f"{path}: not an RFC 3339 UTC timestamp")

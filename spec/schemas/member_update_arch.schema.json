@@ -2,7 +2,7 @@
   "$id": "member_update_arch.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "heartbeat 200 member 'update_arch' (from spec 1.9, addition of 2026-10-07, request A14 of lanes B and C): SHA-256 of the bundle per architecture; present exactly when 'update' is and taken only together with it; a malformed one discards the whole notice; unsigned, transport integrity only; the updater fetches <source>/<version>/ledger-<version>-<architecture>.rbundle and nothing without its own architecture (heartbeat spec 1, 9.3)",
+  "description": "heartbeat 200 member 'update_arch' (from spec 1.9, addition of 2026-10-07): SHA-256 of the bundle per architecture; present exactly when 'update' is and taken only together with it; a malformed one discards the whole notice; unsigned, transport integrity only; the updater fetches <source>/<version>/ledger-<version>-<architecture>.rbundle and nothing without its own architecture (heartbeat spec 1, 9.3)",
   "properties": {
     "amd64": {
       "description": "SHA-256 over the whole bundle for amd64 (x86_64)",

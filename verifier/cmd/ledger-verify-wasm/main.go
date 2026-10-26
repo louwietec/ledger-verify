@@ -7,7 +7,7 @@
 // / The LEDGER verifier as a WebAssembly module; all logic is in internal/wasmapi.
 package main
 
-import "github.com/louwietec/ledger-verify/verifier/internal/wasmapi"
+import "louwietec.com/ledger-verify/verifier/internal/wasmapi"
 
 func main() {
 	wasmapi.Registrieren()

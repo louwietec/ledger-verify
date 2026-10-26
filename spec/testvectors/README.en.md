@@ -60,7 +60,7 @@ The expectation is **exact**, not "at least": both verifiers must produce exactl
 
 ## 4. Freezing (`PINS.sha256`)
 
-The cryptographically valid bytes of the vectors (real hash chains, Merkle roots, Ed25519 signatures and countersignatures with published test keys) are **produced by the ledger vector generator (work package P02)**; they cannot be crafted by hand. After generation, every vector file is pinned by SHA-256 in `PINS.sha256` and **never changed again**: CI compares the files against the pins on every run; any deviation is red. Until then only the target definitions under `expected/` exist; a vector counts as frozen and referenceable only once pinned. New requirements lead to **new** vectors (registry entry + new pin), never to changing frozen ones.
+The cryptographically valid bytes of the vectors (real hash chains, Merkle roots, Ed25519 signatures and countersignatures with published test keys) are **produced by the ledger vector generator**; they cannot be crafted by hand. After generation, every vector file is pinned by SHA-256 in `PINS.sha256` and **never changed again**: CI compares the files against the pins on every run; any deviation is red. Until then only the target definitions under `expected/` exist; a vector counts as frozen and referenceable only once pinned. New requirements lead to **new** vectors (registry entry + new pin), never to changing frozen ones.
 
 Every vector declares the `spec_version` it was frozen under as a literal, forever (`TestEingefroreneVersionenBleibenStehen`). Only `format_newer_minor` derives its version: by definition it must lie one minor version above the current one, so it is regenerated and re-pinned at every version bump, with specification 1.9 to `1.10`.
 
