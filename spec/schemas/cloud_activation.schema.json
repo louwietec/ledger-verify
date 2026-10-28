@@ -30,12 +30,12 @@
       ]
     },
     "license_commitment": {
-      "description": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported (client decision 2026-09-03). The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof",
+      "description": "SHA-256 over the UTF-8 bytes of the license key; the key itself never travels, is never chained and never exported. The commitment is public (every verification package carries it) and proves nothing by itself: possession of the key is proven by license_proof",
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
     "license_proof": {
-      "description": "proof of possession of the license key (heartbeat spec 4.1): lowercase hex of HMAC-SHA256 (RFC 2104) keyed with the UTF-8 bytes of the license key over the ASCII bytes of device_pubkey (64 chars) immediately followed by appliance_id (36 chars), exactly as carried in this message (100 bytes, no separator). The server recomputes it with the stored key, compares in constant time and refuses a missing or different value with 403 license_proof_invalid before anything is registered, regardless of the declared spec_version. Reference values: spec/contract/license_proof.json",
+      "description": "proof of possession of the license key (heartbeat spec 4.1): lowercase hex of HMAC-SHA256 (RFC 2104) keyed with the UTF-8 bytes of the license key over the ASCII bytes of device_pubkey (64 chars) immediately followed by appliance_id (36 chars), exactly as carried in this message (100 bytes, no separator). The server recomputes it with the stored check value of the license key (the key itself or the two SHA-256 chaining values of RFC 2104 section 4, heartbeat spec 4.1), compares in constant time and refuses a different value with 403 license_proof_invalid before anything is registered; a missing value fails the schema with 400 invalid_field (field license_proof). Both regardless of the declared spec_version. Reference values: spec/contract/license_proof.json",
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },

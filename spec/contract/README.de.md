@@ -1,8 +1,8 @@
-# Vertragsvektoren der Cloud-Nachrichten (Spezifikation 1.8)
+# Vertragsvektoren der Cloud-Nachrichten (Spezifikation 1.8 bis 1.10)
 
 **Sprache: Deutsch (englische Fassung: `README.en.md`, identische Struktur)**
 
-Diese Dateien sind die Referenzwerte für die Hersteller-Seite der Lizenz: was ein Metadatenserver bei der Aktivierung und bei Ankern entscheiden MUSS und was eine Appliance aus seinen Antworten schließen DARF. Normativ ist die Heartbeat-Spezifikation (`spec/heartbeat.de.md`); diese Vektoren machen „nach Spezifikation" byteweise prüfbar. Spur B (Cloud-Betrieb) und Spur C (Lizenz) testen ihren Code gegen sie.
+Diese Dateien sind die Referenzwerte für die Hersteller-Seite der Lizenz: was ein Metadatenserver bei der Aktivierung und bei Ankern entscheiden MUSS und was eine Appliance aus seinen Antworten schließen DARF. Normativ ist die Heartbeat-Spezifikation (`spec/heartbeat.de.md`); diese Vektoren machen „nach Spezifikation" byteweise prüfbar. Die Hersteller-Seite und die Appliance testen ihren Code gegen sie.
 
 ## 1. Dateien
 
@@ -13,8 +13,10 @@ Diese Dateien sind die Referenzwerte für die Hersteller-Seite der Lizenz: was e
 | `anchor_refusal.json` | §9.5 | 403-Antworten auf genau einen gesendeten Anker mit dem Urteil der Appliance: Lizenzsperre oder gewöhnlicher Fehlschlag |
 | `lueckenzeuge.json` | §9.2 | Ankerfolgen durch eine Lizenzlücke mit der Entscheidung des Servers nach jedem Schritt: HTTP-Status, Fehlercode, Art der Antwort und Bezugsgröße danach |
 | `activation_receipt.json` | §4.1, §9.8 | 200-Antworten auf eine Umbindung nach Schlüsselersatz mit dem Urteil der Appliance: Umbindung angenommen oder gescheitert (Bescheid für das neue Commitment und an die Aktivierung gebundene Quittung, beide frisch) |
+| `statement_signatures.json` | §9.3, §9.4, §9.11 | ab Fassung 1.10: Antworten, deren Lizenzbescheid neben dem Paar der Hülle ein Paar in `statement_signatures` trägt, mit dem Urteil eines Empfängers nach Fassung 1.9 und nach Fassung 1.10: wirksam über die Hülle, wirksam über das Paar unter dem Bescheidschlüssel, nur das Paar unter dem Gegenzeichnungsschlüssel (unwirksam), Bescheidschlüssel vor `server_ts` widerrufen (unwirksam), fehlerhafter Eintrag neben der Hülle (ignoriert) |
+| `gemeldete_wurzeln.json` | §9.2, §9.7 | ab Fassung 1.10: zwei Appliances mit eigener Lizenz und die Bindung einer Kette mit der Entscheidung des Servers nach jedem Schritt: gebunden wird eine Kette durch ihre erste festgehaltene Wurzel oder einen eingetragenen Kettenwechsel, nie durch einen Heartbeat; eine gemeldete Wurzel wird nur festgehalten, wenn die Kette an die sendende Appliance gebunden ist; den Anker einer anderen Appliance beantwortet der Server mit HTTP 403 `chain_owner_mismatch` |
 
-Der Herstellerschlüssel in den Dateien ist ein **Testschlüssel**; sein Seed steht offen darin, damit Implementierungen eigene Fälle signieren können. Er wird nie auf einem echten Server konfiguriert.
+Die Herstellerschlüssel in den Dateien sind **Testschlüssel**; ihre Seeds stehen offen darin, damit Implementierungen eigene Fälle signieren können. Sie werden nie auf einem echten Server konfiguriert.
 
 ## 2. Erzeugung und Gegenprüfung
 

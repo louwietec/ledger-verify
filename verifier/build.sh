@@ -5,9 +5,10 @@
 # Builds linux/amd64, darwin/arm64, windows/amd64 into verifier/dist/,
 # then builds everything a second time in a separate directory and compares
 # SHA-256 sums to prove byte-identical (reproducible) output.
-# In the monorepo the log is also written to artefakte/P03/repro_build.log;
-# outside it (the public verifier repository has no artefakte/) the log goes
-# to stdout only — the script never creates directories outside verifier/.
+# Where an evidence directory artefakte/ exists next to verifier/, the log is
+# also written there; otherwise (the public verifier repository has no
+# artefakte/) the log goes to stdout only; the script never creates
+# directories outside verifier/.
 set -eu
 
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -29,7 +30,8 @@ TARGETS="linux/amd64 darwin/arm64 windows/amd64"
 WURZEL_LDFLAG=""
 if [ -n "${REKORDER_VERIFY_HERSTELLER_WURZEL:-}" ]; then
     WURZEL_WERT=$(python3 -c 'import json,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}; print(w["wurzel_id"]+"="+w["pubkey"])' "$REKORDER_VERIFY_HERSTELLER_WURZEL")
-    WURZEL_LDFLAG="-X github.com/louwietec/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
+    MODUL=$(cd "$HERE" && go list -m)
+    WURZEL_LDFLAG="-X $MODUL/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
 fi
 
 build_all() {

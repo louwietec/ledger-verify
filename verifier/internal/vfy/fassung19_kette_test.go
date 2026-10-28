@@ -236,8 +236,8 @@ func lateCheckpointChain(t *testing.T, v spaet) *gen {
 
 // The fixed ledger's chain: the silence before the late checkpoint is covered
 // by condition 4 — COVERED_GAP (exit 1), and with an open end exit 4. Up to
-// 1.8 it was CONCEALED_SILENCE (exit 2), the decision of 2026-09-03 the
-// client changed on 2026-09-29. For every critical type other than SEAL.
+// 1.8 it was CONCEALED_SILENCE (exit 2), the decision of 2026-09-03, changed
+// on 2026-09-29. For every critical type other than SEAL.
 func TestLateCheckpointCoveredByRestartAndGap(t *testing.T) {
 	for typ := range criticalTypes {
 		if typ == "SEAL" || typ == "GENESIS" || typ == "GAP" {
@@ -617,15 +617,16 @@ func TestCompletenessInJSONAndText(t *testing.T) {
 		}
 	}
 
-	// A format error states neither completeness nor residual window.
+	// A format error judges neither completeness nor residual window: both
+	// stand with the value null (spec 10.10.1).
 	f := newGen(t)
 	f.tick(0)
 	res = verifyGen(f, Options{})
 	if res.ExitCode != 3 || res.Stats.Completeness != nil || res.Stats.ResidualWindow != nil {
-		t.Errorf("exit %d, completeness %+v, residual %+v — want neither for exit 3", res.ExitCode, res.Stats.Completeness, res.Stats.ResidualWindow)
+		t.Errorf("exit %d, completeness %+v, residual %+v: want neither judged for exit 3", res.ExitCode, res.Stats.Completeness, res.Stats.ResidualWindow)
 	}
-	if b, _ := RenderJSON(res); strings.Contains(string(b), "completeness") || strings.Contains(string(b), "residual_window") {
-		t.Errorf("JSON of a format error carries completeness/residual_window:\n%s", b)
+	if b, _ := RenderJSON(res); !strings.Contains(string(b), `"completeness": null`) || !strings.Contains(string(b), `"residual_window": null`) {
+		t.Errorf("JSON of a format error lacks completeness/residual_window null:\n%s", b)
 	}
 }
 
@@ -726,8 +727,8 @@ func TestResidualWindowInTextReport(t *testing.T) {
 	g := validChain(t)
 	res := verifyGen(g, Options{})
 	for lang, want := range map[string][]string{
-		"en": {"Residual window:", "2 entries (seq 7 to 8) after tree_size 6, spanning 2000 ms (2s)", "Residual window (spec 11.2): the 2 entries after the last countersigned tree state (tree_size 6) — seq 7 to 8"},
-		"de": {"Restfenster:", "2 Einträge (seq 7 bis 8) nach tree_size 6, Dauer 2000 ms (2s)", "Restfenster (Spezifikation 11.2): Die 2 Einträge nach dem letzten gegengezeichneten Stand (tree_size 6) — seq 7 bis 8"},
+		"en": {"Residual window:", "2 entries (seq 7 to 8) after tree_size 6, spanning 2000 ms (2s)", "Residual window (spec 11.2): the 2 entries after the last countersigned tree state (tree_size 6; seq 7 to 8"},
+		"de": {"Restfenster:", "2 Einträge (seq 7 bis 8) nach tree_size 6, Dauer 2000 ms (2s)", "Restfenster (Spezifikation 11.2): Die 2 Einträge nach dem letzten gegengezeichneten Stand (tree_size 6; seq 7 bis 8"},
 	} {
 		txt := RenderText(res, "pkg", lang)
 		for _, w := range want {
@@ -750,8 +751,8 @@ func TestResidualWindowInTextReport(t *testing.T) {
 	g.tick(time.Minute)
 	res = verifyGen(g, Options{})
 	for lang, want := range map[string][]string{
-		"en": {"all 3 entries (seq 1 to 3): no countersigned checkpoint in this package — beyond the anchoring cadence", "licence lapsed", "egress is switched off", "vendor was unreachable", "the export is old", "spec 8.6"},
-		"de": {"alle 3 Einträge (seq 1 bis 3): kein gegengezeichneter Checkpoint in diesem Paket — über dem Verankerungstakt", "Lizenz abgelaufen", "Egress abgeschaltet", "Hersteller nicht erreichbar", "alter Export", "Spezifikation 8.6"},
+		"en": {"all 3 entries (seq 1 to 3): no countersigned checkpoint in this package; beyond the anchoring cadence", "licence lapsed", "egress is switched off", "vendor was unreachable", "the export is old", "spec 8.6"},
+		"de": {"alle 3 Einträge (seq 1 bis 3): kein gegengezeichneter Checkpoint in diesem Paket; über dem Verankerungstakt", "Lizenz abgelaufen", "Egress abgeschaltet", "Hersteller nicht erreichbar", "alter Export", "Spezifikation 8.6"},
 	} {
 		txt := RenderText(res, "pkg", lang)
 		for _, w := range want {

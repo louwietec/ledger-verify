@@ -33,7 +33,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // VendorListPath is where a package carries the vendor's signed key list.
@@ -46,9 +46,12 @@ const VendorListFormat = "rekorder-herstellerschluessel/1"
 const vendorListMaxKeys = 64
 
 // VendorRoot is the vendor's offline root key as the auditor supplies it.
+// Builtin marks the root compiled into the build (spec 7.1); the report
+// names the source of a root as vendor_root or builtin (spec 10.10.2).
 type VendorRoot struct {
-	ID     string `json:"wurzel_id"`
-	Pubkey string `json:"pubkey"`
+	ID      string `json:"wurzel_id"`
+	Pubkey  string `json:"pubkey"`
+	Builtin bool   `json:"-"`
 }
 
 // VendorKey is a single vendor countersigning key the auditor pinned.
@@ -327,6 +330,20 @@ func (r *run) vendorKeyFor(keyID, serverTS string) (pub string, established bool
 	return "", false, ""
 }
 
+// vendorKeyVia names where vendorKeyFor took an established key from, in
+// its own order: a pin of the auditor first, then the list of the package
+// (format spec 10.9.3); a key no anchor establishes comes from the manifest.
+func (r *run) vendorKeyVia(keyID string, established bool) string {
+	vt := r.vendor
+	switch {
+	case !established:
+		return keyViaManifest
+	case vt != nil && vt.pinned[keyID] != "":
+		return keyViaPinned
+	}
+	return keyViaList
+}
+
 // noteUnverifiedVendorKey reports RECEIPT_UNVERIFIED once per key id.
 func (r *run) noteUnverifiedVendorKey(seq int64, keyID string) {
 	vt := r.vendor
@@ -346,20 +363,23 @@ func (r *run) noteUnverifiedVendorKey(seq int64, keyID string) {
 	}
 	r.add(ClsReceiptUnverified, seq, fmt.Sprintf(
 		"receipts under vendor key %q (pubkey %s, from the package manifest) are signed consistently, but the key is not established as the vendor's: %s; "+
-			"the package was written by the party the receipt is meant to bind, so its own key proves nothing — look the key up with the vendor outside the package (spec 7.1)",
+			"the package was written by the party the receipt is meant to bind, so its own key proves nothing; look the key up with the vendor outside the package (spec 7.1)",
 		keyID, r.man.vendorKeys[keyID], why))
 }
 
 // BuiltinVendorRoot is the vendor root compiled into a release build, as
 // "wurzel_id=hex64". It is set with
 //
-//	-ldflags "-X github.com/louwietec/ledger-verify/verifier/internal/vfy.BuiltinVendorRoot=<id>=<hex>"
+//	-ldflags "-X <module>/internal/vfy.BuiltinVendorRoot=<id>=<hex>"
 //
+// (<module> is the module path, go list -m)
 // by verifier/build.sh when the vendor's root is at hand, and it is EMPTY in
 // every other build: a developer build and the test harnesses trust nothing
-// they were not handed. It counts as the auditor's anchor in the same way the
-// system root store does for time witnesses (spec 7.3) — the auditor chose to
-// trust this binary, whose build is reproducible.
+// they were not handed. It counts as a vendor root of the auditor (spec 7.1):
+// the auditor chose to trust this binary, whose build is reproducible, and the
+// report names its source builtin (spec 10.10.2). No root of a time-stamping
+// authority is built in, and the system root store counts for no purpose
+// (spec 7.5.7).
 var BuiltinVendorRoot = ""
 
 // Builtin returns the compiled-in vendor root, if any.
@@ -368,7 +388,7 @@ func Builtin() (VendorRoot, bool, error) {
 		return VendorRoot{}, false, nil
 	}
 	id, pub, ok := strings.Cut(BuiltinVendorRoot, "=")
-	w := VendorRoot{ID: id, Pubkey: pub}
+	w := VendorRoot{ID: id, Pubkey: pub, Builtin: true}
 	if !ok {
 		return VendorRoot{}, false, fmt.Errorf("compiled-in vendor root %q is not wurzel_id=hex", BuiltinVendorRoot)
 	}
@@ -431,7 +451,14 @@ func AnkerZusammenfuehren(roots []VendorRoot, keys []VendorKey) ([]VendorRoot, [
 		}
 		if p, ok := seenR[w.ID]; ok {
 			if p != w.Pubkey {
-				return nil, nil, fmt.Errorf("two vendor roots named %q with different keys — the audit environment is ambiguous", w.ID)
+				return nil, nil, fmt.Errorf("two vendor roots named %q with different keys: the audit environment is ambiguous", w.ID)
+			}
+			// The same root built in and passed by the auditor: its source
+			// is the auditor's (spec 10.10.2).
+			for i := range outR {
+				if outR[i].ID == w.ID && !w.Builtin {
+					outR[i].Builtin = false
+				}
 			}
 			continue
 		}
@@ -446,7 +473,7 @@ func AnkerZusammenfuehren(roots []VendorRoot, keys []VendorKey) ([]VendorRoot, [
 		}
 		if p, ok := seenK[k.ID]; ok {
 			if p != k.Pubkey {
-				return nil, nil, fmt.Errorf("vendor key %q pinned twice with different pubkeys — the audit environment is ambiguous", k.ID)
+				return nil, nil, fmt.Errorf("vendor key %q pinned twice with different pubkeys: the audit environment is ambiguous", k.ID)
 			}
 			continue
 		}

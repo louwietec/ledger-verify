@@ -7,7 +7,6 @@ import (
 	"crypto/ed25519"
 	"crypto/hmac"
 	"crypto/sha256"
-	"crypto/x509"
 	"encoding/hex"
 	"fmt"
 	"regexp"
@@ -16,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // Finding classes (registry: verifier.finding_classes).
@@ -45,6 +44,17 @@ const (
 	ClsNoAnchor            = "NO_ANCHOR"
 	ClsTimeAnchorUnverif   = "TIME_ANCHOR_UNVERIFIED"
 	ClsReceiptUnverified   = "RECEIPT_UNVERIFIED"
+	// Spec 1.10: vendor log (7.4.11, reported by vendorlog.go) and anchor
+	// history (8.8.7, reported by anchorhistory.go), all exit class 1.
+	ClsVendorLogUnverified = "VENDOR_LOG_UNVERIFIED"
+	ClsVendorLogDefective  = "VENDOR_LOG_DEFECTIVE"
+	ClsVendorLogContradict = "VENDOR_LOG_CONTRADICTION"
+	ClsReceiptNotLogged    = "RECEIPT_NOT_LOGGED"
+	ClsLoggedRootMismatch  = "LOGGED_ROOT_MISMATCH"
+	ClsHistoryUnverified   = "ANCHOR_HISTORY_UNVERIFIED"
+	ClsHistoryDefective    = "ANCHOR_HISTORY_DEFECTIVE"
+	ClsHistoryContradict   = "ANCHOR_HISTORY_CONTRADICTION"
+	ClsHistoryFork         = "ANCHOR_HISTORY_FORK"
 	ClsSpecNewer           = "SPEC_NEWER"
 	ClsUnknownEntryType    = "UNKNOWN_ENTRY_TYPE"
 	ClsUnknownManifestFld  = "UNKNOWN_MANIFEST_FIELD"
@@ -61,6 +71,9 @@ var classExit = map[string]int{
 	ClsCoveredGap:  1, ClsCoveredSourceGap: 1, ClsReconciliationDelta: 1,
 	ClsContentDeleted: 1, ClsHoldViolation: 1, ClsClockJumpNote: 1, ClsTrailingSilence: 1, ClsNoAnchor: 1,
 	ClsTimeAnchorUnverif: 1, ClsReceiptUnverified: 1,
+	ClsVendorLogUnverified: 1, ClsVendorLogDefective: 1, ClsVendorLogContradict: 1,
+	ClsReceiptNotLogged: 1, ClsLoggedRootMismatch: 1,
+	ClsHistoryUnverified: 1, ClsHistoryDefective: 1, ClsHistoryContradict: 1, ClsHistoryFork: 1,
 	ClsSpecNewer: 1, ClsUnknownEntryType: 1, ClsUnknownManifestFld: 1,
 	ClsFormatError: 3,
 }
@@ -137,6 +150,14 @@ type Stats struct {
 	// and only the first one is true without a trust store.
 	TimeAnchors         int64 `json:"time_anchors"`
 	TimeAnchorsVerified int64 `json:"time_anchors_verified"`
+	// TimeAnchorDetails has one element per time witness that binds its
+	// checkpoint (spec 7.3 steps 1 to 4), in chain order: whether its
+	// signature was checked, whether it was verified, and to which roots of
+	// the auditor a path leads (the system root store counts for no purpose,
+	// spec 7.5.7).
+	// Internal for now: not part of the JSON output, whose shape for it is
+	// still open.
+	TimeAnchorDetails []TimeAnchorDetail `json:"-"`
 	// ReceiptsEstablished counts the receipts whose vendor key an anchor of
 	// the AUDITOR established (spec 7.1). Receipts minus this number were
 	// checked only against the key the package brought along.
@@ -177,12 +198,40 @@ type Stats struct {
 	// Completeness is what this run can say about whether the package holds
 	// the whole chain up to its request (spec 8.6, "What the verifier says
 	// about completeness", from 1.9). Stated for every package that is not a
-	// format error; nil only for exit 3.
-	Completeness *CompletenessStat `json:"completeness,omitempty"`
+	// format error; for exit 3 null ("nicht bewertet"), never left out
+	// (spec 10.10.1).
+	Completeness *CompletenessStat `json:"completeness"`
 	// ResidualWindow is the measured residual window (spec 11.2, from 1.9):
 	// the entries after the last countersigned checkpoint. Not a finding,
-	// the exit code does not depend on it. Nil only for exit 3.
-	ResidualWindow *ResidualWindowStat `json:"residual_window,omitempty"`
+	// the exit code does not depend on it. For exit 3 null ("nicht
+	// bewertet"), never left out (spec 10.10.1).
+	ResidualWindow *ResidualWindowStat `json:"residual_window"`
+	// UnanchoredStretches are the covered stretches of spec 11.2 (from
+	// 1.10): between two consecutive countersigned checkpoints, more than
+	// the anchoring cadence. Not a finding, the exit code does not depend on
+	// it. An empty list when there is none; null ("nicht bewertet") only for
+	// exit 3, never left out (spec 10.10.1).
+	UnanchoredStretches []UnanchoredStretchStat `json:"unanchored_stretches"`
+	// KeyRoles is the report object key_roles of the role check (spec
+	// 10.7.4, 10.10.2): an object for every package that is not a format
+	// error, null for exit 3.
+	KeyRoles *KeyRolesStat `json:"key_roles"`
+	// VendorLog is the report object vendor_log of the vendor log (spec
+	// 7.4.10 step L10, 10.10.2): an object for every package that is not a
+	// format error, null for exit 3.
+	VendorLog *VendorLogStat `json:"vendor_log"`
+	// AnchorHistory and Affiliation are the report objects anchor_history
+	// and affiliation of the anchor history (format spec 8.8.4 step H13,
+	// 8.8.6, 10.10.2): objects for every package that is not a format error,
+	// also without an anchor history (not_supplied, not_checked), null for
+	// exit 3.
+	AnchorHistory *AnchorHistoryStat `json:"anchor_history"`
+	Affiliation   *AffiliationStat   `json:"affiliation"`
+	// EvidenceLevel is the report object evidence_level (format spec 10.9,
+	// 10.10.2): an object for every report, with the state format_error for
+	// exit 3. It is no finding and changes no exit code; an unusable
+	// invocation writes no report and so none of it (10.10.1).
+	EvidenceLevel *EvidenceLevelStat `json:"evidence_level"`
 }
 
 // CompletenessStat (spec 8.6, from 1.9). Without an expected root of the
@@ -195,9 +244,15 @@ type Stats struct {
 // ones — for a root given without tree_size the prefix size it matched.
 // Status "not_established": none was passed or none was found;
 // UpToTreeSize is null.
+//
+// From 1.10 (format spec 8.6, 8.8.5) the found expected roots of both
+// sources count, and Sources names the sources of the found roots in the
+// order of registry verifier.report_objects.completeness_sources_order
+// (auditor, anchor_history); an empty list when none is found.
 type CompletenessStat struct {
-	Status       string `json:"status"` // established | not_established
-	UpToTreeSize *int64 `json:"up_to_tree_size"`
+	Status       string   `json:"status"` // established | not_established
+	UpToTreeSize *int64   `json:"up_to_tree_size"`
+	Sources      []string `json:"sources"`
 }
 
 // ResidualWindowStat is the residual window of spec 11.2, measured.
@@ -222,6 +277,31 @@ type ResidualWindowStat struct {
 	SpanMS                   *int64  `json:"span_ms"`
 	UnansweredAnchorMessages int64   `json:"unanswered_anchor_messages"`
 	BeyondCadence            bool    `json:"beyond_cadence"`
+}
+
+// UnanchoredStretchStat is one covered stretch of spec 11.2 (from 1.10):
+// T1 (AfterTreeSize) and T2 are the tree_sizes of two consecutive
+// countersigned checkpoints as spec 8.6 counts them (the receipt's signature
+// holds under the key 7.1 chooses, it matches the chain and its own
+// checkpoint, the vendor's list does not contradict it), and more than
+// 450,000 ms lie between ts_chained of the entries at T1 and T2. The stretch
+// is the entries at positions T1+1 … T2: FirstSeq = T1+1, LastSeq = T2,
+// FromTS/ToTS are ts_chained at T1 and T2, SpanMS the time between them in
+// whole milliseconds (spec 2). UnansweredAnchorMessages counts the ADMIN
+// entries with message_type "anchor" in the stretch after the receipt of T1,
+// as the residual window counts them after the receipt of its checkpoint.
+// ReceiptSeq and ReceiptServerTS name the receipt of T2, the one that covers
+// the stretch; on equal tree_size the first in chain order, as in 8.6.
+type UnanchoredStretchStat struct {
+	AfterTreeSize            int64  `json:"after_tree_size"`
+	FirstSeq                 int64  `json:"first_seq"`
+	LastSeq                  int64  `json:"last_seq"`
+	FromTS                   string `json:"from_ts"`
+	ToTS                     string `json:"to_ts"`
+	SpanMS                   int64  `json:"span_ms"`
+	UnansweredAnchorMessages int64  `json:"unanswered_anchor_messages"`
+	ReceiptSeq               int64  `json:"receipt_seq"`
+	ReceiptServerTS          string `json:"receipt_server_ts"`
 }
 
 // LegalHoldStat names one deletion hold active at the chain end (spec 9.3).
@@ -305,7 +385,13 @@ type Result struct {
 
 // Options control a verification run.
 type Options struct {
-	Now time.Time // zero = system time (or the package's, see NowFromPackage)
+	Now time.Time // zero and NowSet false = system time (or the package's, see NowFromPackage)
+	// NowSet says that Now was given (--now, option now). The zero
+	// time.Time is 0001-01-01T00:00:00Z, an instant of the grammar of spec
+	// 10.8 (year 0001 to 9999); without NowSet it read as "not given", and
+	// the system clock took its place. A non-zero Now counts as given as
+	// well, so callers that set only Now keep their meaning.
+	NowSet bool
 	// NowFromPackage lets the package's own verify_args.json set the
 	// verification time. OFF by default and only for frozen test vectors:
 	// the file is unsigned and written by the very appliance under
@@ -330,11 +416,29 @@ type Options struct {
 	// "TREE_SIZE:ROOT"). It is judged together with ExpectRoots; a value that
 	// is neither form is never found (MERKLE_INCONSISTENT).
 	ExpectRoot string
-	// TSARoots are DER certificates the AUDITOR supplies out of band as trust
-	// anchors for time witnesses (spec 7.3). They are the only thing that can
-	// make a TIME_ANCHOR independent of the package, besides the system root
-	// store — which is why they live in the options and not in the package.
+	// TSARoots are DER certificates the AUDITOR supplies out of band as roots
+	// of the purpose chain for time witnesses (spec 7.3, 7.5.7, --tsa-root).
+	// They and the qualified roots are the only thing that can make a
+	// TIME_ANCHOR independent of the package; from spec 1.10 the system root
+	// store counts for no purpose. AddTSARootPEM reads them in the strict
+	// PEM of spec 10.8.
 	TSARoots [][]byte
+	// Inputs of the auditor from spec 1.10 (format spec 10.8), read by the
+	// methods of auditor_inputs.go and checked together by
+	// FinishAuditorInputs: the roots named qualified (purposes chain and
+	// qualified), the roots for time stamps of the vendor log (purpose log),
+	// extracts of the vendor log, pins of protocol and statements keys, key
+	// lists, files of the anchor history and the request time.
+	TSAQualified        *QualifiedRoots
+	VendorLogTSARoots   [][]byte
+	VendorLogs          []VendorLogExtract
+	VendorLogKeys       []VendorKey
+	VendorStatementKeys []VendorKey
+	VendorKeyLists      []AuditorKeyList
+	AnchorHistory       []AnchorHistoryFile
+	RequestedAt         time.Time
+	RequestedAtSet      bool
+	RequestedAtRaw      string
 	// VendorRoots and VendorKeys are the AUDITOR's trust anchors for vendor
 	// countersignatures (spec 7.1, 10.7): the vendor's root key, which vouches
 	// for keys through the signed list keys/vendor/schluesselliste.json in the
@@ -456,24 +560,29 @@ type run struct {
 	roots     [][32]byte // roots[t-1] = computed root over 1..t
 	now       time.Time
 	nowSource string
+	nowKnown  bool // the check time is resolved (the zero time.Time can be one)
 
 	// Forward compatibility (spec 10.6): SPEC_NEWER is reported once per
 	// package, UNKNOWN_ENTRY_TYPE once per unknown type name.
 	specNewerNoted bool
 	unknownTypes   map[string]bool
 
-	// Time witnesses (spec 7.3). The independent trust pool is assembled once
-	// per run — reading the system store per anchor would make a chain with
-	// many anchors needlessly slow and the report needlessly repetitive.
+	// Time witnesses (spec 7.3, 7.5): the table of the auditor's roots for
+	// time stamps (spec 10.8) is built once per run.
 	timeAnchors         int64
 	timeAnchorsVerified int64
 	anchorsPresent      int64
-	tsaIndep            *x509.CertPool
-	tsaIndepNote        string
-	tsaIndepDone        bool
+	timeAnchorDetails   []TimeAnchorDetail
+	tsaRoots            []*TSARoot
+	tsaRootsDone        bool
+	// pkgTSASPKI are the SPKI SHA-256 values of the certificates of
+	// keys/tsa/*.pem (format spec 10.9.3), recorded by checkTimeAnchors.
+	pkgTSASPKI map[string]bool
 
-	// Vendor keys (spec 7.1, 10.7), established once per run.
+	// Vendor keys (spec 7.1, 10.7), established once per run, and the role
+	// check (spec 10.7.4).
 	vendor              *vendorTrust
+	roles               *keyRoles
 	receiptsEstablished int64
 
 	// Chain end (spec 8.6): the last countersigned checkpoint, recorded by
@@ -491,7 +600,61 @@ type run struct {
 	// The measured residual window (spec 11.2), recorded by
 	// measureResidualWindow.
 	residual *ResidualWindowStat
+
+	// Every countersigned checkpoint as spec 8.6 counts them, by tree_size,
+	// the first receipt in chain order on a tie (recorded by checkReceipts),
+	// and the covered stretches measured from them (spec 11.2, from 1.10).
+	countersigned map[int64]*CountersignStat
+	stretches     []UnanchoredStretchStat
+
+	// Every CHECKPOINT_RECEIPT in chain order with whether its signature
+	// holds under the key of spec 7.1 and whether it drew RECEIPT_INVALID
+	// (recorded by checkReceipts), and the vendor log (spec 7.4.10, steps L2
+	// to L10, recorded by checkVendorLog).
+	receiptInfos []*receiptInfo
+	vlog         *vlRun
+
+	// The anchor history (format spec 8.8.4, steps H1 to H11, recorded by
+	// checkAnchorHistory, matchExpectedRoots and finishAnchorHistory) and
+	// the device keys of the package (PK, recorded by checkCheckpoints).
+	ah         *ahRun
+	deviceKeys []string
 }
+
+// receiptInfo is what the vendor log reads about one receipt (spec 7.4.10:
+// "je Quittung, ob ihre Signatur nach Abschnitt 7.1 trägt").
+type receiptInfo struct {
+	seq      int64
+	treeSize int64
+	root     string
+	serverTS string
+	// subject is UTF-8(JCS({chain_id, merkle_root, server_ts, tree_size}))
+	// with the chain_id of the envelope: the bytes the signature covers and
+	// the leaf of a countersignature (spec 7.4.2).
+	subject []byte
+	sigOK   bool // the signature holds under the key spec 7.1 chooses
+	invalid bool // the receipt drew RECEIPT_INVALID
+	// established: the key is pinned (not dropped after 10.7.4) or comes
+	// from the effective list of countersigning keys of the package; with
+	// sigOK and not invalid the receipt is an established receipt of format
+	// spec 8.8.4.
+	established bool
+	// keyID, pub and via record what format spec 10.9.3 keeps per receipt
+	// for the evidence level: the server_key_id, the public key the
+	// signature was checked under and where it comes from (keyViaPinned,
+	// keyViaList for the list of the package, keyViaManifest).
+	keyID string
+	pub   string
+	via   string
+}
+
+// Origins of the key of a receipt (format spec 10.9.3, 10.10.2
+// evidence_level.anchors.vendor_keys[].via).
+const (
+	keyViaPinned   = "pinned"
+	keyViaList     = "list"
+	keyViaManifest = "manifest"
+)
 
 func (r *run) add(class string, seq int64, detail string) {
 	r.findings = append(r.findings, Finding{Class: class, Seq: seq, Detail: detail})
@@ -574,8 +737,8 @@ func Verify(path string, opt Options) Result {
 // VerifyBytes unterscheiden sich nur darin, WIE das Paket geoeffnet wird, und
 // laufen danach beide durch verifyFS. Ein Verifier, der im Browser anders
 // urteilt als auf der Kommandozeile, waere schlimmer als gar keiner — deshalb
-// misst artefakte/P03/wasm_aequivalenz.log beide ueber den ganzen
-// Vektorkorpus gegeneinander, auf Exit-Code UND Befundliste.
+// wird die Aequivalenz beider ueber den ganzen Vektorkorpus gemessen, auf
+// Exit-Code UND Befundliste.
 // / Verifies a package held in memory; same pipeline as Verify, only the way
 // the package is opened differs.
 func VerifyBytes(data []byte, opt Options) Result {
@@ -611,14 +774,33 @@ func verifyFS(fs pkgFS, opt Options) Result {
 		return r.finish() // FORMAT_ERROR: package unreadable, stop
 	}
 
+	// Stage 5 in the order of spec 10.5 (from 1.10). Step 1: the request
+	// time against a check time taken from verify_args.json (spec 10.8);
+	// against --now or the system clock the callers compared it at
+	// invocation.
+	if r.opt.RequestedAtSet && r.nowSource == "package" && unixMS(r.opt.RequestedAt) > unixMS(r.now) {
+		r.add(ClsFormatError, 0, fmt.Sprintf("--requested-at %s lies after the check time %s from verify_args.json (spec 10.5, 10.8)",
+			r.opt.RequestedAtRaw, FormatMillisUTC(r.now)))
+		return r.finish()
+	}
 	r.checkSeqAndHashChain()
 	r.computeRoots()
-	r.matchExpectedRoots()
 	r.checkCheckpoints()
 	r.loadVendorTrust()
+	r.checkKeyRoles()
 	r.checkReceipts()
+	r.checkVendorLog()
+	// Steps 7 and 8: the anchor history H1 to H7, then the expected roots
+	// of both sources with the classification H8 (format spec 8.8.5). Up to
+	// 1.9 the expected roots were matched before the checkpoints; 10.5 notes
+	// that the order changes no result.
+	r.checkAnchorHistory()
+	r.matchExpectedRoots()
 	r.measureResidualWindow()
+	r.measureUnanchoredStretches()
 	r.checkTimeAnchors()
+	// Step 11: the anchor history H9 to H11.
+	r.finishAnchorHistory()
 	r.checkAnchorPresence()
 	r.checkExpectRoot()
 	r.checkPerEntryFindings()
@@ -648,8 +830,8 @@ func verifyFS(fs pkgFS, opt Options) Result {
 // silently changed the basis of the freshness verdict, and verifier2 answered
 // the same package with exit 3.
 func (r *run) resolveNow() error {
-	if !r.opt.Now.IsZero() {
-		r.now, r.nowSource = r.opt.Now, "flag"
+	if r.opt.NowSet || !r.opt.Now.IsZero() {
+		r.now, r.nowSource, r.nowKnown = r.opt.Now, "flag", true
 		return nil
 	}
 	if r.opt.NowFromPackage {
@@ -658,10 +840,10 @@ func (r *run) resolveNow() error {
 		if err != nil {
 			return err
 		}
-		r.now = t
+		r.now, r.nowKnown = t, true
 		return nil
 	}
-	r.now, r.nowSource = time.Now().UTC(), "system"
+	r.now, r.nowSource, r.nowKnown = time.Now().UTC(), "system", true
 	return nil
 }
 
@@ -743,7 +925,7 @@ func (r *run) loadManifest() bool {
 	for _, pfad := range manifestOffeneFelder(v) {
 		r.add(ClsUnknownManifestFld, 0, fmt.Sprintf(
 			"manifest carries the field %s, which this verifier (spec %d.%d) does not define; "+
-				"accepted and reported per spec 10.6 R5, all checks this version knows still run — "+
+				"accepted and reported per spec 10.6 R5, all checks this version knows still run; "+
 				"the field's meaning is NOT judged, so a newer verifier may see more",
 			pfad, specMajor, specMinor))
 	}
@@ -852,7 +1034,7 @@ func (r *run) loadEntries() bool {
 	want := int64(1)
 	for _, s := range segs {
 		if s.firstSeq != want {
-			r.add(ClsFormatError, 0, fmt.Sprintf("segment coverage broken: expected first_seq %d, got %d (%s) — the declared ranges must start at 1, without gaps and without overlap (spec 10.1)", want, s.firstSeq, s.file))
+			r.add(ClsFormatError, 0, fmt.Sprintf("segment coverage broken: expected first_seq %d, got %d (%s): the declared ranges must start at 1, without gaps and without overlap (spec 10.1)", want, s.firstSeq, s.file))
 			return false
 		}
 		if s.lastSeq < s.firstSeq {
@@ -1115,6 +1297,14 @@ func (r *run) checkCheckpoints() {
 		curKeyID = g.pStr("device_key_id")
 		curPub = g.pStr("device_pubkey")
 	}
+	// PK of format spec 8.8.4 (10.5 stage 5, step 3): GENESIS.device_pubkey
+	// and every new_pubkey of a KEY_ROTATION that 6.4 legitimizes. After a
+	// rotation that is not legitimate no later key traces back to the
+	// GENESIS key, so none of them is in PK.
+	legit := curPub != ""
+	if legit {
+		r.deviceKeys = append(r.deviceKeys, curPub)
+	}
 	prevCPHash := zeroHash
 	for _, e := range r.entries {
 		switch e.eventType {
@@ -1126,11 +1316,15 @@ func (r *run) checkCheckpoints() {
 			})
 			if err != nil || e.pStr("old_key_id") != curKeyID || !verifySig(curPub, subject, e.pStr("signature_by_old_key")) {
 				r.add(ClsSigInvalid, e.seq, "KEY_ROTATION not signed by the previously valid device key")
+				legit = false
 			}
 			// Adopt the new key either way to avoid cascading duplicates;
 			// the trust break itself is already reported.
 			curKeyID = e.pStr("new_key_id")
 			curPub = e.pStr("new_pubkey")
+			if legit {
+				r.deviceKeys = append(r.deviceKeys, curPub)
+			}
 		case "CHECKPOINT":
 			ts := e.pInt("tree_size")
 			if ts != e.seq-1 {
@@ -1185,19 +1379,29 @@ func (r *run) checkReceipts() {
 		root := e.pStr("merkle_root")
 		sigOK := false
 		keyID := e.pStr("server_key_id")
+		// The signed subject of spec 7.1, also the leaf of the vendor log
+		// (spec 7.4.2) whose leaf hash step L8 looks up.
+		subject, subjErr := jcs.CanonGo(map[string]any{
+			"chain_id":    e.chainID,
+			"tree_size":   ts,
+			"merkle_root": root,
+			"server_ts":   e.pStr("server_ts"),
+		})
+		info := &receiptInfo{seq: e.seq, treeSize: ts, root: root, serverTS: e.pStr("server_ts")}
+		if subjErr == nil {
+			info.subject = subject
+		}
+		r.receiptInfos = append(r.receiptInfos, info)
 		// The key comes from the auditor's anchors where they reach it, and
 		// only otherwise from the manifest (spec 7.1, vendortrust.go).
 		pub, established, contra := r.vendorKeyFor(keyID, e.pStr("server_ts"))
+		info.established = established
+		info.keyID, info.pub, info.via = keyID, pub, r.vendorKeyVia(keyID, established)
 		if pub == "" {
 			r.add(ClsReceiptInvalid, e.seq, fmt.Sprintf("vendor key %q not in manifest vendor_pubkeys", keyID))
+			info.invalid = true
 		} else {
-			subject, err := jcs.CanonGo(map[string]any{
-				"chain_id":    e.chainID,
-				"tree_size":   ts,
-				"merkle_root": root,
-				"server_ts":   e.pStr("server_ts"),
-			})
-			sigOK = err == nil && verifySig(pub, subject, e.pStr("server_signature"))
+			sigOK = subjErr == nil && verifySig(pub, subject, e.pStr("server_signature"))
 			switch {
 			case contra != "":
 				// The vendor's own signed statement contradicts the receipt.
@@ -1205,16 +1409,26 @@ func (r *run) checkReceipts() {
 				// still runs (a fork stays visible, spec 7.1) — but the
 				// receipt does not count as an anchor.
 				r.add(ClsReceiptInvalid, e.seq, contra)
+				info.invalid = true
 			case !sigOK && established:
 				r.add(ClsReceiptInvalid, e.seq, fmt.Sprintf("server_signature does not verify against vendor key %q as the auditor's trust anchor establishes it", keyID))
+				info.invalid = true
 			case !sigOK:
 				r.add(ClsReceiptInvalid, e.seq, "server_signature does not verify against the vendor public key")
+				info.invalid = true
 			case established:
 				r.receiptsEstablished++
 			default:
 				r.noteUnverifiedVendorKey(e.seq, keyID)
 			}
+			// Spec 10.7.4: a receipt not established after 7.1 whose key in
+			// the manifest is a key of another role keeps its finding of
+			// edition 1.9; the report gives the note receipt_key_other_role.
+			if !established {
+				r.noteReceiptOtherRole(pub)
+			}
 		}
+		info.sigOK = sigOK
 		// Spec 7.1 (clarified 25.09.): a receipt whose signature does not hold
 		// is RECEIPT_INVALID and nothing further is checked on it — its
 		// content is no statement of the vendor. This verifier used to run the
@@ -1240,9 +1454,11 @@ func (r *run) checkReceipts() {
 			if cp == nil || cp.eventType != "CHECKPOINT" {
 				r.add(ClsReceiptInvalid, e.seq, fmt.Sprintf("checkpoint_seq %d does not reference a CHECKPOINT entry", e.pInt("checkpoint_seq")))
 				cpOK = false
+				info.invalid = true
 			} else if cp.pInt("tree_size") != ts || cp.pStr("merkle_root") != root {
 				r.add(ClsReceiptInvalid, e.seq, "receipt tree_size/merkle_root do not match the referenced checkpoint")
 				cpOK = false
+				info.invalid = true
 			} else {
 				matched = true
 			}
@@ -1256,17 +1472,24 @@ func (r *run) checkReceipts() {
 		// does not disown. Whether an auditor anchor established the key is
 		// kept alongside: without it the root is still only the package's word.
 		if contra == "" && matched {
+			cs := &CountersignStat{
+				ReceiptSeq:     e.seq,
+				CheckpointSeq:  e.pInt("checkpoint_seq"),
+				TreeSize:       ts,
+				MerkleRoot:     root,
+				ServerTS:       e.pStr("server_ts"),
+				ServerKeyID:    keyID,
+				KeyEstablished: established,
+			}
 			// On equal tree_size the first in chain order stays (spec 8.6).
 			if r.lastCountersigned == nil || ts > r.lastCountersigned.TreeSize {
-				r.lastCountersigned = &CountersignStat{
-					ReceiptSeq:     e.seq,
-					CheckpointSeq:  e.pInt("checkpoint_seq"),
-					TreeSize:       ts,
-					MerkleRoot:     root,
-					ServerTS:       e.pStr("server_ts"),
-					ServerKeyID:    keyID,
-					KeyEstablished: established,
-				}
+				r.lastCountersigned = cs
+			}
+			if r.countersigned == nil {
+				r.countersigned = map[int64]*CountersignStat{}
+			}
+			if _, ok := r.countersigned[ts]; !ok {
+				r.countersigned[ts] = cs
 			}
 		}
 		// Only a receipt that carries its signature anchors (spec 7.1): an
@@ -1295,8 +1518,11 @@ func (r *run) checkReceipts() {
 // one that is not found is MERKLE_INCONSISTENT and anchors nothing, as a
 // receipt with RECEIPT_INVALID anchors nothing (7). Up to 1.8 this verifier
 // let any given --expect-root suppress NO_ANCHOR, found or not.
+//
+// From 1.10 a found history root counts as well (format spec 8.8.5, 10.5
+// stage 5, step 12).
 func (r *run) checkAnchorPresence() {
-	if r.anchorsPresent == 0 && r.expectedFound() == 0 {
+	if r.anchorsPresent == 0 && r.expectedFound() == 0 && r.historyFound() == 0 {
 		r.add(ClsNoAnchor, 0, "no CHECKPOINT_RECEIPT that counts as an anchor (its signature holding against the vendor key of spec 7.1, not contradicted by the vendor's signed list), no time witness binding its checkpoint and no expected root of the auditor found in the chain")
 	}
 }
@@ -1305,7 +1531,9 @@ func (r *run) checkAnchorPresence() {
 // recomputed prefix roots (spec 10.8): with tree_size against exactly that
 // prefix (a tree_size beyond the entries is not found), without it against
 // every prefix — the largest matching prefix is kept, since that is how far
-// the root establishes completeness (Stats.Completeness).
+// the root establishes completeness (Stats.Completeness). From 1.10 it then
+// merges the history roots with them and classifies the others (format spec
+// 8.8.5, step H8; 10.5 stage 5, step 8).
 func (r *run) matchExpectedRoots() {
 	var alle []string
 	if r.opt.ExpectRoot != "" {
@@ -1335,6 +1563,7 @@ func (r *run) matchExpectedRoots() {
 			}
 		}
 	}
+	r.classifyHistoryRoots()
 }
 
 // expectedFound returns the number of expected roots found.
@@ -1349,7 +1578,9 @@ func (r *run) expectedFound() int {
 }
 
 // checkExpectRoot reports every expected root that is not found as
-// MERKLE_INCONSISTENT (spec 7.2, 8.6, 10.8), once per root, naming why.
+// MERKLE_INCONSISTENT (spec 7.2, 8.6, 10.8), once per root, naming why, and
+// from 1.10 the findings of the classification of the history roots (format
+// spec 8.8.5, step H8; 10.5 stage 5, step 13).
 func (r *run) checkExpectRoot() {
 	for _, x := range r.expected {
 		switch {
@@ -1357,7 +1588,7 @@ func (r *run) checkExpectRoot() {
 		case !x.valid:
 			r.add(ClsMerkleInconsistent, 0, fmt.Sprintf("expected root %q is neither ROOT (64 hex) nor TREE_SIZE:ROOT and matches no recomputed prefix root of this chain (spec 10.8)", x.raw))
 		case x.root.TreeSize > int64(len(r.roots)):
-			r.add(ClsMerkleInconsistent, 0, fmt.Sprintf("expected root %s: tree_size %d exceeds the %d entries of this package — the package lacks entries up to the expected root (spec 8.6, 10.8)", x.root, x.root.TreeSize, len(r.roots)))
+			r.add(ClsMerkleInconsistent, 0, fmt.Sprintf("expected root %s: tree_size %d exceeds the %d entries of this package: the package lacks entries up to the expected root (spec 8.6, 10.8)", x.root, x.root.TreeSize, len(r.roots)))
 		case x.root.TreeSize > 0:
 			got, _ := r.rootAt(x.root.TreeSize)
 			r.add(ClsMerkleInconsistent, 0, fmt.Sprintf("expected root %s: the recomputed root over the first %d entries is %s (spec 7.2, 10.8)", x.root, x.root.TreeSize, got))
@@ -1365,16 +1596,39 @@ func (r *run) checkExpectRoot() {
 			r.add(ClsMerkleInconsistent, 0, fmt.Sprintf("expected root %s matches no recomputed prefix root of this chain (spec 7.2, 10.8)", x.root))
 		}
 	}
+	r.reportHistoryRoots()
 }
 
-// completeness is the statement of spec 8.6 (from 1.9) for this run.
+// completeness is the statement of spec 8.6 (from 1.9) for this run, from
+// 1.10 over the found expected roots of both sources with their sources.
 func (r *run) completeness() *CompletenessStat {
-	c := &CompletenessStat{Status: "not_established"}
+	c := &CompletenessStat{Status: "not_established", Sources: []string{}}
 	var bis int64
+	fromAuditor := false
 	for _, x := range r.expected {
-		if x.found && x.foundAt > bis {
-			bis = x.foundAt
+		if x.found {
+			fromAuditor = true
+			if x.foundAt > bis {
+				bis = x.foundAt
+			}
 		}
+	}
+	fromHistory := false
+	if h := r.ah; h != nil {
+		for _, hr := range h.roots {
+			if hr.found {
+				fromHistory = true
+				if hr.t > bis {
+					bis = hr.t
+				}
+			}
+		}
+	}
+	if fromAuditor {
+		c.Sources = append(c.Sources, "auditor")
+	}
+	if fromHistory {
+		c.Sources = append(c.Sources, "anchor_history")
 	}
 	if bis > 0 {
 		c.Status, c.UpToTreeSize = "established", &bis
@@ -1419,6 +1673,48 @@ func (r *run) measureResidualWindow() {
 		}
 	}
 	r.residual = rw
+}
+
+// measureUnanchoredStretches measures the covered stretches of spec 11.2
+// (from 1.10) once checkReceipts has collected the countersigned
+// checkpoints: for every two consecutive ones, T1 < T2, whose entries lie
+// more than the anchoring cadence apart. This is what a renewal leaves
+// behind: the receipt of T2 covers the stretch, yet nothing in it was
+// countersigned while it ran. Positions stand for seq, as in the residual
+// window. Every countersigned tree_size is at most the number of entries:
+// a larger one fails the prefix check and is not counted (spec 7.1).
+func (r *run) measureUnanchoredStretches() {
+	r.stretches = []UnanchoredStretchStat{}
+	sizes := make([]int64, 0, len(r.countersigned))
+	for ts := range r.countersigned {
+		sizes = append(sizes, ts)
+	}
+	sort.Slice(sizes, func(i, j int) bool { return sizes[i] < sizes[j] })
+	for i := 1; i < len(sizes); i++ {
+		t1, t2 := sizes[i-1], sizes[i]
+		from, to := r.entries[t1-1], r.entries[t2-1]
+		span := unixMS(to.tsChained) - unixMS(from.tsChained)
+		if span <= silenceToleranceMS {
+			continue
+		}
+		cover, afterReceipt := r.countersigned[t2], r.countersigned[t1].ReceiptSeq
+		st := UnanchoredStretchStat{
+			AfterTreeSize:   t1,
+			FirstSeq:        t1 + 1,
+			LastSeq:         t2,
+			FromTS:          from.tsChainedS,
+			ToTS:            to.tsChainedS,
+			SpanMS:          span,
+			ReceiptSeq:      cover.ReceiptSeq,
+			ReceiptServerTS: cover.ServerTS,
+		}
+		for _, e := range r.entries[t1:t2] {
+			if e.eventType == "ADMIN" && e.pStr("message_type") == "anchor" && e.seq > afterReceipt {
+				st.UnansweredAnchorMessages++
+			}
+		}
+		r.stretches = append(r.stretches, st)
+	}
 }
 
 // checkPerEntryFindings emits the informative exit-1 findings per entry.
@@ -1568,8 +1864,8 @@ func holdViolationDetail(target *entry, covering []*activeHold) string {
 	if len(covering) > 1 {
 		was = fmt.Sprintf("%d active holds", len(covering))
 	}
-	return fmt.Sprintf("target_seq=%d hold_id=%s — the deleted content belongs to the AI_CALL at seq %d (ts_captured %s), which lies inside the scope of %s: %s; "+
-		"the deletion stands openly in the chain, no manipulation of the chain is proven — the operator deleted content under a hold of its own (spec 9.3)",
+	return fmt.Sprintf("target_seq=%d hold_id=%s: the deleted content belongs to the AI_CALL at seq %d (ts_captured %s), which lies inside the scope of %s: %s; "+
+		"the deletion stands openly in the chain, no manipulation of the chain is proven; the operator deleted content under a hold of its own (spec 9.3)",
 		target.seq, strings.Join(ids, ","), target.seq, target.raw.Get("ts_captured").Str, was, strings.Join(holds, "; "))
 }
 
@@ -1643,8 +1939,8 @@ func gapCovers(gap, a, b *entry) bool {
 //	(d) the entry after that is a GAP whose window covers the silence between
 //	    a and b as in condition 1 (it is COVERED_GAP like every GAP).
 //
-// The narrow shape is the client's condition of 29.09.: a RESTART must not
-// be able to conceal a deletion (spec 8.2, "Why condition 4").
+// The narrow shape is the condition of 2026-09-29: a RESTART must not be
+// able to conceal a deletion (spec 8.2, "Why condition 4").
 func (r *run) silenceCovered(i int, delta int64) bool {
 	n := len(r.entries)
 	a, b := r.entries[i], r.entries[i+1]
@@ -1942,7 +2238,7 @@ func (r *run) checkChainEnd() {
 
 	var b strings.Builder
 	fmt.Fprintf(&b, "the chain ends with entry seq %d (%s, ts_chained %s), not with a SEAL + its immediate checkpoint (+ receipts on it): "+
-		"the package does not prove that nothing came after it — an export from a running installation, a crash and a truncation look alike offline (spec 8.6)",
+		"the package does not prove that nothing came after it; an export from a running installation, a crash and a truncation look alike offline (spec 8.6)",
 		last.seq, last.eventType, last.tsChainedS)
 	if ce.LastCriticalWithoutCheckpoint {
 		fmt.Fprintf(&b, "; the last entry is a critical entry (%s) without its immediate checkpoint, so the chain end is not anchored (spec 6.2)", last.eventType)
@@ -1962,8 +2258,8 @@ func (r *run) checkChainEnd() {
 	// BEFORE the package was requested — a later one lies beyond the end of
 	// the package and would contradict even an honest one.
 	fmt.Fprintf(&b, "; comparison: fetch the vendor's anchor history for chain_id %s (heartbeat spec 9.7) and re-run with every root in it recorded before this package was requested, "+
-		"at least the most recent countersigned one (never a later one — it lies beyond the end of the package), as expected root "+
-		"(--expect-root TREE_SIZE:ROOT, or --expect-root ROOT to match any prefix) — "+
+		"at least the most recent countersigned one (never a later one: it lies beyond the end of the package), as expected root "+
+		"(--expect-root TREE_SIZE:ROOT, or --expect-root ROOT to match any prefix); "+
 		"a package missing entries the vendor had countersigned by then yields MERKLE_INCONSISTENT", r.man.chainID)
 	r.add(ClsUnsealedEnd, last.seq, b.String())
 }
@@ -2062,7 +2358,7 @@ func (r *run) checkContent() {
 		if g.salts == "" {
 			for _, part := range contentParts {
 				if name, ok := g.plain[part]; ok {
-					r.add(ClsContentMismatch, seq, fmt.Sprintf("%s: presented %s plaintext without its salt file content/%s.salts.json — it cannot be checked (spec 9.1, 10.1)", name, part, g.n))
+					r.add(ClsContentMismatch, seq, fmt.Sprintf("%s: presented %s plaintext without its salt file content/%s.salts.json, so it cannot be checked (spec 9.1, 10.1)", name, part, g.n))
 				}
 			}
 			continue
@@ -2072,7 +2368,7 @@ func (r *run) checkContent() {
 			r.add(ClsContentMismatch, seq, fmt.Sprintf("%s: %s (spec 10.1)", g.salts, why))
 			for _, part := range contentParts {
 				if name, ok := g.plain[part]; ok {
-					r.add(ClsContentMismatch, seq, fmt.Sprintf("%s: presented %s plaintext cannot be checked — its salt file %s does not conform (spec 9.1, 10.1)", name, part, g.salts))
+					r.add(ClsContentMismatch, seq, fmt.Sprintf("%s: presented %s plaintext cannot be checked: its salt file %s does not conform (spec 9.1, 10.1)", name, part, g.salts))
 				}
 			}
 			continue
@@ -2212,10 +2508,13 @@ func (r *run) finish() Result {
 		}
 	}
 	st := Stats{NowSource: r.nowSource}
-	if !r.now.IsZero() {
-		// Zero only when the requested check time could not be determined
-		// (spec 10.8): then "now" stays empty rather than naming a time
-		// nothing was checked against.
+	if r.nowKnown {
+		// Not known only when the requested check time could not be
+		// determined (spec 10.8) or the package could not be opened: then
+		// "now" stays empty rather than naming a time nothing was checked
+		// against. Before 1.1.0 this asked r.now.IsZero(), and a check time
+		// of 0001-01-01T00:00:00Z from verify_args.json read as "not
+		// determined" in a run without FORMAT_ERROR.
 		st.Now = r.now.UTC().Format(time.RFC3339)
 	}
 	if r.man != nil {
@@ -2234,6 +2533,7 @@ func (r *run) finish() Result {
 	}
 	st.TimeAnchors = r.timeAnchors
 	st.TimeAnchorsVerified = r.timeAnchorsVerified
+	st.TimeAnchorDetails = r.timeAnchorDetails
 	st.ReceiptsEstablished = r.receiptsEstablished
 	if vt := r.vendor; vt != nil && vt.list != nil {
 		st.VendorList = &VendorListStat{Version: vt.listVer, Issued: vt.listIssued, Root: vt.listRoot}
@@ -2257,7 +2557,22 @@ func (r *run) finish() Result {
 		// so it has entries and the window was measured.
 		st.Completeness = r.completeness()
 		st.ResidualWindow = r.residual
+		// Spec 11.2 (from 1.10): stated with the residual window, an empty
+		// list when no stretch exceeds the cadence.
+		st.UnanchoredStretches = r.stretches
+		if st.UnanchoredStretches == nil {
+			st.UnanchoredStretches = []UnanchoredStretchStat{}
+		}
+		st.KeyRoles = r.finishKeyRoles()
+		st.VendorLog = r.finishVendorLog()
+		// Step 15 of 10.5: after the exit code, the affiliation (H12) and
+		// the report objects (H13); neither changes the exit code.
+		st.AnchorHistory = r.anchorHistoryStat()
+		st.Affiliation = r.affiliationStat()
 	}
+	// After the exit code and the report objects: the evidence level
+	// (10.5 stage 5, step 15; 10.9). It reads the findings and changes none.
+	st.EvidenceLevel = r.evidenceLevel(exit, &st)
 	if r.findings == nil {
 		r.findings = []Finding{}
 	}

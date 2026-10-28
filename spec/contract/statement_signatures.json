@@ -1,0 +1,334 @@
+{
+  "cases": [
+    {
+      "name": "dual_signed",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "statement_signatures": {
+          "license": {
+            "server_key_id": "vendor-statements-test-001",
+            "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+          }
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": true,
+          "state": "valid"
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "dual operation: 1.9 effective through the wrapper under the countersigning key, 1.10 effective through the pair under the statements key (9.4 item 3)"
+    },
+    {
+      "name": "countersigning_pair_only",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": false
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "only the wrapper under the countersigning key: for 1.10 no pair names a key of role statements (9.4 item 3)"
+    },
+    {
+      "name": "statements_key_revoked_before_server_ts",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "statement_signatures": {
+          "license": {
+            "server_key_id": "vendor-statements-test-003",
+            "server_signature": "fe71143748ced01d1aabeb0bb611d30f7da44d3741bf26839db227969b0d045c159d4e509e262697a2b60565308224def0ef6dbdc0828a6f5727489bb3d9d503"
+          }
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": false
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "the statements pair names a key that the receiver's role list revokes before server_ts; the countersigning pair never counts for 1.10 (9.4 item 3)"
+    },
+    {
+      "name": "pair_under_countersigning_key_in_statement_signatures",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "statement_signatures": {
+          "license": {
+            "server_key_id": "vendor-test-001",
+            "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+          }
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": false
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "a pair under a key of another role never counts for 1.10, not even in statement_signatures (9.4 item 3)"
+    },
+    {
+      "name": "malformed_entry_next_to_countersigning_wrapper",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "statement_signatures": {
+          "license": {
+            "note": "x",
+            "server_key_id": "vendor-statements-test-001",
+            "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+          }
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": false
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "the entry is not exactly the two strings and is ignored; the remaining pair is the countersigning wrapper (9.3)"
+    },
+    {
+      "name": "malformed_member_next_to_statements_wrapper",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-statements-test-001",
+          "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+        },
+        "statement_signatures": [
+          {
+            "server_key_id": "vendor-statements-test-001",
+            "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+          }
+        ],
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": true,
+          "state": "valid"
+        },
+        "1.9": {
+          "effective": false
+        }
+      },
+      "why": "after the end of dual operation: statement_signatures is not an object and is ignored, the wrapper under the statements key carries for 1.10; 1.9 holds no statements key (9.3, 9.11)"
+    },
+    {
+      "name": "member_naming_no_statement",
+      "response": {
+        "license": {
+          "statement": {
+            "countersigning": true,
+            "grace_until": "2027-01-30T00:00:00.000Z",
+            "kind": "ledger.license_statement.v1",
+            "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_ts": "2026-01-01T00:00:00.000Z",
+            "state": "valid",
+            "updates": true,
+            "valid_until": "2026-12-31T00:00:00.000Z"
+          },
+          "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+          "server_key_id": "vendor-test-001",
+          "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+        },
+        "statement_signatures": {
+          "activation_receipt": {
+            "server_key_id": "vendor-statements-test-001",
+            "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+          },
+          "license": {
+            "server_key_id": "vendor-statements-test-001",
+            "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+          }
+        },
+        "status": "ok"
+      },
+      "expect": {
+        "1.10": {
+          "effective": true,
+          "state": "valid"
+        },
+        "1.9": {
+          "effective": true,
+          "state": "valid"
+        }
+      },
+      "why": "a heartbeat response carries no activation_receipt; that member of statement_signatures is ignored (9.3)"
+    }
+  ],
+  "comment": "Heartbeat responses whose licence statement carries the wrapper pair and, in statement_signatures, a second pair. Each receiver holds license_commitment and its keys below and MUST reach the verdict in expect (state only for an effective statement). The 1.9 receiver judges only the wrapper pair against its countersigning keys and ignores statement_signatures; the 1.10 receiver counts only a pair under a key of role statements valid at server_ts after its role list. The keys are TEST keys; their seeds are published.",
+  "format": "ledger-vertrag/1",
+  "receivers": {
+    "1.10": {
+      "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "now": "2026-01-01T00:10:00.000Z",
+      "role_list_entries": [
+        {
+          "gueltig_ab": "2025-01-01T00:00:00.000Z",
+          "key_id": "vendor-test-001",
+          "pubkey": "959c448da9b35ea50abeca1f0a4cac57fc21c5b7ff7216d3e304bb5fc406d36c",
+          "rolle": "countersigning"
+        },
+        {
+          "gueltig_ab": "2025-12-30T00:00:00.000Z",
+          "key_id": "vendor-statements-test-001",
+          "pubkey": "6122df9ab7a7a83ecd7540b4d66cef184bd08aba2cac06123337b8ab3e56c9c2",
+          "rolle": "statements"
+        },
+        {
+          "gueltig_ab": "2025-12-30T00:00:00.000Z",
+          "key_id": "vendor-statements-test-003",
+          "pubkey": "7f927608de57b69d0c392a28a9d23404c09debd52e2ff795d9439447c1066205",
+          "rolle": "statements",
+          "widerrufen_ab": "2025-12-31T12:00:00.000Z"
+        }
+      ]
+    },
+    "1.9": {
+      "countersigning_keys": {
+        "vendor-test-001": "959c448da9b35ea50abeca1f0a4cac57fc21c5b7ff7216d3e304bb5fc406d36c"
+      },
+      "license_commitment": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "now": "2026-01-01T00:10:00.000Z"
+    }
+  },
+  "section": "heartbeat spec 9.3, 9.4 item 3, 9.11",
+  "statement": {
+    "pair_countersigning": {
+      "server_key_id": "vendor-test-001",
+      "server_signature": "d7a71430f2c8cf23c7035bc978b92cb406d82c3d15e654500efab4e990c7854cbcd4bbbf8c55a6e8543a5c3d2c30fc2f51e146943387e842da07e47952392e02"
+    },
+    "pair_statements": {
+      "server_key_id": "vendor-statements-test-001",
+      "server_signature": "9023495edd8fc30054aa10596d2b2703e585f8da0251f2072bd003ac5c0e31a52d932fa2375707aa001a82936dcd4f768d65371eca66922d926898df5b4ada01"
+    },
+    "statement_jcs": "{\"countersigning\":true,\"grace_until\":\"2027-01-30T00:00:00.000Z\",\"kind\":\"ledger.license_statement.v1\",\"license_commitment\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"server_ts\":\"2026-01-01T00:00:00.000Z\",\"state\":\"valid\",\"updates\":true,\"valid_until\":\"2026-12-31T00:00:00.000Z\"}",
+    "statement_jcs_sha256": "e848539380a8be87cdb6dc5278560c8bf6ff445d40e845454fa020eaeffbd26f"
+  },
+  "vendor_test_keys": {
+    "countersigning": {
+      "key_id": "vendor-test-001",
+      "pubkey": "959c448da9b35ea50abeca1f0a4cac57fc21c5b7ff7216d3e304bb5fc406d36c",
+      "seed_hex": "e95d868758aee95f79233333ae5b372e6e0f14cbc7f54f05664f1e149fb32a10",
+      "seed_name": "vendor-1"
+    },
+    "note": "test only - never configured on a real server",
+    "statements": {
+      "key_id": "vendor-statements-test-001",
+      "pubkey": "6122df9ab7a7a83ecd7540b4d66cef184bd08aba2cac06123337b8ab3e56c9c2",
+      "seed_hex": "e070abdb256630fe6937546a7a2b20e94955710a2813d0aadd67346b7cbd8d7b",
+      "seed_name": "vendor-statements-1"
+    },
+    "statements_revoked": {
+      "key_id": "vendor-statements-test-003",
+      "pubkey": "7f927608de57b69d0c392a28a9d23404c09debd52e2ff795d9439447c1066205",
+      "seed_hex": "ea468364a92d227ebe276425645f9430374806ebdc115250ad9c4abed4ed01f6",
+      "seed_name": "vendor-statements-3"
+    }
+  }
+}

@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 type gen struct {
@@ -48,6 +48,9 @@ type gen struct {
 	// (whole seconds). The millisecond tests of spec 1.9 (spec 2, "Time
 	// arithmetic") set time.RFC3339Nano to write fractions.
 	tsLayout string
+	// cpSubject is the signed subject (spec 6.1) of every CHECKPOINT by its
+	// seq, the bytes a time witness stamps (spec 7.3).
+	cpSubject map[int64][]byte
 }
 
 // testLicenseCommitment is SHA-256("LEDGER-VER1-F1ER-L1ZE-NZ01") in lowercase hex (spec 4.1).
@@ -209,6 +212,10 @@ func (g *gen) checkpointMono(d time.Duration, mono int64) string {
 		"signature":            sig,
 	})
 	g.lastCP = h
+	if g.cpSubject == nil {
+		g.cpSubject = map[int64][]byte{}
+	}
+	g.cpSubject[g.seq] = subject
 	return h
 }
 

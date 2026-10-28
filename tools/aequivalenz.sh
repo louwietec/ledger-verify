@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# aequivalenz.sh — beide Verifier ueber ALLE Testvektoren, gegen expected/.
+# aequivalenz.sh: beide Verifier ueber ALLE Testvektoren, gegen expected/.
 #
-# Zwei unabhaengige Implementierungen derselben offenen Spezifikation — der
-# Go-Verifier (verifier/) und der Python-Zweitverifier (verifier2/) — muessen
+# Zwei unabhaengige Implementierungen derselben offenen Spezifikation, der
+# Go-Verifier (verifier/) und der Python-Zweitverifier (verifier2/), muessen
 # fuer jeden eingefrorenen Testvektor unter spec/testvectors/ genau das Urteil
 # aus spec/testvectors/expected/<name>.json fallen: denselben Exit-Code und
 # dieselbe Menge an Befundklassen. Dazu muessen sie untereinander im Status
@@ -10,11 +10,11 @@
 # Vektor, die Erwartung und das Gesehene.
 #
 # UNABHAENGIGKEIT WIRD ERZWUNGEN, NICHT VERSPROCHEN: verifier2 laeuft in einem
-# frischen Verzeichnis, das nur spec/ und verifier2/ enthaelt — kein verifier/,
+# frischen Verzeichnis, das nur spec/ und verifier2/ enthaelt, kein verifier/,
 # kein Repository. Haette verifier2 eine versteckte Abhaengigkeit vom
 # Go-Verifier, fiele er hier auf.
 #
-# Vorher: jede Vektordatei gegen spec/testvectors/PINS.sha256 — ein
+# Vorher: jede Vektordatei gegen spec/testvectors/PINS.sha256: ein
 # veraenderter Vektor ist rot, bevor er ein Urteil beeinflussen kann.
 #
 # Pruefumgebung (Spezifikation 7.1): die Erwartungen gelten fuer die Wurzel
@@ -24,7 +24,7 @@
 #
 # / Both verifiers over ALL test vectors against expected/: same exit code and
 # same finding classes as expected, same status and chain end as each other.
-# verifier2 runs in a sandbox holding only spec/ and verifier2/. Pins first.
+# verifier2 runs in a sandbox holding nothing but spec/ and verifier2/; the pins are checked beforehand.
 #
 # Aufruf / usage:  bash tools/aequivalenz.sh      (braucht / needs: go, python3)
 set -euo pipefail
@@ -56,7 +56,7 @@ FREMD="$(cd "$SANDBOX" && ls -A | grep -vx -e spec -e verifier2 || true)"
 [ -z "$FREMD" ] || { echo "ROT: Sandbox nicht isoliert: $FREMD"; exit 1; }
 for verboten in verifier .git; do
   if find "$SANDBOX" -maxdepth 3 -name "$verboten" | grep -q .; then
-    echo "ROT: Sandbox enthaelt $verboten — Unabhaengigkeit verletzt / independence violated"; exit 1
+    echo "ROT: Sandbox enthaelt $verboten; Unabhaengigkeit verletzt / independence violated"; exit 1
   fi
 done
 echo "   $SANDBOX: $(cd "$SANDBOX" && ls -A | tr '\n' ' ')"
@@ -106,9 +106,9 @@ done
 GESAMT=$((GUT + SCHLECHT))
 echo
 if [ "$SCHLECHT" -eq 0 ] && [ "$GESAMT" -gt 0 ]; then
-  echo "ERGEBNIS: GRUEN — $GUT/$GESAMT Vektoren: beide Verifier exakt wie erwartet und untereinander gleich (Exit, Befundklassen, Status, Kettenende)"
-  echo "RESULT: GREEN — $GUT/$GESAMT vectors: both verifiers exactly as expected and equal to each other"
+  echo "ERGEBNIS: GRUEN, $GUT/$GESAMT Vektoren: beide Verifier exakt wie erwartet und untereinander gleich (Exit, Befundklassen, Status, Kettenende)"
+  echo "RESULT: GREEN, $GUT/$GESAMT vectors: both verifiers exactly as expected and equal to each other"
   exit 0
 fi
-echo "ERGEBNIS: ROT — $SCHLECHT von $GESAMT Vektoren weichen ab / RESULT: RED — $SCHLECHT of $GESAMT vectors deviate"
+echo "ERGEBNIS: ROT, $SCHLECHT von $GESAMT Vektoren weichen ab / RESULT: RED, $SCHLECHT of $GESAMT vectors deviate"
 exit 1

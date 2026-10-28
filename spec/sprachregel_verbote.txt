@@ -1,4 +1,4 @@
-# sprachregel_verbote.txt, Version 1.0.0
+# sprachregel_verbote.txt, Version 1.1.0
 #
 # Versionierte Verbotsmusterliste der Sprachregel (siehe
 # registry.json -> language_rule.forbidden_patterns_file).
@@ -7,7 +7,7 @@
 #
 # Format: eine Regex je Zeile (Python-re-Syntax), Kommentarzeilen beginnen
 # mit '#', Leerzeilen werden ignoriert. Die CI (.ci/check_sprachregel.py)
-# prüft EXAKT diese 15 Muster, case-insensitiv, über spec/, appliance/web/
+# prüft EXAKT diese 24 Muster, case-insensitiv, über spec/, appliance/web/
 # und appliance/internal/i18n/. Ausnahmen: Zeilen mit dem Marker
 # sprachregel-allow (Doku-Zitate) sowie diese Datei selbst.
 #
@@ -20,6 +20,14 @@ stellt die (Compliance|Konformität) sicher
 garantiert die (Compliance|Pflichterfüllung|Konformität)
 AI-Act-konform
 DSGVO-konform
+# ab 1.1.0 (Fassung 1.10): Konformitätsbehauptungen ohne Norm und "rechtssicher".
+# "garantiert" ohne Objekt fehlt absichtlich: es träfe technische Aussagen
+# über Reihenfolge und Zustellung, die keine Konformität behaupten.
+\bist (voll |vollständig |vollumfänglich )?konform\b
+\bsind (voll |vollständig |vollumfänglich )?konform\b
+KI-VO-konform
+eIDAS[- ]konform
+rechtssicher
 # --- english ---
 fulfil(l)?s the (obligation|requirement|duty)
 fulfil(l)?s (Article|Art\.)
@@ -27,4 +35,8 @@ ensures compliance
 guarantees compliance
 AI[ -]Act[ -]compliant
 GDPR[ -]compliant
-complies with (the )?(AI Act|GDPR|Article|Art\.)
+complies with (the )?(AI Act|GDPR|eIDAS|Article|Art\.)
+\bis (fully )?compliant\b
+\bare (fully )?compliant\b
+eIDAS[- ]compliant
+legally (compliant|secure|watertight)

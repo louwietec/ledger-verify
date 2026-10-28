@@ -1,4 +1,4 @@
-# pruefen — die oeffentliche CI dieses Repositorys.
+# pruefen: die oeffentliche CI dieses Repositorys.
 #
 # Jeder Push und jeder Pull Request faehrt, was ein Dritter selbst fahren
 # kann: die Pins der Testvektoren, go vet und go test des Go-Verifiers, die
@@ -23,11 +23,13 @@ permissions:
 
 jobs:
   pruefen:
-    runs-on: ubuntu-latest
+    # fest statt ubuntu-latest: ein Wechsel des Abbilds soll das Release nicht
+    # still veraendern. / pinned, an image switch must not change the release silently.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      # Dieselbe Go-Fassung wie das Release — sonst wuerde der Bau-Vergleich
+      # Dieselbe Go-Fassung wie das Release, sonst wuerde der Bau-Vergleich
       # mit SHA256SUMS andere Bytes zeigen. / Same Go release as the release.
       - uses: actions/setup-go@v5
         with:
@@ -47,7 +49,7 @@ jobs:
         working-directory: verifier
         run: go test -count=1 ./...
 
-      - name: verifier2 — Tests des Zweitverifiers / second verifier tests
+      - name: "verifier2: Tests des Zweitverifiers / second verifier tests"
         run: python3 verifier2/verifier2_test.py
 
       - name: Aequivalenz beider Verifier ueber alle Testvektoren / equivalence over all vectors

@@ -1,0 +1,900 @@
+{
+  "$id": "report_evidence_level.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "affiliation": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "affiliated",
+            "not_affiliated",
+            "not_determined",
+            "not_checked"
+          ]
+        },
+        "vendor_itself": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "status",
+        "vendor_itself"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "anchors": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_root_sources": {
+          "description": "in the order auditor, anchor_history, as completeness.sources",
+          "items": {
+            "enum": [
+              "auditor",
+              "anchor_history"
+            ]
+          },
+          "maxItems": 2,
+          "type": "array"
+        },
+        "qualified_roots_file": {
+          "additionalProperties": false,
+          "properties": {
+            "quelle": {
+              "description": "copied as written in the file ledger-tsa-qualifiziert/1",
+              "maxLength": 256,
+              "type": "string"
+            },
+            "stand": {
+              "description": "written as YYYY-MM-DDThh:mm:ss.sssZ, truncated to whole milliseconds, like every instant from an auditor input (format spec 10.10.1, instants)",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "quelle",
+            "stand"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "statement_keys": {
+          "description": "without repetition, the pairs of statements key and origin (key_id, public key, origin) of the used pages of the package on which a condition that is met rests: for expected_root_found with the source anchor_history the used pages that carry a recording of a found expected root that is recorded (format spec 8.8.5: recorded_as countersigned or gap_witness); for completeness_from_history, when it is met, every used page that enters the completeness (format spec 8.8.4, step H11), that is the fresh used pages of the package (format spec 8.8.4, older pages); for a page the pair is the one the report names for that page in anchor_history (if it names several, each of them); in the order of anchor_history.keys, each with how it is established (pin, or role list with version, wurzel_id and origin of the root); empty without such a page",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "key_id": {
+                "pattern": "^[A-Za-z0-9._-]{1,64}$",
+                "type": "string"
+              },
+              "list_version": {
+                "minimum": 1,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "root_from": {
+                "enum": [
+                  "auditor",
+                  "builtin",
+                  null
+                ]
+              },
+              "root_id": {
+                "pattern": "^[A-Za-z0-9._-]{1,64}$",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "via": {
+                "enum": [
+                  "pinned",
+                  "role_list"
+                ]
+              }
+            },
+            "required": [
+              "key_id",
+              "list_version",
+              "root_from",
+              "root_id",
+              "via"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "tsa_roots": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "cert_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "credited_for": {
+                "items": {
+                  "enum": [
+                    "time_witness",
+                    "time_witness_qualified",
+                    "log_day_qualified"
+                  ]
+                },
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            "required": [
+              "cert_sha256",
+              "credited_for"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "vendor_keys": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "key_id": {
+                "pattern": "^[A-Za-z0-9._-]{1,64}$",
+                "type": "string"
+              },
+              "list_version": {
+                "minimum": 1,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "root_from": {
+                "enum": [
+                  "auditor",
+                  "builtin",
+                  null
+                ]
+              },
+              "root_id": {
+                "pattern": "^[A-Za-z0-9._-]{1,64}$",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "via": {
+                "enum": [
+                  "pinned",
+                  "list"
+                ]
+              }
+            },
+            "required": [
+              "key_id",
+              "list_version",
+              "root_from",
+              "root_id",
+              "via"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "expected_root_sources",
+        "qualified_roots_file",
+        "statement_keys",
+        "tsa_roots",
+        "vendor_keys"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "conditions": {
+      "additionalProperties": false,
+      "properties": {
+        "completeness_from_history": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "expected_root_found": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "log_day_qualified": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "receipt_key_confirmed": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "receipts_logged": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "time_witness": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        },
+        "time_witness_qualified": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "met": {
+              "type": "boolean"
+            },
+            "reason": {
+              "enum": [
+                "no_time_anchor",
+                "no_tsa_root_supplied",
+                "signature_not_checkable",
+                "not_chained_to_auditor_root",
+                "published_test_key",
+                "token_extensions_unusable",
+                "no_expected_root_found",
+                "no_receipt",
+                "key_not_confirmed",
+                "key_is_device_key",
+                "no_qualified_root_supplied",
+                "not_chained_to_qualified_root",
+                "qualified_root_in_package",
+                "outside_qualified_window",
+                "signing_certificate_not_bound",
+                "qualified_statement_malformed",
+                "no_qualified_statement",
+                "vendor_log_not_supplied",
+                "vendor_log_not_established",
+                "vendor_log_contradiction",
+                "receipt_not_logged",
+                "day_timestamp_not_confirmed",
+                "receipt_not_checkable",
+                "receipt_day_not_closed",
+                "receipt_after_check_time",
+                "log_day_not_supplied",
+                "receipts_before_log_start",
+                "logged_root_mismatch",
+                "anchor_history_not_supplied",
+                "requested_at_not_supplied",
+                "anchor_history_not_established",
+                "anchor_history_partial",
+                "anchor_history_contradiction",
+                "no_history_root_found",
+                "no_qualified_log_root_supplied",
+                "no_receipt_included",
+                "not_chained_to_qualified_log_root",
+                "qualified_day_stamp_late",
+                "qualified_day_stamp_gap",
+                null
+              ]
+            },
+            "up_to_tree_size": {
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "met",
+            "reason",
+            "up_to_tree_size"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "completeness_from_history",
+        "expected_root_found",
+        "log_day_qualified",
+        "receipt_key_confirmed",
+        "receipts_logged",
+        "time_witness",
+        "time_witness_qualified"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "entries": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "level": {
+      "maximum": 3,
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "next": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "missing": {
+          "items": {
+            "enum": [
+              "time_witness",
+              "expected_root_found",
+              "receipt_key_confirmed",
+              "time_witness_qualified",
+              "receipts_logged",
+              "completeness_from_history",
+              "log_day_qualified"
+            ]
+          },
+          "type": "array"
+        },
+        "need": {
+          "enum": [
+            "any",
+            "all"
+          ]
+        }
+      },
+      "required": [
+        "level",
+        "missing",
+        "need"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "notes": {
+      "items": {
+        "enum": [
+          "material_contradiction",
+          "unsealed_end",
+          "stale_package",
+          "package_not_fully_known",
+          "vendor_root_builtin_only",
+          "published_test_key_credited",
+          "last_receipt_not_confirmed",
+          "expected_root_auditor_only",
+          "tsa_root_in_package",
+          "history_recent_roots_skipped",
+          "receipts_pending_log",
+          "receipt_not_logged",
+          "log_day_not_supplied",
+          "logged_root_mismatch",
+          "cms_not_implemented"
+        ]
+      },
+      "type": "array"
+    },
+    "qualified_time": {
+      "additionalProperties": false,
+      "description": "at level 3 at seq 1 the item that proves the qualified time for the state up to up_to_tree_size: candidates are the credited items of time_witness_qualified (TIME_ANCHOR per root) and of log_day_qualified (receipt per time stamp and root) with tree_size >= up_to_tree_size; chosen is the one with the earliest genTime, compared as an instant to the nanosecond like the periods of format spec 10.8, before any cut to whole milliseconds, on a tie time_witness_qualified before log_day_qualified, then the smaller tree_size, then for log_day_qualified the earlier server_ts of the receipt; null below level 3 at seq 1 and outside the state rated (format spec 10.10.2)",
+      "properties": {
+        "gap_ms": {
+          "description": "for log_day_qualified latest minus server_ts of the receipt in whole milliseconds, at most G_q; null for time_witness_qualified",
+          "maximum": 129600000,
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "latest": {
+          "description": "genTime of the item, truncated to whole milliseconds, written as YYYY-MM-DDThh:mm:ss.sssZ: the state existed at the latest at this time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        },
+        "tree_size": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "via": {
+          "enum": [
+            "time_witness_qualified",
+            "log_day_qualified"
+          ]
+        }
+      },
+      "required": [
+        "gap_ms",
+        "latest",
+        "tree_size",
+        "via"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "segments": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "items": {
+              "enum": [
+                "time_witness",
+                "expected_root_found",
+                "receipt_key_confirmed",
+                "time_witness_qualified",
+                "receipts_logged",
+                "completeness_from_history",
+                "log_day_qualified"
+              ]
+            },
+            "type": "array"
+          },
+          "first_seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "last_seq": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "level": {
+            "maximum": 3,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "basis",
+          "first_seq",
+          "last_seq",
+          "level"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "state": {
+      "enum": [
+        "rated",
+        "chain_invalid",
+        "format_error"
+      ]
+    },
+    "up_to_tree_size": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "affiliation",
+    "anchors",
+    "conditions",
+    "entries",
+    "level",
+    "next",
+    "notes",
+    "qualified_time",
+    "segments",
+    "state",
+    "up_to_tree_size"
+  ],
+  "title": "Registry verifier.report_objects.evidence_level",
+  "type": "object"
+}

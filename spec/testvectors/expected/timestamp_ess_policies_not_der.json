@@ -1,0 +1,71 @@
+{
+  "auditor_inputs": {
+    "evidence_level": {
+      "affiliation": "not_checked",
+      "conditions": {
+        "completeness_from_history": "anchor_history_not_supplied",
+        "expected_root_found": "no_expected_root_found",
+        "log_day_qualified": "vendor_log_not_supplied",
+        "receipt_key_confirmed": null,
+        "receipts_logged": "vendor_log_not_supplied",
+        "time_witness": "published_test_key",
+        "time_witness_qualified": "published_test_key"
+      },
+      "level": 2,
+      "notes": [
+        "published_test_key_credited"
+      ],
+      "segments": [
+        [
+          2,
+          1,
+          29
+        ],
+        [
+          0,
+          30,
+          33
+        ]
+      ],
+      "state": "rated",
+      "up_to_tree_size": 29
+    },
+    "exit_code": 0,
+    "file": "pruefer_timestamp_ess_policies_not_der.json",
+    "finding_classes": []
+  },
+  "evidence_level": {
+    "affiliation": "not_checked",
+    "conditions": {
+      "completeness_from_history": "anchor_history_not_supplied",
+      "expected_root_found": "no_expected_root_found",
+      "log_day_qualified": "vendor_log_not_supplied",
+      "receipt_key_confirmed": null,
+      "receipts_logged": "vendor_log_not_supplied",
+      "time_witness": "no_tsa_root_supplied",
+      "time_witness_qualified": "no_qualified_root_supplied"
+    },
+    "level": 2,
+    "notes": [
+      "published_test_key_credited"
+    ],
+    "segments": [
+      [
+        2,
+        1,
+        29
+      ],
+      [
+        0,
+        30,
+        33
+      ]
+    ],
+    "state": "rated",
+    "up_to_tree_size": 29
+  },
+  "exit_code": 1,
+  "finding_classes": [
+    "TIME_ANCHOR_UNVERIFIED"
+  ]
+}

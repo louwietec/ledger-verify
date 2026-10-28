@@ -80,7 +80,7 @@ func TestGenesisLizenzBis17NurHinweis(t *testing.T) {
 	if !strings.Contains(string(js), `"genesis_license_not_commitment": true`) || strings.Contains(string(js), klartextLizenz) {
 		t.Fatalf("JSON must carry the notice and not the value:\n%s", js)
 	}
-	// the commitment under 1.7 (lane B's mitigation before 1.8): no notice
+	// the commitment under 1.7 (the vendor-side mitigation before 1.8): no notice
 	res = verifyGen(sealedChainWith(t, "1.7", ""), Options{})
 	wantClasses(t, res, 0)
 	if res.Stats.GenesisLicenseNotCommitment {

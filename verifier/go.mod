@@ -1,3 +1,3 @@
-module github.com/louwietec/ledger-verify/verifier
+module louwietec.com/ledger-verify/verifier
 
 go 1.24

@@ -67,7 +67,7 @@
           "type": "string"
         },
         "tsa_ts": {
-          "description": "TSTInfo.genTime; MUST equal the token to the second",
+          "description": "TSTInfo.genTime cut (not rounded) to milliseconds; MUST equal the token (format spec 7.3 step 3)",
           "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
           "type": "string"
         }

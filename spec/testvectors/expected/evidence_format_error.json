@@ -1,0 +1,31 @@
+{
+  "auditor_inputs": {
+    "evidence_level": {
+      "affiliation": null,
+      "conditions": null,
+      "level": null,
+      "notes": [],
+      "segments": [],
+      "state": "format_error",
+      "up_to_tree_size": null
+    },
+    "exit_code": 3,
+    "file": "pruefer_evidence_format_error.json",
+    "finding_classes": [
+      "FORMAT_ERROR"
+    ]
+  },
+  "evidence_level": {
+    "affiliation": null,
+    "conditions": null,
+    "level": null,
+    "notes": [],
+    "segments": [],
+    "state": "format_error",
+    "up_to_tree_size": null
+  },
+  "exit_code": 3,
+  "finding_classes": [
+    "FORMAT_ERROR"
+  ]
+}

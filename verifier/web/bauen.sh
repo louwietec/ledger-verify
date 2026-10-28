@@ -9,7 +9,7 @@
 # ALTER NAME / old name: daneben entsteht verifier/web/dist/rekorder-verify.html
 # als BYTEGLEICHE Kopie (cmp am Ende dieses Skripts). Das Portal
 # (--verifier-web), deploy/images/Dockerfile und der CI-Upload erwarten noch
-# diesen Pfad (Spuren B/C); stellen sie um, kann die Kopie entfallen. Die
+# diesen Pfad; stellen sie um, kann die Kopie entfallen. Die
 # Kopie ist dieselbe Seite: auch sie nennt LEDGER und ledger-verify.
 #
 # WARUM EINE DATEI: die Alternative waere HTML + verifier.wasm + wasm_exec.js

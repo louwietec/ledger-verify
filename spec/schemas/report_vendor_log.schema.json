@@ -1,0 +1,301 @@
+{
+  "$id": "report_vendor_log.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "days": {
+      "additionalProperties": false,
+      "properties": {
+        "contradictory": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "established": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "missing": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "signatures_not_checked": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "supplied": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "witnessed": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contradictory",
+        "established",
+        "missing",
+        "signatures_not_checked",
+        "supplied",
+        "witnessed"
+      ],
+      "type": "object"
+    },
+    "distinct_files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "first_day": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "foreign_chain_records": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "head": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        "day_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "seen_in": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tree_size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "witnessed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "day",
+        "day_hash",
+        "seen_in",
+        "tree_size",
+        "witnessed"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "key_list": {
+      "additionalProperties": false,
+      "properties": {
+        "ausgestellt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+          "type": "string"
+        },
+        "root_source": {
+          "enum": [
+            "vendor_root",
+            "builtin"
+          ]
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "wurzel_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ausgestellt",
+        "root_source",
+        "version",
+        "wurzel_id"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "key_source": {
+      "enum": [
+        "list",
+        "pinned",
+        "list_and_pinned",
+        null
+      ]
+    },
+    "last_countersigned": {
+      "enum": [
+        "included",
+        "not_included",
+        "unchecked",
+        "missing",
+        "pending",
+        "before_start",
+        "future",
+        null
+      ]
+    },
+    "log_id": {
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "logged_roots": {
+      "additionalProperties": false,
+      "properties": {
+        "beyond_package": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contradicting_prefix": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gap_witnesses": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matching_prefix": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matching_without_receipt": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "beyond_package",
+        "contradicting_prefix",
+        "gap_witnesses",
+        "matching_prefix",
+        "matching_without_receipt"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "places": {
+      "description": "the orte of the effective list in the order of the list",
+      "items": {
+        "pattern": "^https://[!-~]{1,248}$",
+        "type": "string"
+      },
+      "maxItems": 4,
+      "type": "array"
+    },
+    "receipts": {
+      "additionalProperties": false,
+      "properties": {
+        "before_start": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "future": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "included": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "included_up_to_tree_size": {
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "missing": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_included": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pending": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unchecked": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "before_start",
+        "future",
+        "included",
+        "included_up_to_tree_size",
+        "missing",
+        "not_included",
+        "pending",
+        "unchecked"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "not_supplied",
+        "no_protocol_key",
+        "checked"
+      ]
+    },
+    "tsa": {
+      "additionalProperties": false,
+      "properties": {
+        "cms_checked": {
+          "type": "boolean"
+        },
+        "roots_supplied": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cms_checked",
+        "roots_supplied"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "days",
+    "distinct_files",
+    "files",
+    "first_day",
+    "foreign_chain_records",
+    "head",
+    "key_list",
+    "key_source",
+    "last_countersigned",
+    "log_id",
+    "logged_roots",
+    "places",
+    "receipts",
+    "status",
+    "tsa"
+  ],
+  "title": "Registry verifier.report_objects.vendor_log",
+  "type": "object"
+}

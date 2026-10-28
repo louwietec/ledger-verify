@@ -1,0 +1,49 @@
+{
+  "$id": "member_statement_signatures.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "optional top-level response member (heartbeat spec 9.3, from edition 1.10): one member per statement of the same response, named like that response member; each carries exactly server_key_id and server_signature of a statements key over the UTF-8 bytes of that statement's statement_jcs; the wrapper of the statement (heartbeat spec 9.4) keeps its four members; this schema shows the well-formed member: a receiver after 1.10 does not refuse a response that deviates from it but follows the rules in malformed",
+  "properties": {
+    "activation_receipt": {
+      "additionalProperties": false,
+      "properties": {
+        "server_key_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        },
+        "server_signature": {
+          "description": "Ed25519 (RFC 8032, no prehash, no context) by a key of role statements over the UTF-8 bytes of statement_jcs of the statement of the same name",
+          "pattern": "^[0-9a-f]{128}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "server_key_id",
+        "server_signature"
+      ],
+      "type": "object"
+    },
+    "license": {
+      "additionalProperties": false,
+      "properties": {
+        "server_key_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        },
+        "server_signature": {
+          "description": "Ed25519 (RFC 8032, no prehash, no context) by a key of role statements over the UTF-8 bytes of statement_jcs of the statement of the same name",
+          "pattern": "^[0-9a-f]{128}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "server_key_id",
+        "server_signature"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "Response member with signature pairs: statement_signatures",
+  "type": "object"
+}

@@ -1,0 +1,17 @@
+{
+  "format": "rekorder-herstellerschluessel/1",
+  "version": 1,
+  "ausgestellt": "2025-12-21T00:00:00Z",
+  "schluessel": [
+    {
+      "key_id": "vendor-test-002",
+      "pubkey": "73edaed42d761a1ab4fcc9be71a95b957542e89be13fa185e6ad1264ddc8b816",
+      "gueltig_ab": "2025-06-01T00:00:00Z",
+      "gueltig_bis": "2027-01-01T00:00:00Z"
+    }
+  ],
+  "signatur": {
+    "wurzel_id": "testwurzel-1",
+    "sig": "4217a996bcc0e37bb8f0ce4a5a04d992ad43f63e26e86ff58249a263aa61559e3488fe0b8133bf443dccf6535a8e11eae61b591c75716310876ccb9a09abd208"
+  }
+}

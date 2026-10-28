@@ -2,7 +2,7 @@
   "$id": "member_update.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "heartbeat 200 member 'update' (from spec 1.9, request of lane B): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
+  "description": "heartbeat 200 member 'update' (from spec 1.9): announces an update bundle; unsigned; the bundle is installed only after its signature against the pinned update key holds, with the customer's consent and never as a downgrade (heartbeat spec 1, 9.3)",
   "properties": {
     "channel": {
       "pattern": "^[a-z]{1,16}$",

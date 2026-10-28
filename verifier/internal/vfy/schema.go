@@ -8,7 +8,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // Minimal schema tables, hand-mirrored from spec/registry.json (which is part
@@ -18,10 +18,15 @@ import (
 // Own specification version (registry: spec_version).
 const (
 	specMajor = 1
-	specMinor = 9
+	specMinor = 10
 )
 
-// specMinor is 7 since 29.09.2026: spec 4.24/9.3, the critical entry type
+// specMinor is 10 since 03.10.2026: spec 11.2, covered stretches between two
+// countersigned checkpoints are stated (stats.unanchored_stretches, no
+// finding); no entry or manifest field changed. It was 9 from the night of
+// 29.09.2026 (export seal, edge cases, measured residual window) and 8 from
+// the evening of 29.09.2026 (GENESIS.license_id is the licence commitment).
+// It was 7 from 29.09.2026: spec 4.24/9.3, the critical entry type
 // LEGAL_HOLD sets or releases a deletion hold, and a CONTENT_DELETED whose
 // target AI_CALL an active hold covers is the finding HOLD_VIOLATION (exit 1).
 // It was 6 from 28.09.2026 (evening): spec 8.6, the chain end is either
@@ -312,13 +317,27 @@ var payloadFields = map[string]map[string]fieldSpec{
 		"reference":  fStr(200),
 		"actor":      fStr(128),
 	},
+	// DATA_ACCESS (spec 4.25, since 1.10): a recorded access to customer data
+	// of a vendor, written only by the vendor's access chain. Not critical, no
+	// finding; only uuid, enum and hex64 fields, so it carries no free text.
+	"DATA_ACCESS": {
+		"access_id":         fUUID(),
+		"actor_kind":        fEnum("person", "service"),
+		"actor_id":          fUUID(),
+		"purpose":           fEnum("support", "license_admin", "affiliation_upkeep", "fleet_supervision", "incident", "maintenance", "restore", "data_subject_request", "legal_order", "audit", "service", "other"),
+		"data_class":        fEnum("license", "registration", "heartbeat", "chain", "journal", "affiliation_register", "alarm_contact", "order_system", "credentials", "access_chain", "operations_log", "backup", "store", "other"),
+		"access_mode":       fEnum("read", "change", "export"),
+		"scope":             fEnum("one_customer", "several_customers", "all_customers"),
+		"record_commitment": fHex64(),
+		"capture":           fEnum("gate", "declared", "emergency"),
+	},
 }
 
 func eventTypeNames() []string {
 	return []string{"GENESIS", "AI_CALL", "TICK", "GAP", "SOURCE_GAP", "RECONCILIATION",
 		"CLOCK_JUMP", "MODE_CHANGE", "RESTART", "SEAL", "RESUME", "OVERSIGHT", "ALARM",
 		"CONFIG_CHANGE", "KEY_ROTATION", "REPORT_ISSUED", "CONTENT_DELETED", "CONTENT_DISCLOSED", "ADMIN",
-		"CHECKPOINT", "CHECKPOINT_RECEIPT", "TIME_ANCHOR", "CAPTURE_TRUNCATED", "LEGAL_HOLD"}
+		"CHECKPOINT", "CHECKPOINT_RECEIPT", "TIME_ANCHOR", "CAPTURE_TRUNCATED", "LEGAL_HOLD", "DATA_ACCESS"}
 }
 
 // manifestFields per registry pruefpaket_manifest.
@@ -648,7 +667,7 @@ func checkGenesisLicense(specVersion, licenseID string) error {
 		return nil
 	}
 	if !reHex64.MatchString(licenseID) {
-		return fmt.Errorf("payload(GENESIS): license_id is not the licence commitment (64 lowercase hex) — required from spec 1.%s for a GENESIS of spec %s (spec 4.1)", licenseCommitmentMinor, specVersion)
+		return fmt.Errorf("payload(GENESIS): license_id is not the licence commitment (64 lowercase hex), required from spec 1.%s for a GENESIS of spec %s (spec 4.1)", licenseCommitmentMinor, specVersion)
 	}
 	return nil
 }

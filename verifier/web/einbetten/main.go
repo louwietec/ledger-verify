@@ -74,7 +74,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "einbetten: die Vorlage fuehrt den Platzhalter %s nicht\n", m)
 			os.Exit(1)
 		case n > 1:
-			fmt.Fprintf(os.Stderr, "einbetten: der Platzhalter %s steht %dx in der Vorlage — "+
+			fmt.Fprintf(os.Stderr, "einbetten: der Platzhalter %s steht %dx in der Vorlage; "+
 				"er muss genau einmal vorkommen, sonst wird die falsche Stelle ersetzt\n", m, n)
 			os.Exit(1)
 		}

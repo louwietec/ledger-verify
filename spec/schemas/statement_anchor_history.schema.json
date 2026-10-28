@@ -2,10 +2,10 @@
   "$id": "statement_anchor_history.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "the signed anchor history of one chain (heartbeat spec 9.7, from spec 1.9): GET /v1/anchors?chain_id=<uuid>[&since_tree_size=n], no login, no personal data; every root the server recorded (countersigned, gap_witness) or received device-signed without accepting it (reported: heartbeat last_checkpoint, anchors answered with consistency_required). The auditor fetches it himself and passes every root recorded before the package was requested as an expected root (format spec 8.6, 10.8, 11.2)",
+  "description": "the signed anchor history of one chain (heartbeat spec 9.7, from spec 1.9): GET /v1/anchors?chain_id=<uuid>[&since_tree_size=n], no login, no personal data; every root the server recorded (countersigned, gap_witness) or received device-signed without accepting it (reported: heartbeat last_checkpoint, anchors answered with consistency_required). The auditor fetches it himself and passes every root recorded before the package was requested as an expected root (format spec 8.6, 10.8, 11.2). From spec 1.10 verifiers do not read pages of this kind (reason not_v2); the auditor passes pages of kind anchor_history_v2 to the verifier instead (format spec 8.8), and for v1 pages the manual procedure stays (heartbeat spec 9.7)",
   "properties": {
     "server_key_id": {
-      "description": "the vendor countersigning key (format spec 10.7 key_id grammar)",
+      "description": "a key of role statements (format spec 10.7.3); until ende_doppelbetrieb the wrapper of licence statement, refusal and activation receipt and pages of kind v1 carry a countersigning key (format spec 10.7.5); key_id grammar of format spec 10.7.1",
       "pattern": "^[A-Za-z0-9._-]{1,64}$",
       "type": "string"
     },
@@ -160,7 +160,7 @@
       "type": "object"
     },
     "statement_jcs": {
-      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed",
+      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed; at most 2048 characters unless the kind names its own statement_jcs_maxlen (anchor_history_v2: 131072)",
       "maxLength": 2048,
       "type": "string"
     }

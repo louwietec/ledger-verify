@@ -1,0 +1,18 @@
+{
+  "format": "ledger-pruefumgebung/1",
+  "korpus": true,
+  "vendor_root": [],
+  "vendor_key": [
+    "vendor-test-geraet=da78e8f07243904c3669c59bded1b62bc1ad39b520d17d0834f4f77aa892073b"
+  ],
+  "vendor_key_list": [],
+  "vendor_log_key": [],
+  "vendor_statement_key": [],
+  "tsa_root": [],
+  "tsa_qualified_roots": null,
+  "vendor_log_tsa_root": [],
+  "expect_root": [],
+  "vendor_log": [],
+  "anchor_history": [],
+  "requested_at": null
+}

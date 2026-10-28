@@ -631,16 +631,16 @@ func TestChainEndInTextReport(t *testing.T) {
 			"chain_id " + sealed.chainID, "--expect-root <merkle_root>",
 		}},
 		{resU, "de", []string{
-			fmt.Sprintf("%-28s nicht versiegelt — letzter Eintrag seq 9 (TICK) am %s", "Kettenende:", unsealed.ts()),
+			fmt.Sprintf("%-28s nicht versiegelt: letzter Eintrag seq 9 (TICK) am %s", "Kettenende:", unsealed.ts()),
 			fmt.Sprintf("%-28s Checkpoint seq 7, tree_size 6, server_ts", "Letzte Gegenzeichnung:"),
 			"Ergebnis: unvollständig: Kettenende nicht versiegelt (Exit-Code 4)",
-			"[UNSEALED_END] seq=9 — Kette endet ohne Siegel: unvollständig (Abschnitt 8.6)",
+			"[UNSEALED_END] seq=9: Kette endet ohne Siegel: unvollständig (Abschnitt 8.6)",
 			"Kettenende unvollständig:", "chain_id " + unsealed.chainID, "MERKLE_INCONSISTENT",
 		}},
 		{resU, "en", []string{
-			fmt.Sprintf("%-28s not sealed — last entry seq 9 (TICK) at %s", "Chain end:", unsealed.ts()),
+			fmt.Sprintf("%-28s not sealed: last entry seq 9 (TICK) at %s", "Chain end:", unsealed.ts()),
 			"Result: incomplete: chain end not sealed (Exit code 4)",
-			"[UNSEALED_END] seq=9 — chain ends without a seal: incomplete (section 8.6)",
+			"[UNSEALED_END] seq=9: chain ends without a seal: incomplete (section 8.6)",
 			"Chain end incomplete:", "chain_id " + unsealed.chainID, "MERKLE_INCONSISTENT",
 		}},
 	} {

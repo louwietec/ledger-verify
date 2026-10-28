@@ -1,0 +1,147 @@
+{
+  "$id": "report_key_roles.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidates": {
+      "description": "the number of distinct role lists (R1)",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "list": {
+      "additionalProperties": false,
+      "description": "the effective role list Q with the origin of its root (auditor's root or built in); null without Q",
+      "properties": {
+        "ausgestellt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+          "type": "string"
+        },
+        "ende_doppelbetrieb": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "root_source": {
+          "enum": [
+            "vendor_root",
+            "builtin"
+          ]
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "wurzel_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ausgestellt",
+        "ende_doppelbetrieb",
+        "root_source",
+        "version",
+        "wurzel_id"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "notes": {
+      "items": {
+        "enum": [
+          "unknown_role",
+          "receipt_key_other_role",
+          "pin_dropped"
+        ]
+      },
+      "type": "array"
+    },
+    "pins_dropped": {
+      "description": "the pins dropped after R3 (d), ascending by key_id",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "key_id": {
+            "pattern": "^[A-Za-z0-9._-]{1,64}$",
+            "type": "string"
+          },
+          "listed_as": {
+            "description": "the role with which a list names the public key: a role from Q, countersigning for K_cs^L, protocol for the protocol key list",
+            "pattern": "^[a-z][a-z_]{0,31}$",
+            "type": "string"
+          },
+          "pinned_as": {
+            "enum": [
+              "countersigning",
+              "statements",
+              "protocol"
+            ]
+          }
+        },
+        "required": [
+          "key_id",
+          "listed_as",
+          "pinned_as"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "reason": {
+      "enum": [
+        "format",
+        "no_matching_root",
+        "signature",
+        "lists_contradictory",
+        "key_in_two_roles",
+        null
+      ]
+    },
+    "statement_keys": {
+      "description": "the statements keys that can establish pages (pins not dropped and entries of Q with rolle statements), ascending by key_id",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "key_id": {
+            "pattern": "^[A-Za-z0-9._-]{1,64}$",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "role_list",
+              "pinned"
+            ]
+          }
+        },
+        "required": [
+          "key_id",
+          "source"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "not_supplied",
+        "effective",
+        "not_effective"
+      ]
+    }
+  },
+  "required": [
+    "candidates",
+    "list",
+    "notes",
+    "pins_dropped",
+    "reason",
+    "statement_keys",
+    "status"
+  ],
+  "title": "Registry verifier.report_objects.key_roles",
+  "type": "object"
+}

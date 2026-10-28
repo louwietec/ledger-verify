@@ -1,9 +1,9 @@
 package vfy
 
 // Four places where the two verifiers judged the same package differently
-// (review of 29.09.2026). Each test fixes the reading the specification now
-// states; artefakte/P04/rohdaten_differenz.py runs the same inputs through
-// both verifiers and compares exit code and finding classes.
+// (found on 29.09.2026). Each test fixes the reading the specification now
+// states; a differential run feeds the same inputs through both verifiers
+// and compares exit code and finding classes.
 //
 //  1. Segment files are split on "\n" only (spec 10.1). U+2028, U+2029 and
 //     U+0085 stand raw inside JSON strings (RFC 8785 escapes only below
@@ -29,7 +29,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/louwietec/ledger-verify/verifier/internal/jcs"
+	"louwietec.com/ledger-verify/verifier/internal/jcs"
 )
 
 // rewriteSegment replaces the package's only segment by edit(segment) and

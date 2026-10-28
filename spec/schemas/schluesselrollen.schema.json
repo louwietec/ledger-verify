@@ -1,0 +1,96 @@
+{
+  "$id": "schluesselrollen.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "ausgestellt": {
+      "description": "issue time, read after the grammar of format spec 10.7.1",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+      "type": "string"
+    },
+    "ende_doppelbetrieb": {
+      "description": "end of dual operation (format spec 10.7.5): from this instant keys of role countersigning sign receipts only; once present, every later version carries the same value",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+      "type": "string"
+    },
+    "format": {
+      "const": "ledger-schluesselrollen/1"
+    },
+    "schluessel": {
+      "description": "per key exactly key_id, pubkey, rolle, gueltig_ab and optionally gueltig_bis and widerrufen_ab, all strings; a key_id and a pubkey occur at most once each",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "gueltig_ab": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          },
+          "gueltig_bis": {
+            "description": "after gueltig_ab",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          },
+          "key_id": {
+            "pattern": "^[A-Za-z0-9._-]{1,64}$",
+            "type": "string"
+          },
+          "pubkey": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "rolle": {
+            "pattern": "^[a-z][a-z_]{0,31}$",
+            "type": "string"
+          },
+          "widerrufen_ab": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gueltig_ab",
+          "key_id",
+          "pubkey",
+          "rolle"
+        ],
+        "type": "object"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "type": "array"
+    },
+    "signatur": {
+      "additionalProperties": false,
+      "properties": {
+        "sig": {
+          "pattern": "^[0-9a-f]{128}$",
+          "type": "string"
+        },
+        "wurzel_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sig",
+        "wurzel_id"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "description": "strictly increasing; a new version keeps every entry of earlier versions with the same key_id, pubkey and rolle; it may add or shorten their validity members",
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ausgestellt",
+    "format",
+    "schluessel",
+    "signatur",
+    "version"
+  ],
+  "title": "ledger-schluesselrollen/1 (registry key_role_list)",
+  "type": "object"
+}

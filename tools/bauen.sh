@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bauen.sh — baut den LEDGER-Verifier reproduzierbar aus diesem Baum.
+# bauen.sh: baut den LEDGER-Verifier reproduzierbar aus diesem Baum.
 #
 # Ergebnis in AUSGABE:
 #   <name>_<version>_linux_amd64, _linux_arm64, _darwin_amd64, _darwin_arm64,
@@ -10,17 +10,17 @@
 # REPRODUZIERBAR: CGO_ENABLED=0, -trimpath, -buildvcs=false,
 # -ldflags "-s -w -buildid=", feste GOAMD64/GOARM64, GOTOOLCHAIN=local und ein
 # leeres GOFLAGS. Mit derselben Go-Fassung (go1.24.7) ergibt jeder Rechner
-# dieselben Bytes wie das Release — vergleichen Sie mit SHA256SUMS.
+# dieselben Bytes wie das Release; vergleichen Sie mit SHA256SUMS.
 # -buildvcs=false, weil ein Bau aus einem git-Klon sonst andere Bytes ergaebe
 # als einer aus dem Quellarchiv (Go stempelt den VCS-Stand ins Binaer).
 #
-# Dieses Skript ist die EINZIGE Bauvorschrift: das Release, die CI dieses
+# Dieses Skript ist DIE Bauvorschrift: das Release, die CI dieses
 # Repositorys und jeder Dritte, der nachbaut, rufen genau diese Datei.
 #
 # / Reproducible build of the LEDGER verifier from this tree: five CLI
 # binaries and the single-file browser page. With the same Go release
-# (go1.24.7) every machine yields the release's bytes — compare them with
-# SHA256SUMS. This script is the ONLY build recipe; the release, this
+# (go1.24.7) every machine yields the release's bytes; compare them with
+# SHA256SUMS. This script is THE build recipe; the release, this
 # repository's CI and anyone rebuilding call exactly this file.
 #
 # Aufruf / usage:  bash tools/bauen.sh AUSGABE VERSION [NAME]
@@ -73,18 +73,18 @@ echo "   Kommando      : ./cmd/$CMD"
 echo "   Browser-Modul : ./cmd/$WCMD"
 for q in internal/cli/cli.go internal/wasmapi/wasmapi.go; do
   grep -q '^var Version = "' "$V/$q" \
-    || { echo "$q: keine Variable Version — -X wuerde nichts setzen / no Version variable" >&2; exit 1; }
+    || { echo "$q: keine Variable Version; -X wuerde nichts setzen / no Version variable" >&2; exit 1; }
 done
 echo "   Version       : -X internal/cli.Version=$VERSION, -X internal/wasmapi.Version=$VERSION"
 
 MODUL="$(sed -n 's/^module \(.*\)$/\1/p' "$V/go.mod" | head -1)"
 WURZEL_LDFLAG=""
 if [ -n "${LEDGER_VERIFY_HERSTELLER_WURZEL:-}" ]; then
-  WURZEL_WERT="$(python3 -c 'import json,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}; print(w["wurzel_id"]+"="+w["pubkey"])' "$LEDGER_VERIFY_HERSTELLER_WURZEL")"
+  WURZEL_WERT="$(python3 -c 'import json,re,sys; w=json.load(open(sys.argv[1])); assert set(w)=={"wurzel_id","pubkey"}, "genau wurzel_id und pubkey / exactly wurzel_id and pubkey"; assert re.fullmatch("[0-9a-f]{64}", w["pubkey"]), "pubkey ist kein 64-stelliger Hexwert / pubkey is not 64 hex digits"; assert re.fullmatch("[A-Za-z0-9._-]{1,64}", w["wurzel_id"]), "wurzel_id ungueltig / invalid"; print(w["wurzel_id"]+"="+w["pubkey"])' "$LEDGER_VERIFY_HERSTELLER_WURZEL")"
   WURZEL_LDFLAG=" -X $MODUL/internal/vfy.BuiltinVendorRoot=$WURZEL_WERT"
   echo "   Herstellerwurzel eingebaut / vendor root compiled in: $WURZEL_WERT"
 else
-  echo "   Herstellerwurzel: keine eingebaut — Pruefer uebergibt --vendor-root / none compiled in"
+  echo "   Herstellerwurzel: keine eingebaut, Pruefer uebergibt --vendor-root / none compiled in"
 fi
 
 # Feste Bauumgebung: nichts aus der Shell des Bauenden darf die Bytes aendern.

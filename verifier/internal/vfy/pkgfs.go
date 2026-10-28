@@ -222,7 +222,7 @@ func openZip(p string) (*zipFS, error) {
 // Browser: das Paket wird lokal geoeffnet, nichts wird hochgeladen, nichts
 // installiert. Es ist DIESELBE Quelle — keine dritte Implementierung, die
 // auseinanderlaufen koennte, und die Aequivalenz ueber alle eingefrorenen
-// Vektoren wird gemessen (artefakte/P03/wasm_aequivalenz.log).
+// Vektoren wird gemessen.
 // / Opens a verification package that lives in memory, so the very same
 // verifier can run as WebAssembly in a browser: nothing uploaded, nothing
 // installed, and no third implementation to drift.
