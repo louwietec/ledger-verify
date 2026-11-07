@@ -1,0 +1,48 @@
+{
+  "format": "ledger-schluesselrollen/1",
+  "version": 1,
+  "ausgestellt": "2026-10-30T08:00:00.000Z",
+  "schluessel": [
+    {
+      "key_id": "louwietec-meta-1",
+      "pubkey": "0c55370069ca59487e50dcc3c388ed200bfeec3856a2a466740e4228b214c258",
+      "rolle": "countersigning",
+      "gueltig_ab": "2026-10-07T17:46:14Z",
+      "gueltig_bis": "2026-11-30T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-meta-2",
+      "pubkey": "9b8dacd86439ecbbd15bc8a7fa9408c55d2f092165560481f3b022ec6124cb5d",
+      "rolle": "countersigning",
+      "gueltig_ab": "2026-10-31T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-meta-3",
+      "pubkey": "87fda83b671d53a8ebcbf338b41f680a2d8fd8d27ee6f9b90fb61f09d6644f78",
+      "rolle": "countersigning",
+      "gueltig_ab": "2026-10-31T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-bescheid-1",
+      "pubkey": "a07d20a781e4890ecf3a4e8c968efba071cad16073bf02a8ce90993b9b17f2d8",
+      "rolle": "statements",
+      "gueltig_ab": "2026-10-29T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-bescheid-2",
+      "pubkey": "5878ad9549ec2d15a15323f69dd0a2cbc91cfead73b15febca5d328048cb492d",
+      "rolle": "statements",
+      "gueltig_ab": "2026-10-29T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-manifest-1",
+      "pubkey": "fde2e19efa5b7ccdb7b0543b17839e8791ca8416064c611f733a969bcfb7d102",
+      "rolle": "update_manifest",
+      "gueltig_ab": "2026-10-31T00:00:00.000Z"
+    }
+  ],
+  "signatur": {
+    "wurzel_id": "louwietec-wurzel-1",
+    "sig": "d33d08c1dccb8c0e10779721b4328c4b86ed6fab13146757615d69a9db8a12efbc0905c16d241109876268987274044a1d60cf3d33a707c7aa311cb7557a4507"
+  }
+}
