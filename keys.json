@@ -1,0 +1,28 @@
+{
+  "format": "ledger-protokollschluessel/1",
+  "version": 1,
+  "ausgestellt": "2026-10-30T08:00:00.000Z",
+  "log_id": "louwietec-protokoll",
+  "erster_tag": "2026-11-08",
+  "fuellerbindung": "a3dde4131380738ac388917e1c3f81a30f86f10c77ada97c6d00bf5233d2647e",
+  "orte": [
+    "https://ledger.service.louwietec.com/download/protokoll/louwietec-protokoll",
+    "https://raw.githubusercontent.com/louwietec/ledger-verify/protokoll"
+  ],
+  "schluessel": [
+    {
+      "key_id": "louwietec-protokoll-1",
+      "pubkey": "05e1c7726763cbbad320b6aee1d465c1a08570af73d82f102f55821e6895b43c",
+      "gueltig_ab": "2026-11-08T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-protokoll-2",
+      "pubkey": "ce3b07bca3856c9558ce8d9b0b6de89a08cec7258242c03cf5b4f1b221e4c328",
+      "gueltig_ab": "2026-10-29T00:00:00.000Z"
+    }
+  ],
+  "signatur": {
+    "wurzel_id": "louwietec-wurzel-1",
+    "sig": "2a0875b909672403c9599d559ebeeb4b8e64c1e937fd50dbdc855cffe28333c368c81baaa43b6f01239ee9b6d1bbfc9327f365bb2e16cb2e069dc7b4a0d36b04"
+  }
+}
