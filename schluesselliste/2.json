@@ -1,0 +1,27 @@
+{
+  "format": "rekorder-herstellerschluessel/1",
+  "version": 2,
+  "ausgestellt": "2026-10-30T08:00:00.000Z",
+  "schluessel": [
+    {
+      "key_id": "louwietec-meta-1",
+      "pubkey": "0c55370069ca59487e50dcc3c388ed200bfeec3856a2a466740e4228b214c258",
+      "gueltig_ab": "2026-10-07T17:46:14Z",
+      "gueltig_bis": "2026-11-30T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-meta-2",
+      "pubkey": "9b8dacd86439ecbbd15bc8a7fa9408c55d2f092165560481f3b022ec6124cb5d",
+      "gueltig_ab": "2026-10-31T00:00:00.000Z"
+    },
+    {
+      "key_id": "louwietec-meta-3",
+      "pubkey": "87fda83b671d53a8ebcbf338b41f680a2d8fd8d27ee6f9b90fb61f09d6644f78",
+      "gueltig_ab": "2026-10-31T00:00:00.000Z"
+    }
+  ],
+  "signatur": {
+    "wurzel_id": "louwietec-wurzel-1",
+    "sig": "7d7babd728068902a9bad74621a286325162622567464f3fc6b71333e09f85b86dfe144b08633d3f38f8221c31c88be90a7dcdb6efe42df329e3b851f0f59405"
+  }
+}
