@@ -5,7 +5,7 @@
   "description": "in the 200 responses to activation and heartbeat (heartbeat spec 9.3, 9.4); display only",
   "properties": {
     "server_key_id": {
-      "description": "the vendor countersigning key (format spec 10.7 key_id grammar)",
+      "description": "a key of role statements (format spec 10.7.3); until ende_doppelbetrieb the wrapper of licence statement, refusal and activation receipt and pages of kind v1 carry a countersigning key (format spec 10.7.5); key_id grammar of format spec 10.7.1",
       "pattern": "^[A-Za-z0-9._-]{1,64}$",
       "type": "string"
     },
@@ -73,7 +73,7 @@
       "type": "object"
     },
     "statement_jcs": {
-      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed",
+      "description": "the statement in JCS form (RFC 8785); only these UTF-8 bytes are signed; at most 2048 characters unless the kind names its own statement_jcs_maxlen (anchor_history_v2: 131072)",
       "maxLength": 2048,
       "type": "string"
     }

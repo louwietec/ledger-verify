@@ -1,0 +1,22 @@
+{
+  "format": "ledger-pruefumgebung/1",
+  "korpus": true,
+  "vendor_root": [],
+  "vendor_key": [],
+  "vendor_key_list": [
+    "pruefer_evidence_qualified_log_root_qualified_only.vendor_key_list-1.json"
+  ],
+  "vendor_log_key": [],
+  "vendor_statement_key": [],
+  "tsa_root": [],
+  "tsa_qualified_roots": "pruefer_evidence_qualified_log_root_qualified_only.tsa_qualified_roots-1.json",
+  "vendor_log_tsa_root": [],
+  "expect_root": [],
+  "vendor_log": [
+    "pruefer_evidence_qualified_log_root_qualified_only.vendor_log-1.json"
+  ],
+  "anchor_history": [
+    "pruefer_evidence_qualified_log_root_qualified_only.anchor_history-1.json"
+  ],
+  "requested_at": "2026-01-03T06:00:00.000Z"
+}

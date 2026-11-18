@@ -1,0 +1,31 @@
+{
+  "auditor_inputs": {
+    "evidence_level": {
+      "affiliation": "not_checked",
+      "conditions": null,
+      "level": null,
+      "notes": [],
+      "segments": [],
+      "state": "chain_invalid",
+      "up_to_tree_size": null
+    },
+    "exit_code": 2,
+    "file": "pruefer_timestamp_gentime_year_zero.json",
+    "finding_classes": [
+      "TIME_ANCHOR_INVALID"
+    ]
+  },
+  "evidence_level": {
+    "affiliation": "not_checked",
+    "conditions": null,
+    "level": null,
+    "notes": [],
+    "segments": [],
+    "state": "chain_invalid",
+    "up_to_tree_size": null
+  },
+  "exit_code": 2,
+  "finding_classes": [
+    "TIME_ANCHOR_INVALID"
+  ]
+}

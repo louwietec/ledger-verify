@@ -1,0 +1,116 @@
+{
+  "$id": "protokollschluessel.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "ausgestellt": {
+      "description": "issue time, read after the grammar of format spec 10.7",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+      "type": "string"
+    },
+    "erster_tag": {
+      "description": "start of the log; equal in every version",
+      "pattern": "^(?:[2-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-8])-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    },
+    "format": {
+      "const": "ledger-protokollschluessel/1"
+    },
+    "fuellerbindung": {
+      "description": "filler commitment Hex(SHA-256(UTF-8(JCS({filler_secret: Hex(G), kind: ledger.vendor_log_filler_commitment.v1, log_id})))) to the filler secret G of this log (vendor_log.fillers.filler_commitment) if the vendor derives its fillers, else null; once set, equal in every later version; the verifier reads it only for that rule (format spec 7.4.7, 7.4.10, L1 item 2)",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "log_id": {
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": "string"
+    },
+    "orte": {
+      "description": "places of publication; at least one outside the vendor's operation; they change only with a new version signed by the vendor root; what a reader can expect from a place outside the vendor's operation and how to check it: heartbeat spec 9.9",
+      "items": {
+        "pattern": "^https://[!-~]{1,248}$",
+        "type": "string"
+      },
+      "maxItems": 4,
+      "minItems": 2,
+      "type": "array"
+    },
+    "schluessel": {
+      "description": "per key exactly as in format spec 10.7; a key_id and a pubkey occur at most once each",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "gueltig_ab": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          },
+          "gueltig_bis": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          },
+          "key_id": {
+            "pattern": "^[A-Za-z0-9._-]{1,64}$",
+            "type": "string"
+          },
+          "pubkey": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "widerrufen_ab": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gueltig_ab",
+          "key_id",
+          "pubkey"
+        ],
+        "type": "object"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "type": "array"
+    },
+    "signatur": {
+      "additionalProperties": false,
+      "properties": {
+        "sig": {
+          "pattern": "^[0-9a-f]{128}$",
+          "type": "string"
+        },
+        "wurzel_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sig",
+        "wurzel_id"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "description": "strictly increasing; a new version keeps every key ever listed, with its end of validity",
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ausgestellt",
+    "erster_tag",
+    "format",
+    "fuellerbindung",
+    "log_id",
+    "orte",
+    "schluessel",
+    "signatur",
+    "version"
+  ],
+  "title": "ledger-protokollschluessel/1 (registry protocol_key_list)",
+  "type": "object"
+}

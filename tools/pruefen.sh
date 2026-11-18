@@ -66,7 +66,7 @@ offline_teil() {
     echo "   Netzschnittstellen ausser lo / interfaces besides lo: $n   (sichtbar / visible: ${ifs:-keine})"
     [ "$n" = 0 ] || { echo "   ROT: der Namensraum hat Netz / the namespace has network"; ok=1; }
     if (exec 3<>/dev/tcp/1.1.1.1/443) 2>"$aus/netz.err"; then
-      echo "   Verbindungsversuch 1.1.1.1:443: ERFOLGREICH — dieser Lauf ist NICHT offline / NOT offline"
+      echo "   Verbindungsversuch 1.1.1.1:443: ERFOLGREICH; dieser Lauf ist NICHT offline / NOT offline"
       ok=1
     else
       echo "   Verbindungsversuch / connection attempt 1.1.1.1:443: $(tail -1 "$aus/netz.err" | sed 's/^.*: //')"
@@ -100,7 +100,7 @@ offline_teil() {
   set -e
   sed 's/^/     | /' "$aus/manipuliert.txt"
   if [ "$e" -eq 2 ] && grep -q 'CONTENT_MISMATCH' "$aus/manipuliert.txt"; then
-    echo "   GRUEN: Exit $e mit CONTENT_MISMATCH — die Manipulation ist erkannt / tampering detected"
+    echo "   GRUEN: Exit $e mit CONTENT_MISMATCH, die Manipulation ist erkannt / tampering detected"
   else
     echo "   ROT: Exit $e (Soll 2) oder CONTENT_MISMATCH fehlt / RED"; ok=1
   fi
@@ -123,7 +123,7 @@ SELBST="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 ARBEIT="$(mktemp -d "${TMPDIR:-/tmp}/ledger-pruefen.XXXXXX")"
 trap 'rm -rf "$ARBEIT"' EXIT
 
-rot() { echo; echo "ERGEBNIS: ROT — $*"; exit 1; }
+rot() { echo; echo "ERGEBNIS: ROT, $*"; exit 1; }
 
 echo "== LEDGER-Verifier: Release pruefen / verify a release"
 echo "   Release-Dateien / files : $DIST"
@@ -159,11 +159,11 @@ if [ -n "$FP_SOLL" ]; then
   if [ "$FP_IST" = "$FP_SOLL" ]; then
     echo "   GRUEN: Fingerabdruck = veroeffentlichter / fingerprint matches the published one ($FP_SOLL)"
   else
-    rot "Fingerabdruck $FP_IST ist NICHT der veroeffentlichte $FP_SOLL — allowed_signers stammt nicht vom Hersteller / not the vendor's key"
+    rot "Fingerabdruck $FP_IST ist NICHT der veroeffentlichte $FP_SOLL; allowed_signers stammt nicht vom Hersteller / not the vendor's key"
   fi
 else
   echo "   ACHTUNG / ATTENTION: kein veroeffentlichter Fingerabdruck angegeben. Vergleichen Sie $FP_IST"
-  echo "   selbst mit dem auf louwietec.com und im Prueferleitfaden — sonst beweist die Signatur nur,"
+  echo "   selbst mit dem auf louwietec.com und im Prueferleitfaden, sonst beweist die Signatur nur,"
   echo "   dass SHA256SUMS zu IRGENDEINEM Schluessel passt. / Compare it yourself with the published one."
 fi
 
@@ -193,7 +193,7 @@ echo "   GRUEN: $N_SUMMEN/$N_SUMMEN Dateien stimmen / files match"
 for f in "$DIST"/*; do
   b="$(basename "$f")"
   case "$b" in SHA256SUMS|SHA256SUMS.sig|allowed_signers) continue ;; esac
-  grep -q "  $b\$" "$DIST/SHA256SUMS" || echo "   HINWEIS: $b liegt in DIST, steht aber nicht in SHA256SUMS — wird nicht benutzt / not listed, not used"
+  grep -q "  $b\$" "$DIST/SHA256SUMS" || echo "   HINWEIS: $b liegt in DIST, steht aber nicht in SHA256SUMS und wird nicht benutzt / not listed, not used"
 done
 
 echo
@@ -241,7 +241,7 @@ if command -v unshare >/dev/null 2>&1 && unshare -rn true 2>/dev/null; then
 else
   echo "   HINWEIS: kein Netz-Namensraum verfuegbar (macOS, Windows, eingeschraenkter Container)."
   echo "   Der Verifier oeffnet keine Verbindung; wer es sehen will, trennt das Netz vor diesem Schritt."
-  echo "   / No network namespace here; the verifier opens no connection — disconnect to see it."
+  echo "   / No network namespace here; the verifier opens no connection; disconnect to see it."
   if offline_teil "$ARBEIT/$BIN_NAME" "$TV" "$ARBEIT/offline" 0; then OFFLINE=0; else OFFLINE=1; fi
   WIE="ohne Netz-Namensraum (Netz nicht technisch getrennt)"
 fi
@@ -249,7 +249,7 @@ fi
 
 echo
 if [ -n "$FP_SOLL" ]; then
-  echo "ERGEBNIS: GRUEN — Schluessel = veroeffentlichter Fingerabdruck, Signatur gueltig, $N_SUMMEN/$N_SUMMEN Pruefsummen, Beispielketten $WIE: gueltig+versiegelt Exit 0, manipuliert Exit 2 CONTENT_MISMATCH"
+  echo "ERGEBNIS: GRUEN, Schluessel = veroeffentlichter Fingerabdruck, Signatur gueltig, $N_SUMMEN/$N_SUMMEN Pruefsummen, Beispielketten $WIE: gueltig+versiegelt Exit 0, manipuliert Exit 2 CONTENT_MISMATCH"
 else
-  echo "ERGEBNIS: GRUEN — Signatur gueltig, $N_SUMMEN/$N_SUMMEN Pruefsummen, Beispielketten $WIE: gueltig+versiegelt Exit 0, manipuliert Exit 2 CONTENT_MISMATCH; ACHTUNG: Fingerabdruck $FP_IST NICHT mit dem veroeffentlichten abgeglichen"
+  echo "ERGEBNIS: GRUEN, Signatur gueltig, $N_SUMMEN/$N_SUMMEN Pruefsummen, Beispielketten $WIE: gueltig+versiegelt Exit 0, manipuliert Exit 2 CONTENT_MISMATCH; ACHTUNG: Fingerabdruck $FP_IST NICHT mit dem veroeffentlichten abgeglichen"
 fi

@@ -1,0 +1,23 @@
+{
+  "format": "ledger-pruefumgebung/1",
+  "korpus": true,
+  "vendor_root": [],
+  "vendor_key": [],
+  "vendor_key_list": [
+    "pruefer_roles_pins_dropped.vendor_key_list-1.json"
+  ],
+  "vendor_log_key": [
+    "vendor-log-test-001=0281ea7e6995a65287fb8b49092636b24cb645eb2a54bd1975a94f1597cc0ef5"
+  ],
+  "vendor_statement_key": [
+    "vendor-test-002=73edaed42d761a1ab4fcc9be71a95b957542e89be13fa185e6ad1264ddc8b816",
+    "vendor-update-manifest-test-001=8796764cebba035507d86bbf2ebf308738417b88f1bdab4f465484569c838f28"
+  ],
+  "tsa_root": [],
+  "tsa_qualified_roots": null,
+  "vendor_log_tsa_root": [],
+  "expect_root": [],
+  "vendor_log": [],
+  "anchor_history": [],
+  "requested_at": null
+}

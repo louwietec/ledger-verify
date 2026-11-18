@@ -1,0 +1,59 @@
+{
+  "auditor_inputs": {
+    "evidence_level": {
+      "affiliation": "not_checked",
+      "conditions": {
+        "completeness_from_history": "anchor_history_not_supplied",
+        "expected_root_found": "no_expected_root_found",
+        "log_day_qualified": "no_receipt_included",
+        "receipt_key_confirmed": "no_receipt",
+        "receipts_logged": "no_receipt",
+        "time_witness": "no_time_anchor",
+        "time_witness_qualified": "no_time_anchor"
+      },
+      "level": 0,
+      "notes": [],
+      "segments": [
+        [
+          0,
+          1,
+          30
+        ]
+      ],
+      "state": "rated",
+      "up_to_tree_size": 30
+    },
+    "exit_code": 1,
+    "file": "pruefer_evidence_level_0_no_receipt.json",
+    "finding_classes": [
+      "NO_ANCHOR"
+    ]
+  },
+  "evidence_level": {
+    "affiliation": "not_checked",
+    "conditions": {
+      "completeness_from_history": "anchor_history_not_supplied",
+      "expected_root_found": "no_expected_root_found",
+      "log_day_qualified": "vendor_log_not_supplied",
+      "receipt_key_confirmed": "no_receipt",
+      "receipts_logged": "vendor_log_not_supplied",
+      "time_witness": "no_time_anchor",
+      "time_witness_qualified": "no_time_anchor"
+    },
+    "level": 0,
+    "notes": [],
+    "segments": [
+      [
+        0,
+        1,
+        30
+      ]
+    ],
+    "state": "rated",
+    "up_to_tree_size": 30
+  },
+  "exit_code": 1,
+  "finding_classes": [
+    "NO_ANCHOR"
+  ]
+}

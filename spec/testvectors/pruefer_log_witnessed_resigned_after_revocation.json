@@ -1,0 +1,22 @@
+{
+  "format": "ledger-pruefumgebung/1",
+  "korpus": true,
+  "vendor_root": [],
+  "vendor_key": [],
+  "vendor_key_list": [
+    "pruefer_log_witnessed_resigned_after_revocation.vendor_key_list-1.json"
+  ],
+  "vendor_log_key": [],
+  "vendor_statement_key": [],
+  "tsa_root": [],
+  "tsa_qualified_roots": null,
+  "vendor_log_tsa_root": [
+    "pruefer_log_witnessed_resigned_after_revocation.vendor_log_tsa_root-1.pem"
+  ],
+  "expect_root": [],
+  "vendor_log": [
+    "pruefer_log_witnessed_resigned_after_revocation.vendor_log-1.json"
+  ],
+  "anchor_history": [],
+  "requested_at": null
+}

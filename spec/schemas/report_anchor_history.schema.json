@@ -1,0 +1,525 @@
+{
+  "$id": "report_anchor_history.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completeness": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "enum": [
+            "not_supplied",
+            "no_request_time",
+            "no_usable_page",
+            "owner_differs",
+            "issued_before_request",
+            "pages_missing",
+            "contradiction",
+            "fork",
+            "root_missing",
+            "no_root_found",
+            null
+          ]
+        },
+        "status": {
+          "enum": [
+            "established",
+            "partial",
+            "not_established"
+          ]
+        },
+        "up_to_tree_size": {
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "reason",
+        "status",
+        "up_to_tree_size"
+      ],
+      "type": "object"
+    },
+    "coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "gaps": {
+          "description": "gaps as ranges [a, b), null for b = infinity, ascending by a",
+          "items": {
+            "items": false,
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "minimum": 1,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            ],
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "partial",
+            "none"
+          ]
+        }
+      },
+      "required": [
+        "gaps",
+        "status"
+      ],
+      "type": "object"
+    },
+    "files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "forks": {
+      "additionalProperties": false,
+      "properties": {
+        "listed": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "omitted": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "listed",
+        "omitted"
+      ],
+      "type": "object"
+    },
+    "issued": {
+      "additionalProperties": false,
+      "properties": {
+        "first": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "first",
+        "last"
+      ],
+      "type": "object"
+    },
+    "keys": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "key_id": {
+            "pattern": "^[A-Za-z0-9._-]{1,64}$",
+            "type": "string"
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "the effective role list; null for a pin",
+            "properties": {
+              "ausgestellt": {
+                "type": "string"
+              },
+              "root_source": {
+                "enum": [
+                  "vendor_root",
+                  "builtin"
+                ]
+              },
+              "version": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "wurzel_id": {
+                "pattern": "^[A-Za-z0-9._-]{1,64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ausgestellt",
+              "root_source",
+              "version",
+              "wurzel_id"
+            ],
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "source": {
+            "enum": [
+              "pinned",
+              "role_list"
+            ]
+          }
+        },
+        "required": [
+          "key_id",
+          "list",
+          "source"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "enum": [
+          "requested_at_unused",
+          "no_request_time",
+          "archive_pages",
+          "recent_roots_not_found",
+          "package_ended_before_request",
+          "reported_beyond_handover",
+          "package_beyond_handover",
+          "predecessor_differs_from_genesis",
+          "linked_history_not_supplied",
+          "receipt_roots_unverified_not_in_history"
+        ]
+      },
+      "type": "array"
+    },
+    "owner": {
+      "enum": [
+        "matches",
+        "differs",
+        null
+      ]
+    },
+    "page_reasons": {
+      "items": {
+        "enum": [
+          "key_not_established",
+          "key_other_role",
+          "signature",
+          "page_rules",
+          "not_v2",
+          "key_not_valid",
+          "other_chain",
+          "owner_differs",
+          "signing_time_not_proven"
+        ]
+      },
+      "type": "array"
+    },
+    "pages": {
+      "additionalProperties": false,
+      "properties": {
+        "distinct": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_used": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "supplied": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "used_fresh": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "used_linked": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "used_stale": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "used_unjudged": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "distinct",
+        "not_used",
+        "supplied",
+        "used_fresh",
+        "used_linked",
+        "used_stale",
+        "used_unjudged"
+      ],
+      "type": "object"
+    },
+    "predecessor": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "tree_size": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chain_id",
+        "tree_size"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "reasons": {
+      "additionalProperties": false,
+      "properties": {
+        "contradiction": {
+          "items": {
+            "enum": [
+              "page_rules",
+              "root_time_differs",
+              "root_dropped",
+              "root_withheld",
+              "fork_dropped",
+              "affiliation_narrowed",
+              "affiliation_withheld",
+              "known_range_narrowed",
+              "owner_keys_dropped",
+              "succession_changed",
+              "reference_decreases",
+              "succession_mismatch",
+              "log_mismatch",
+              "log_root_missing",
+              "gap_witness_time_differs",
+              "receipt_not_in_history"
+            ]
+          },
+          "type": "array"
+        },
+        "defective": {
+          "items": {
+            "enum": [
+              "signature"
+            ]
+          },
+          "type": "array"
+        },
+        "fork": {
+          "items": {
+            "enum": [
+              "fork_listed",
+              "forks_omitted",
+              "root_beyond_handover",
+              "predecessor_beyond_handover",
+              "history_root_differs",
+              "reported_root_beyond_package"
+            ]
+          },
+          "type": "array"
+        },
+        "unverified": {
+          "items": {
+            "enum": [
+              "key_not_established",
+              "key_other_role",
+              "not_v2",
+              "key_not_valid",
+              "other_chain",
+              "owner_differs",
+              "signing_time_not_proven",
+              "issued_before_request",
+              "pages_missing"
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "contradiction",
+        "defective",
+        "fork",
+        "unverified"
+      ],
+      "type": "object"
+    },
+    "receipts": {
+      "additionalProperties": false,
+      "properties": {
+        "before_legacy_boundary": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "checked": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "in_history": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_covered": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_in_history": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_in_history_unestablished": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "server_ts_differs": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "before_legacy_boundary",
+        "checked",
+        "in_history",
+        "not_covered",
+        "not_in_history",
+        "not_in_history_unestablished",
+        "server_ts_differs"
+      ],
+      "type": "object"
+    },
+    "reference_tree_size": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "requested_at": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "roots": {
+      "additionalProperties": false,
+      "properties": {
+        "beyond_package_after_request": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "beyond_package_before_request": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "beyond_package_recent": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "beyond_package_unjudged": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "differing_after_request": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "differing_before_request": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "distinct": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "found": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_used_vendor_log": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "beyond_package_after_request",
+        "beyond_package_before_request",
+        "beyond_package_recent",
+        "beyond_package_unjudged",
+        "differing_after_request",
+        "differing_before_request",
+        "distinct",
+        "found",
+        "not_used_vendor_log"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "not_supplied",
+        "checked"
+      ]
+    },
+    "successor": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "tree_size": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chain_id",
+        "tree_size"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "completeness",
+    "coverage",
+    "files",
+    "forks",
+    "issued",
+    "keys",
+    "notes",
+    "owner",
+    "page_reasons",
+    "pages",
+    "predecessor",
+    "reasons",
+    "receipts",
+    "reference_tree_size",
+    "requested_at",
+    "roots",
+    "status",
+    "successor"
+  ],
+  "title": "Registry verifier.report_objects.anchor_history",
+  "type": "object"
+}

@@ -1,0 +1,82 @@
+{
+  "$id": "report_cose_receipts.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "beyond_package": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "contradicting_prefix": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "defective": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "foreign_chain": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "key_not_established": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "key_not_valid": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "key_source": {
+      "enum": [
+        "role_list",
+        "pinned",
+        "role_list_and_pinned",
+        null
+      ]
+    },
+    "matching_prefix": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "other_log": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "root_not_attributed": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "not_supplied",
+        "checked"
+      ]
+    },
+    "supplied": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "with_chain_receipt": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "beyond_package",
+    "contradicting_prefix",
+    "defective",
+    "foreign_chain",
+    "key_not_established",
+    "key_not_valid",
+    "key_source",
+    "matching_prefix",
+    "other_log",
+    "root_not_attributed",
+    "status",
+    "supplied",
+    "with_chain_receipt"
+  ],
+  "title": "Registry verifier.report_objects.cose_receipts",
+  "type": "object"
+}

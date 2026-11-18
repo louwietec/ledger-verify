@@ -1,0 +1,18 @@
+{
+  "format": "ledger-pruefumgebung/1",
+  "korpus": true,
+  "vendor_root": [],
+  "vendor_key": [],
+  "vendor_key_list": [],
+  "vendor_log_key": [],
+  "vendor_statement_key": [],
+  "tsa_root": [
+    "pruefer_auditor_tsa_pem_not_certificate.tsa_root-1.pem"
+  ],
+  "tsa_qualified_roots": null,
+  "vendor_log_tsa_root": [],
+  "expect_root": [],
+  "vendor_log": [],
+  "anchor_history": [],
+  "requested_at": null
+}

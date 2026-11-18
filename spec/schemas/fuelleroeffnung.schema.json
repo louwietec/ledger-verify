@@ -1,0 +1,63 @@
+{
+  "$id": "fuelleroeffnung.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "day": {
+      "pattern": "^(?:[2-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-8])-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    },
+    "day_secret": {
+      "description": "the day secret g(day); opens the whole day",
+      "pattern": "^[0-9a-f]{64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "filler_count": {
+      "description": "m(day); not null exactly when day_secret is not null",
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "fillers": {
+      "description": "fillers opened one by one, pairwise distinct; at least one when day_secret is null",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "salt": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "salt"
+        ],
+        "type": "object"
+      },
+      "maxItems": 4096,
+      "type": "array"
+    },
+    "format": {
+      "const": "ledger-fuelleroeffnung/1"
+    },
+    "log_id": {
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "day",
+    "day_secret",
+    "filler_count",
+    "fillers",
+    "format",
+    "log_id"
+  ],
+  "title": "ledger-fuelleroeffnung/1 (registry vendor_log.filler_opening)",
+  "type": "object"
+}

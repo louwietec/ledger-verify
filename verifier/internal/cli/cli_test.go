@@ -1,6 +1,6 @@
 package cli
 
-// Abnahme A4 "Kein Pruefertext ohne LEDGER" / acceptance A4: every text an
+// Regel "Kein Pruefertext ohne LEDGER" / rule: every text an
 // auditor gets from the command line — report (DE and EN) for a valid, an
 // invalid and an incomplete chain, --version, the usage text and the error
 // messages — names LEDGER and never the former product name.
@@ -100,8 +100,8 @@ func TestBerichteNennenLEDGER(t *testing.T) {
 			pruefeText(t, quelle, out)
 			// The title is the first line and carries both names.
 			erste := strings.SplitN(out, "\n", 2)[0]
-			if !strings.HasPrefix(erste, Product+" — ") || !strings.Contains(erste, "("+Name+")") {
-				t.Errorf("%s: title line %q does not read \"LEDGER — … (ledger-verify)\"", quelle, erste)
+			if !strings.HasPrefix(erste, Product+": ") || !strings.Contains(erste, "("+Name+")") {
+				t.Errorf("%s: title line %q does not read \"LEDGER: … (ledger-verify)\"", quelle, erste)
 			}
 		}
 	}
@@ -114,7 +114,7 @@ func TestVersionNenntLEDGER(t *testing.T) {
 	}
 	pruefeText(t, "--version", out)
 	zeilen := strings.Split(strings.TrimRight(out, "\n"), "\n")
-	want := Name + " " + Version + " (spec " + SpecVersion + ") — " + Product
+	want := Name + " " + Version + " (spec " + SpecVersion + ") · " + Product
 	if zeilen[0] != want {
 		t.Errorf("--version first line %q, want %q", zeilen[0], want)
 	}
@@ -164,7 +164,7 @@ func TestAufrufUndFehlerNennenLEDGER(t *testing.T) {
 	// The usage header names the product twice: the tool and the packages.
 	_, _, usage := lauf()
 	kopf := strings.SplitN(usage, "\n", 2)[0]
-	if want := Name + " " + Version + " — " + Product + " offline verifier for " + Product + " verification packages (spec " + SpecVersion + ")"; kopf != want {
+	if want := Name + " " + Version + ": " + Product + " offline verifier for " + Product + " verification packages (spec " + SpecVersion + ")"; kopf != want {
 		t.Errorf("usage header %q, want %q", kopf, want)
 	}
 }
@@ -172,12 +172,12 @@ func TestAufrufUndFehlerNennenLEDGER(t *testing.T) {
 // Red check of the check itself: the helper must see the old name in every
 // spelling that could come back, and must let the frozen format id pass.
 func TestAlterNameErkennung(t *testing.T) {
-	for _, s := range []string{"Rekorder — Prüfbericht", "rekorder-verify 1.0.0", "REKORDER", "des Rekorders"} {
+	for _, s := range []string{"Rekorder — Prüfbericht", "Rekorder: Prüfbericht", "rekorder-verify 1.0.0", "REKORDER", "des Rekorders"} {
 		if !alterName(s) {
 			t.Errorf("alterName(%q) = false, want true", s)
 		}
 	}
-	for _, s := range []string{"LEDGER — Prüfbericht (ledger-verify)", "format rekorder-herstellerschluessel/1 expected"} {
+	for _, s := range []string{"LEDGER: Prüfbericht (ledger-verify)", "format rekorder-herstellerschluessel/1 expected"} {
 		if alterName(s) {
 			t.Errorf("alterName(%q) = true, want false", s)
 		}
@@ -277,7 +277,7 @@ func TestJSONCompletenessAndResidualWindow(t *testing.T) {
 		}
 	}
 	code, out, _ := lauf(append(append([]string{"--json", "--now-from-package"}, anker...), vektor("format_broken_json"))...)
-	if code != 3 || strings.Contains(out, "completeness") || strings.Contains(out, "residual_window") {
-		t.Errorf("format error: exit %d, JSON carries completeness/residual_window:\n%s", code, out)
+	if code != 3 || !strings.Contains(out, `"completeness": null`) || !strings.Contains(out, `"residual_window": null`) {
+		t.Errorf("format error: exit %d, JSON lacks completeness/residual_window null (spec 10.10.1):\n%s", code, out)
 	}
 }

@@ -576,14 +576,14 @@ func TestLegalHoldsInTextReport(t *testing.T) {
 				fmt.Sprintf(`"H-A": scope 2026-06-01T00:00:00Z to 2026-06-30T23:59:59Z, set at seq %d, reference "Az 1" (scope replaced at seq %d)`, setA, resetA)),
 			fmt.Sprintf("%-28s %s", "",
 				fmt.Sprintf(`"H-C": scope 2026-08-01T00:00:00Z to 9999-12-31T23:59:59Z, set at seq %d, reference "Az 3"`, setC)),
-			fmt.Sprintf("[HOLD_VIOLATION] seq=%d — content deleted despite an active deletion hold (section 9.3)", del),
+			fmt.Sprintf("[HOLD_VIOLATION] seq=%d: content deleted despite an active deletion hold (section 9.3)", del),
 		}},
 		{"de", "Legal Hold aktiv:", "Ergebnis:", []string{
 			fmt.Sprintf("%-28s %s", "Legal Hold aktiv:",
 				fmt.Sprintf(`"H-A": Umfang 2026-06-01T00:00:00Z bis 2026-06-30T23:59:59Z, gesetzt bei seq %d, Anlass "Az 1" (Umfang ersetzt bei seq %d)`, setA, resetA)),
 			fmt.Sprintf("%-28s %s", "",
 				fmt.Sprintf(`"H-C": Umfang 2026-08-01T00:00:00Z bis 9999-12-31T23:59:59Z, gesetzt bei seq %d, Anlass "Az 3"`, setC)),
-			fmt.Sprintf("[HOLD_VIOLATION] seq=%d — Inhalt trotz aktiver Löschsperre gelöscht (Abschnitt 9.3)", del),
+			fmt.Sprintf("[HOLD_VIOLATION] seq=%d: Inhalt trotz aktiver Löschsperre gelöscht (Abschnitt 9.3)", del),
 		}},
 	} {
 		txt := RenderText(res, "pkg", c.lang)

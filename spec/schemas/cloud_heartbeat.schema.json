@@ -96,7 +96,8 @@
           "CHECKPOINT_RECEIPT",
           "TIME_ANCHOR",
           "CAPTURE_TRUNCATED",
-          "LEGAL_HOLD"
+          "LEGAL_HOLD",
+          "DATA_ACCESS"
         ]
       },
       "type": "object"

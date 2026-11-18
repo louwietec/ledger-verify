@@ -1,0 +1,454 @@
+{
+  "$id": "report_vendor_log.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cose_not_checked": {
+      "description": "edition 1.10 (format spec 7.4.8a, 10.10.2): the number of distinct elements of day_receipts (per day object after pooling) and of cose_receipts (per extract) of all extracts /2, which a verifier 1.10 keeps in their grammar and limits but does not check (step L3a and step K from edition 1.11); 0 without an extract /2; never a finding, never exit 3; from edition 1.11 day_receipts and the object cose_receipts take its place",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "day_receipts": {
+      "additionalProperties": false,
+      "description": "COSE receipts of the days (profile C2), step L3a (format spec 7.4.10): sums over all day objects after pooling, each over the distinct elements of day_receipts; every element counts in exactly one class besides supplied; all 0 with status no_protocol_key or without an extract /2; extension of edition 1.10 (format spec 10.10.2); published but not yet required in the generated schema, so that reports of verifiers without the extension stay valid; required once both reference verifiers emit it",
+      "properties": {
+        "contradicting": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "day_not_determined": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "defective": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "key_not_established": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "key_not_valid": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matching": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "other_log": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "supplied": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contradicting",
+        "day_not_determined",
+        "defective",
+        "key_not_established",
+        "key_not_valid",
+        "matching",
+        "other_log",
+        "supplied"
+      ],
+      "type": "object"
+    },
+    "days": {
+      "additionalProperties": false,
+      "properties": {
+        "contradictory": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "established": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hybrid_incomplete": {
+          "description": "hybrid-incomplete day objects (L2 (g')); extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hybrid_required": {
+          "description": "with H not null every day object after pooling with dayOf(o) >= H, whatever its result; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "missing": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "signatures_not_checked": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "supplied": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "witnessed": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contradictory",
+        "established",
+        "hybrid_incomplete",
+        "hybrid_required",
+        "missing",
+        "signatures_not_checked",
+        "supplied",
+        "witnessed"
+      ],
+      "type": "object"
+    },
+    "distinct_files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "first_day": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "foreign_chain_records": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "head": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        "day_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "seen_in": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tree_size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "witnessed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "day",
+        "day_hash",
+        "seen_in",
+        "tree_size",
+        "witnessed"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "key_list": {
+      "additionalProperties": false,
+      "description": "for a merged candidate (L1 item 2) version, ausgestellt, wurzel_id and root_source come from the list /2",
+      "properties": {
+        "ausgestellt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+          "type": "string"
+        },
+        "format": {
+          "description": "format of the effective list P; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "enum": [
+            "ledger-protokollschluessel/1",
+            "ledger-protokollschluessel/2"
+          ]
+        },
+        "hybrid_from": {
+          "description": "the day H, else null; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "log_uri": {
+          "description": "log_uri of P2, null without P2 (format spec 7.7.5); extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "maxLength": 512,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ml_dsa_keys": {
+          "description": "number of keys in P_mldsa; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ml_dsa_list_version": {
+          "description": "version of P2, null without P2; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "root_source": {
+          "enum": [
+            "vendor_root",
+            "builtin"
+          ]
+        },
+        "unknown_alg": {
+          "description": "whether P2 names an entry with an unknown alg, false without P2; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+          "type": "boolean"
+        },
+        "version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "wurzel_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ausgestellt",
+        "format",
+        "hybrid_from",
+        "log_uri",
+        "ml_dsa_keys",
+        "ml_dsa_list_version",
+        "root_source",
+        "unknown_alg",
+        "version",
+        "wurzel_id"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "key_source": {
+      "enum": [
+        "list",
+        "pinned",
+        "list_and_pinned",
+        null
+      ]
+    },
+    "last_countersigned": {
+      "enum": [
+        "included",
+        "not_included",
+        "unchecked",
+        "missing",
+        "pending",
+        "before_start",
+        "future",
+        null
+      ]
+    },
+    "log_id": {
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "logged_roots": {
+      "additionalProperties": false,
+      "properties": {
+        "beyond_package": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contradicting_prefix": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gap_witnesses": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matching_prefix": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "matching_without_receipt": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "beyond_package",
+        "contradicting_prefix",
+        "gap_witnesses",
+        "matching_prefix",
+        "matching_without_receipt"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "places": {
+      "description": "the orte of the effective list in the order of the list",
+      "items": {
+        "pattern": "^https://[!-~]{1,248}$",
+        "type": "string"
+      },
+      "maxItems": 4,
+      "type": "array"
+    },
+    "receipts": {
+      "additionalProperties": false,
+      "properties": {
+        "before_start": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "future": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "included": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "included_up_to_tree_size": {
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "missing": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "not_included": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pending": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unchecked": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "before_start",
+        "future",
+        "included",
+        "included_up_to_tree_size",
+        "missing",
+        "not_included",
+        "pending",
+        "unchecked"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "seals": {
+      "additionalProperties": false,
+      "description": "sums over distinct seals of all day objects after pooling (L2); not_checked counts every type other than ml-dsa-87, cades-b-t included; extension of edition 1.10 (format spec 10.10.2); required: both reference verifiers emit it (build of edition 1.10)",
+      "properties": {
+        "ml_dsa": {
+          "additionalProperties": false,
+          "properties": {
+            "carried": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "defective": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "key_not_established": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "carried",
+            "defective",
+            "key_not_established"
+          ],
+          "type": "object"
+        },
+        "not_checked": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ml_dsa",
+        "not_checked"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "not_supplied",
+        "no_protocol_key",
+        "checked"
+      ]
+    },
+    "tsa": {
+      "additionalProperties": false,
+      "properties": {
+        "cms_checked": {
+          "type": "boolean"
+        },
+        "roots_supplied": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cms_checked",
+        "roots_supplied"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "cose_not_checked",
+    "days",
+    "distinct_files",
+    "files",
+    "first_day",
+    "foreign_chain_records",
+    "head",
+    "key_list",
+    "key_source",
+    "last_countersigned",
+    "log_id",
+    "logged_roots",
+    "places",
+    "receipts",
+    "seals",
+    "status",
+    "tsa"
+  ],
+  "title": "Registry verifier.report_objects.vendor_log",
+  "type": "object"
+}

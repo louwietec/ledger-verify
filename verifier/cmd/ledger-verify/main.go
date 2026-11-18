@@ -16,5 +16,9 @@ import (
 )
 
 func main() {
+	// A closed pipe on stdout is a write error that cli.Main answers with
+	// exit 3 (spec 10.8), as verifier2 does; without this the runtime ends
+	// the process with SIGPIPE on a write to descriptor 1.
+	ignoriereSIGPIPE()
 	os.Exit(cli.Main(os.Args[1:], os.Stdout, os.Stderr))
 }

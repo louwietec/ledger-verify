@@ -1,0 +1,177 @@
+{
+  "comment": "One scenario with two appliances V and W at one vendor, each with its own valid licence, processed step by step in the order of 9.2 (signature and schema of every message are assumed to hold). appliance names the sender. anchor and heartbeat.last_checkpoint name the chain (X, Y, Z) and the leaves as in lueckenzeuge.json: honest = SHA-256(\"vertrag-eintrag:<seq>\"), rewritten = the same up to seq 12 and SHA-256(\"vertrag-eintrag-umgeschrieben:<seq>\") from seq 13 on. For an anchor, expect names HTTP status, error code, kind of response, whether a fork finding is recorded, and the reference size B of the anchor's chain with its root after the step (null: nothing recorded for that chain); for a heartbeat, whether its last_checkpoint is recorded as a reported root. A chain is bound to the appliance whose root the server records first for its chain_id (countersigned or gap_witness) or, through a registered chain succession, to the appliance of that succession; a heartbeat binds no chain, and the optional claim of 9.2 is not used. history_after lists, per chain, every root the anchor history (9.7) must hold at the end, in the order recorded.",
+  "format": "ledger-vertrag/1",
+  "leaves": {
+    "entry_hash": "SHA-256 over the ASCII string vertrag-eintrag:<seq>, seq = 1..40",
+    "merkle": "RFC 6962 over leaf hashes SHA-256(0x00 || entry_hash)",
+    "rewritten_entry_hash": "SHA-256 over the ASCII string vertrag-eintrag-umgeschrieben:<seq>",
+    "rewritten_from_seq": 13
+  },
+  "scenarios": [
+    {
+      "history_after": {
+        "X": [
+          {
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "recorded_as": "countersigned"
+          }
+        ],
+        "Y": [
+          {
+            "tree_size": 4,
+            "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289",
+            "recorded_as": "reported"
+          }
+        ],
+        "Z": [
+          {
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "recorded_as": "countersigned"
+          }
+        ]
+      },
+      "name": "foreign_report",
+      "steps": [
+        {
+          "step": 1,
+          "note": "V anchors chain X first: the first recorded root of X binds X to V (9.2 step 1, 9.7)",
+          "appliance": "V",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 8,
+              "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 2,
+          "note": "W, with its own licence, sends a valid heartbeat whose last_checkpoint names X with the root of a rewritten history at 24: X is bound to V, so nothing is recorded (9.2, Gemeldete Wurzeln)",
+          "appliance": "W",
+          "license": "valid",
+          "heartbeat": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 24,
+            "merkle_root": "8459609ff77f4b13b4561f3387327e4de2d716e5fd6f27f641c93759e7e51a15"
+          },
+          "expect": {
+            "recorded": false
+          }
+        },
+        {
+          "step": 3,
+          "note": "W anchors X at 16 with a proof from 8 that would hold (the rewritten history shares seq 1..12): the chain belongs to another appliance, refused before any proof, nothing recorded (9.2 step 1)",
+          "appliance": "W",
+          "license": "valid",
+          "anchor": {
+            "chain": "X",
+            "history": "rewritten",
+            "tree_size": 16,
+            "merkle_root": "793ada3144f6a3ac421a79517819eb0e398fb29c0b1b60e99630962e8e667c67",
+            "consistency_proof": {
+              "from_tree_size": 8,
+              "hashes": [
+                "fb4326a9ea5bc13eadc72cb0c7dda183cd96ec41cacf50780a69b4628588e658"
+              ]
+            }
+          },
+          "expect": {
+            "status": 403,
+            "error": "chain_owner_mismatch",
+            "response": "error",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 8,
+              "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 4,
+          "note": "W sends a valid heartbeat for a chain Z that no appliance ever anchored: a heartbeat binds no chain, nothing is recorded (9.2, 9.7); the optional claim of 9.2 is not used in this scenario",
+          "appliance": "W",
+          "license": "valid",
+          "heartbeat": {
+            "chain": "Z",
+            "history": "honest",
+            "tree_size": 24,
+            "merkle_root": "336c72ae68c88e37d239105cc99ce1e30426cfef23c992860c3df6bf793375dc"
+          },
+          "expect": {
+            "recorded": false
+          }
+        },
+        {
+          "step": 5,
+          "note": "W anchors Z at 8: the first recorded root of Z binds Z to W; the first root needs no proof (9.2 steps 1 and 4)",
+          "appliance": "W",
+          "license": "valid",
+          "anchor": {
+            "chain": "Z",
+            "history": "honest",
+            "tree_size": 8,
+            "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+            "consistency_proof": {
+              "from_tree_size": 0,
+              "hashes": []
+            }
+          },
+          "expect": {
+            "status": 200,
+            "response": "countersignature",
+            "fork_finding": false,
+            "reference_after": {
+              "tree_size": 8,
+              "merkle_root": "d4dfd68169e0b296c84e777232151aaafe61740357ed397271c34939c4b9f93f",
+              "recorded_as": "countersigned"
+            }
+          }
+        },
+        {
+          "step": 6,
+          "note": "the vendor registers the succession X -> Y for V, X handed over at 8; Y is now bound to V through the succession (9.2 step 1, 9.7)",
+          "appliance": "V",
+          "register_succession": {
+            "from": "X",
+            "to": "Y",
+            "tree_size": 8
+          }
+        },
+        {
+          "step": 7,
+          "note": "V sends a valid heartbeat whose last_checkpoint names Y at 4, before the first anchor of Y: Y is bound to V, so the root is recorded as reported (9.2, Gemeldete Wurzeln)",
+          "appliance": "V",
+          "license": "valid",
+          "heartbeat": {
+            "chain": "Y",
+            "history": "honest",
+            "tree_size": 4,
+            "merkle_root": "9b5cbeb219d57c05e5e250bce59e23a1cbd0ceb693c6a74d229fad5d5a4c8289"
+          },
+          "expect": {
+            "recorded": true
+          }
+        }
+      ]
+    }
+  ],
+  "section": "heartbeat spec 9.2, 9.7 (spec 1.10)"
+}

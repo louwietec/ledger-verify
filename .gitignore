@@ -11,9 +11,9 @@
 *.test
 
 # Nebenausgaben der Tests und des Einzelbau-Skripts: verifier/internal/vfy/
-# vectors_test.go schreibt ../artefakte/P03/vektor_matrix.log und
-# verifier/build.sh ../artefakte/P03/repro_build.log (beides relativ zur
-# Wurzel dieses Repositorys). Sie beweisen hier nichts und bleiben draussen.
+# vectors_test.go schreibt vektor_matrix.log und verifier/build.sh
+# repro_build.log in ein Verzeichnis artefakte/ an der Wurzel dieses
+# Repositorys, wenn es besteht. Sie beweisen hier nichts und bleiben draussen.
 # / Side outputs of the tests and of verifier/build.sh; never committed.
 /artefakte/
 

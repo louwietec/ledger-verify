@@ -1,0 +1,294 @@
+{
+  "$id": "report_affiliation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "as_of": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bases": {
+      "items": {
+        "enum": [
+          "common_control",
+          "controlled_by_vendor",
+          "controls_vendor",
+          "former_relation",
+          "key_management",
+          "participation",
+          "shared_management",
+          "vendor"
+        ]
+      },
+      "type": "array"
+    },
+    "contradictory": {
+      "type": "boolean"
+    },
+    "known_since": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "linked": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "chain_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "periods": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "bases": {
+                  "items": {
+                    "enum": [
+                      "common_control",
+                      "controlled_by_vendor",
+                      "controls_vendor",
+                      "former_relation",
+                      "key_management",
+                      "participation",
+                      "shared_management",
+                      "vendor"
+                    ]
+                  },
+                  "maxItems": 8,
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "from": {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                  "type": "string"
+                },
+                "merged": {
+                  "type": "boolean"
+                },
+                "overlaps_package": {
+                  "type": "boolean"
+                },
+                "recorded_ts": {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                  "type": "string"
+                },
+                "until": {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "bases",
+                "from",
+                "merged",
+                "overlaps_package",
+                "recorded_ts",
+                "until"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "relation": {
+            "enum": [
+              "predecessor",
+              "successor"
+            ]
+          },
+          "status": {
+            "enum": [
+              "affiliated",
+              "not_affiliated",
+              "not_determined"
+            ]
+          }
+        },
+        "required": [
+          "chain_id",
+          "periods",
+          "relation",
+          "status"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "periods": {
+      "description": "until is the end under format spec 8.8.6 item 4, null only for a period that continues on H*; equal objects (by the bytes of their JCS form) stand once; ascending by from, then until (null last), then the bytes of JCS(bases), then recorded_ts, then merged false before true, then overlaps_package false before true",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "bases": {
+            "items": {
+              "enum": [
+                "common_control",
+                "controlled_by_vendor",
+                "controls_vendor",
+                "former_relation",
+                "key_management",
+                "participation",
+                "shared_management",
+                "vendor"
+              ]
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array"
+          },
+          "from": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+            "type": "string"
+          },
+          "merged": {
+            "type": "boolean"
+          },
+          "overlaps_package": {
+            "type": "boolean"
+          },
+          "recorded_ts": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+            "type": "string"
+          },
+          "until": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "bases",
+          "from",
+          "merged",
+          "overlaps_package",
+          "recorded_ts",
+          "until"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "reason": {
+      "enum": [
+        "history_owner_differs",
+        "history_key_not_established",
+        "history_key_not_valid",
+        "history_signing_time_not_proven",
+        "history_not_v2",
+        "history_defective",
+        "history_contradictory",
+        "history_other_chain",
+        "history_no_package_page",
+        "statement_does_not_cover_package",
+        "known_range_too_short",
+        "history_pages_missing",
+        null
+      ]
+    },
+    "receipts_after_statement": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "receipts_in_periods": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "receipts_total": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "span": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "stated_by": {
+      "additionalProperties": false,
+      "properties": {
+        "key_source": {
+          "enum": [
+            "pinned",
+            "role_list_auditor_root",
+            "role_list_builtin_root"
+          ]
+        },
+        "server_key_id": {
+          "pattern": "^[A-Za-z0-9._-]{1,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key_source",
+        "server_key_id"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "affiliated",
+        "not_affiliated",
+        "not_determined",
+        "not_checked"
+      ]
+    },
+    "vendor_itself": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "as_of",
+    "bases",
+    "contradictory",
+    "known_since",
+    "linked",
+    "periods",
+    "reason",
+    "receipts_after_statement",
+    "receipts_in_periods",
+    "receipts_total",
+    "span",
+    "stated_by",
+    "status",
+    "vendor_itself"
+  ],
+  "title": "Registry verifier.report_objects.affiliation",
+  "type": "object"
+}
