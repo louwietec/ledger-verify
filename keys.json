@@ -1,7 +1,7 @@
 {
   "format": "ledger-protokollschluessel/1",
-  "version": 1,
-  "ausgestellt": "2026-10-30T08:00:00.000Z",
+  "version": 2,
+  "ausgestellt": "2026-11-16T00:00:00.000Z",
   "log_id": "louwietec-protokoll",
   "erster_tag": "2026-11-08",
   "fuellerbindung": "a3dde4131380738ac388917e1c3f81a30f86f10c77ada97c6d00bf5233d2647e",
@@ -23,6 +23,6 @@
   ],
   "signatur": {
     "wurzel_id": "louwietec-wurzel-1",
-    "sig": "2a0875b909672403c9599d559ebeeb4b8e64c1e937fd50dbdc855cffe28333c368c81baaa43b6f01239ee9b6d1bbfc9327f365bb2e16cb2e069dc7b4a0d36b04"
+    "sig": "3977b6697ceddca491c1eebdb1a6c86e664330adb29c730dd7f27d9dbc2c1d32b09b8f97d5e726a9becdf9ba46702e260f84fdbcf00d0bb20f33930fd1af8c07"
   }
 }
